@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 2C (Seismology Migration)
-Current Plan: 00 of 00 (context gathered, not yet planned)
-Status: Phase 2C context gathered — ready for planning
-Last activity: 2026-02-18 -- Phase 2C context captured (discuss-phase)
+Current Plan: 01 of 01 complete
+Status: Plan 2C-01 complete -- INT64_ENCODING_NUMBER annotations applied project-wide
+Last activity: 2026-02-18 -- Plan 2C-01 executed (execute-phase)
 
-Progress: [██████░░░░] ~35%
+Progress: [███████░░░] ~40%
 
 ## Performance Metrics
 
@@ -24,6 +24,7 @@ Progress: [██████░░░░] ~35%
 - Phase 2B Plan 01: Server Infrastructure (2 tasks, 2min, 4 files created)
 - Phase 2B Plan 02: Gateway Integration (2 tasks, 2min, 2 files created, 2 files modified)
 - Phase 2B Plan 03: Sidecar Sebuf Bundle (2 tasks, 3min, 1 file created, 4 files modified)
+- Phase 2C Plan 01: INT64_ENCODING_NUMBER (1 task, 14min, 81 files modified)
 
 ## Accumulated Context
 
@@ -45,6 +46,10 @@ Progress: [██████░░░░] ~35%
 - [2B-02]: sebufApiPlugin placed after youtubeLivePlugin in plugin array for correct middleware ordering
 - [2B-03]: esbuild over tsc for bundling: tsc produces per-file .js output, sidecar needs single self-contained module
 - [2B-03]: Gitignore bracket escaping: used [[] character class pattern since backslash escaping is unreliable for brackets
+- [2C-01]: Vendored sebuf/http/annotations.proto locally with Int64Encoding extension -- BSR module lacks it
+- [2C-01]: Removed buf.build/sebmelki/sebuf BSR dep, excluded vendored sebuf/ from lint
+- [2C-01]: INT64_ENCODING_NUMBER applied to 34 time fields across 20 proto files (not population counts)
+- [2C-01]: Seismology handler occurredAt returns number directly (no String() wrapper)
 
 ### Pending Todos
 
@@ -52,13 +57,13 @@ Progress: [██████░░░░] ~35%
 
 ### Blockers/Concerns
 
-- `int64` time fields generate as `string` in client code — will need sebuf INT64_ENCODING_NUMBER support or manual mapping
+- ~~`int64` time fields generate as `string` in client code~~ RESOLVED in 2C-01 via INT64_ENCODING_NUMBER
 - @sentry/browser missing from dependencies (pre-existing, unrelated)
 
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Phase 2C context gathered — ready for planning
-Resume file: .planning/phases/2C-seismology-migration/2C-CONTEXT.md
+Stopped at: Completed 2C-01-PLAN.md
+Resume file: .planning/phases/2C-seismology-migration/2C-01-SUMMARY.md
 PR: #106 (draft) — https://github.com/koala73/worldmonitor/pull/106
-Next steps: /gsd:plan-phase 2C → research + plan seismology migration
+Next steps: Plan 2C-02 (seismology client wiring + component adaptation) or proceed to next domain migration

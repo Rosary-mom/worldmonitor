@@ -1,0 +1,15 @@
+version: v2
+plugins:
+  - local: protoc-gen-ts-client
+    out: ../src/generated/client
+
+  - local: protoc-gen-ts-server
+    out: ../src/generated/server
+
+  - local: protoc-gen-openapiv3
+    out: ../docs/api
+
+  - local: protoc-gen-openapiv3
+    out: ../docs/api
+    opt:
+      - format=json

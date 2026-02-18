@@ -480,18 +480,6 @@ export default defineConfig({
           });
         },
       },
-      // USGS Earthquake API
-      '/api/earthquake': {
-        target: 'https://earthquake.usgs.gov',
-        changeOrigin: true,
-        timeout: 30000,
-        rewrite: (path) => path.replace(/^\/api\/earthquake/, ''),
-        configure: (proxy) => {
-          proxy.on('error', (err) => {
-            console.log('Earthquake proxy error:', err.message);
-          });
-        },
-      },
       // PizzINT - Pentagon Pizza Index
       '/api/pizzint': {
         target: 'https://www.pizzint.watch',

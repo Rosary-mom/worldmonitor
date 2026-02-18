@@ -17,7 +17,7 @@ Requirements for full sebuf integration. Each maps to roadmap phases.
 
 ### Domain Proto Definitions
 
-- [ ] **DOMAIN-01**: Environmental domain proto (USGS earthquakes, NASA FIRMS fires, GDACS cyclones, EONET natural events) with service RPCs and HTTP annotations
+- [x] **DOMAIN-01**: Environmental domain proto (USGS earthquakes, NASA FIRMS fires, GDACS cyclones, EONET natural events) with service RPCs and HTTP annotations
 - [ ] **DOMAIN-02**: Markets domain proto (Finnhub stocks, Yahoo Finance indices/forex, CoinGecko crypto, Polymarket predictions, stablecoins, ETF flows) with service RPCs and HTTP annotations
 - [ ] **DOMAIN-03**: Cyber domain proto (URLhaus, ThreatFox, AlienVault OTX, AbuseIPDB) with service RPCs and HTTP annotations
 - [ ] **DOMAIN-04**: Economic domain proto (FRED series, USA Spending, World Bank indicators, EIA oil/energy) with service RPCs and HTTP annotations
@@ -97,7 +97,7 @@ Requirements for full sebuf integration. Each maps to roadmap phases.
 | MIGRATE-04 | Phase 2 | Pending |
 | MIGRATE-05 | Phase 2 | Pending |
 | CLIENT-03 | Phase 2 | Pending |
-| DOMAIN-01 | Phase 3 | Pending |
+| DOMAIN-01 | Phase 3 | Complete |
 | DOMAIN-10 | Phase 3 | Pending |
 | CLIENT-01 | Phase 2C | Complete |
 | CLIENT-02 | Phase 3 | Complete |

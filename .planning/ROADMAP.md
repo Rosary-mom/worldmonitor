@@ -33,11 +33,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Proto directory structure follows the sebuf multi-service pattern (proto/models/ for shared types, proto/services/{domain}/v1/ for services)
   4. OpenAPI v3 spec is auto-generated from proto definitions and viewable
   5. `buf lint` passes on all proto files with zero warnings
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
+- [ ] 01-01-PLAN.md — Buf toolchain configuration (buf.yaml, buf.gen.yaml) and shared core proto types (geo, time, pagination, i18n, identifiers, general_error)
+- [ ] 01-02-PLAN.md — Test domain service, code generation pipeline (buf generate), Makefile, and end-to-end verification
 
 ### Phase 2: Dual-Mode Infrastructure
 **Goal**: Any domain can be switched between legacy fetch calls and sebuf clients at runtime via feature flags, with circuit breaker protection preserved and a parity test harness ready

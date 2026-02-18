@@ -124,6 +124,132 @@ function htmlVariantPlugin(): Plugin {
   };
 }
 
+/**
+ * Vite dev server plugin for sebuf API routes.
+ *
+ * Intercepts requests matching /api/{domain}/v1/* and routes them through
+ * the same handler pipeline as the Vercel catch-all gateway. Other /api/*
+ * paths fall through to existing proxy rules.
+ */
+function sebufApiPlugin(): Plugin {
+  return {
+    name: 'sebuf-api',
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        // Only intercept sebuf routes: /api/{domain}/v1/*
+        if (!req.url || !/^\/api\/[a-z]+\/v1\//.test(req.url)) {
+          return next();
+        }
+
+        try {
+          // Lazy-load handler modules (avoids issues with vite.config.ts loading order)
+          const [routerMod, corsMod, errorMod, seismologyServerMod, seismologyHandlerMod] =
+            await Promise.all([
+              import('./api/server/router'),
+              import('./api/server/cors'),
+              import('./api/server/error-mapper'),
+              import('./src/generated/server/worldmonitor/seismology/v1/service_server'),
+              import('./api/server/worldmonitor/seismology/v1/handler'),
+            ]);
+
+          const serverOptions = { onError: errorMod.mapErrorToResponse };
+          const allRoutes = [
+            ...seismologyServerMod.createSeismologyServiceRoutes(
+              seismologyHandlerMod.seismologyHandler,
+              serverOptions,
+            ),
+            // Add more domains here as handlers are implemented
+          ];
+          const router = routerMod.createRouter(allRoutes);
+
+          // Convert Connect IncomingMessage to Web Standard Request
+          const port = server.config.server.port || 3000;
+          const url = new URL(req.url, `http://localhost:${port}`);
+
+          // Read body for POST requests
+          let body: string | undefined;
+          if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
+            const chunks: Buffer[] = [];
+            for await (const chunk of req) {
+              chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
+            }
+            body = Buffer.concat(chunks).toString();
+          }
+
+          // Extract headers from IncomingMessage
+          const headers: Record<string, string> = {};
+          for (const [key, value] of Object.entries(req.headers)) {
+            if (typeof value === 'string') {
+              headers[key] = value;
+            } else if (Array.isArray(value)) {
+              headers[key] = value.join(', ');
+            }
+          }
+
+          const webRequest = new Request(url.toString(), {
+            method: req.method,
+            headers,
+            body: body || undefined,
+          });
+
+          const corsHeaders = corsMod.getCorsHeaders(webRequest);
+
+          // OPTIONS preflight
+          if (req.method === 'OPTIONS') {
+            res.statusCode = 204;
+            for (const [key, value] of Object.entries(corsHeaders)) {
+              res.setHeader(key, value);
+            }
+            res.end();
+            return;
+          }
+
+          // Origin check
+          if (corsMod.isDisallowedOrigin(webRequest)) {
+            res.statusCode = 403;
+            res.setHeader('Content-Type', 'application/json');
+            for (const [key, value] of Object.entries(corsHeaders)) {
+              res.setHeader(key, value);
+            }
+            res.end(JSON.stringify({ error: 'Origin not allowed' }));
+            return;
+          }
+
+          // Route matching
+          const matchedHandler = router.match(webRequest);
+          if (!matchedHandler) {
+            res.statusCode = 404;
+            res.setHeader('Content-Type', 'application/json');
+            for (const [key, value] of Object.entries(corsHeaders)) {
+              res.setHeader(key, value);
+            }
+            res.end(JSON.stringify({ error: 'Not found' }));
+            return;
+          }
+
+          // Execute handler
+          const response = await matchedHandler(webRequest);
+
+          // Write response
+          res.statusCode = response.status;
+          response.headers.forEach((value, key) => {
+            res.setHeader(key, value);
+          });
+          for (const [key, value] of Object.entries(corsHeaders)) {
+            res.setHeader(key, value);
+          }
+          res.end(await response.text());
+        } catch (err) {
+          console.error('[sebuf-api] Error:', err);
+          res.statusCode = 500;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ error: 'Internal server error' }));
+        }
+      });
+    },
+  };
+}
+
 function youtubeLivePlugin(): Plugin {
   return {
     name: 'youtube-live',
@@ -167,6 +293,7 @@ export default defineConfig({
   plugins: [
     htmlVariantPlugin(),
     youtubeLivePlugin(),
+    sebufApiPlugin(),
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: false,

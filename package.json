@@ -13,6 +13,7 @@
     "build:tech": "VITE_VARIANT=tech tsc && VITE_VARIANT=tech vite build",
     "build:finance": "VITE_VARIANT=finance tsc && VITE_VARIANT=finance vite build",
     "typecheck": "tsc --noEmit",
+    "typecheck:api": "tsc --noEmit -p tsconfig.api.json",
     "tauri": "tauri",
     "preview": "vite preview",
     "test:e2e:full": "VITE_VARIANT=full playwright test",

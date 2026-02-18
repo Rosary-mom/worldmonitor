@@ -12,6 +12,8 @@ import { getCorsHeaders, isDisallowedOrigin } from './server/cors';
 import { mapErrorToResponse } from './server/error-mapper';
 import { createSeismologyServiceRoutes } from '../src/generated/server/worldmonitor/seismology/v1/service_server';
 import { seismologyHandler } from './server/worldmonitor/seismology/v1/handler';
+import { createWildfireServiceRoutes } from '../src/generated/server/worldmonitor/wildfire/v1/service_server';
+import { wildfireHandler } from './server/worldmonitor/wildfire/v1/handler';
 
 import type { ServerOptions } from '../src/generated/server/worldmonitor/seismology/v1/service_server';
 
@@ -19,7 +21,7 @@ const serverOptions: ServerOptions = { onError: mapErrorToResponse };
 
 const allRoutes = [
   ...createSeismologyServiceRoutes(seismologyHandler, serverOptions),
-  // Add more domains here as handlers are implemented in Phase 2C-2S
+  ...createWildfireServiceRoutes(wildfireHandler, serverOptions),
 ];
 
 const router = createRouter(allRoutes);

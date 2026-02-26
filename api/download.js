@@ -1,3 +1,4 @@
+// Non-sebuf: returns XML/HTML, stays as standalone Vercel function
 export const config = { runtime: 'edge' };
 
 const RELEASES_URL = 'https://api.github.com/repos/koala73/worldmonitor/releases/latest';
@@ -11,9 +12,35 @@ const PLATFORM_PATTERNS = {
   'linux-appimage': (name) => name.endsWith('_amd64.AppImage'),
 };
 
+const VARIANT_IDENTIFIERS = {
+  full: ['worldmonitor'],
+  world: ['worldmonitor'],
+  tech: ['techmonitor'],
+  finance: ['financemonitor'],
+};
+
+function canonicalAssetName(name) {
+  return String(name || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+
+function findAssetForVariant(assets, variant, platformMatcher) {
+  const identifiers = VARIANT_IDENTIFIERS[variant] ?? null;
+  if (!identifiers) return null;
+
+  return assets.find((asset) => {
+    const assetName = String(asset?.name || '');
+    const normalizedAssetName = canonicalAssetName(assetName);
+    const hasVariantIdentifier = identifiers.some((identifier) =>
+      normalizedAssetName.includes(identifier)
+    );
+    return hasVariantIdentifier && platformMatcher(assetName);
+  }) ?? null;
+}
+
 export default async function handler(req) {
   const url = new URL(req.url);
   const platform = url.searchParams.get('platform');
+  const variant = (url.searchParams.get('variant') || '').toLowerCase();
 
   if (!platform || !PLATFORM_PATTERNS[platform]) {
     return Response.redirect(RELEASES_PAGE, 302);
@@ -33,7 +60,10 @@ export default async function handler(req) {
 
     const release = await res.json();
     const matcher = PLATFORM_PATTERNS[platform];
-    const asset = release.assets?.find((a) => matcher(a.name));
+    const assets = Array.isArray(release.assets) ? release.assets : [];
+    const asset = variant
+      ? findAssetForVariant(assets, variant, matcher)
+      : assets.find((a) => matcher(String(a?.name || '')));
 
     if (!asset) {
       return Response.redirect(RELEASES_PAGE, 302);

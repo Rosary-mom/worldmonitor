@@ -1,6 +1,11 @@
-import { fetchWithProxy } from '@/utils';
 import type { Hotspot } from '@/types';
 import { t } from '@/services/i18n';
+import {
+  IntelligenceServiceClient,
+  type GdeltArticle as ProtoGdeltArticle,
+  type SearchGdeltDocumentsResponse,
+} from '@/generated/client/worldmonitor/intelligence/v1/service_client';
+import { createCircuitBreaker } from '@/utils';
 
 export interface GdeltArticle {
   title: string;
@@ -71,6 +76,44 @@ export const INTEL_TOPICS: IntelTopic[] = [
   },
 ];
 
+export const POSITIVE_GDELT_TOPICS: IntelTopic[] = [
+  {
+    id: 'science-breakthroughs',
+    name: 'Science Breakthroughs',
+    query: '(breakthrough OR discovery OR "new treatment" OR "clinical trial success") sourcelang:eng',
+    icon: '',
+    description: 'Scientific discoveries and medical advances',
+  },
+  {
+    id: 'climate-progress',
+    name: 'Climate Progress',
+    query: '(renewable energy record OR "solar installation" OR "wind farm" OR "emissions decline" OR "green hydrogen") sourcelang:eng',
+    icon: '',
+    description: 'Renewable energy milestones and climate wins',
+  },
+  {
+    id: 'conservation-wins',
+    name: 'Conservation Wins',
+    query: '(species recovery OR "population rebound" OR "conservation success" OR "habitat restored" OR "marine sanctuary") sourcelang:eng',
+    icon: '',
+    description: 'Wildlife recovery and habitat restoration',
+  },
+  {
+    id: 'humanitarian-progress',
+    name: 'Humanitarian Progress',
+    query: '(poverty decline OR "literacy rate" OR "vaccination campaign" OR "peace agreement" OR "humanitarian aid") sourcelang:eng',
+    icon: '',
+    description: 'Poverty reduction, education, and peace',
+  },
+  {
+    id: 'innovation',
+    name: 'Innovation',
+    query: '("clean technology" OR "AI healthcare" OR "3D printing" OR "electric vehicle" OR "fusion energy") sourcelang:eng',
+    icon: '',
+    description: 'Technology for good and clean innovation',
+  },
+];
+
 export function getIntelTopics(): IntelTopic[] {
   return INTEL_TOPICS.map(topic => ({
     ...topic,
@@ -79,11 +122,27 @@ export function getIntelTopics(): IntelTopic[] {
   }));
 }
 
+// ---- Sebuf client ----
+
+const client = new IntelligenceServiceClient('', { fetch: (...args) => globalThis.fetch(...args) });
+const gdeltBreaker = createCircuitBreaker<SearchGdeltDocumentsResponse>({ name: 'GDELT Intelligence', cacheTtlMs: 5 * 60 * 1000, persistCache: true });
+
+const emptyGdeltFallback: SearchGdeltDocumentsResponse = { articles: [], query: '', error: '' };
+
 const CACHE_TTL = 5 * 60 * 1000;
 const articleCache = new Map<string, { articles: GdeltArticle[]; timestamp: number }>();
 
-function buildGdeltDocUrl(query: string, maxrecords = 10, timespan = '24h'): string {
-  return `/api/gdelt-doc?query=${encodeURIComponent(query)}&maxrecords=${maxrecords}&timespan=${timespan}`;
+/** Map proto GdeltArticle (all required strings) to service GdeltArticle (optional fields) */
+function toGdeltArticle(a: ProtoGdeltArticle): GdeltArticle {
+  return {
+    title: a.title,
+    url: a.url,
+    source: a.source,
+    date: a.date,
+    image: a.image || undefined,
+    language: a.language || undefined,
+    tone: a.tone || undefined,
+  };
 }
 
 export async function fetchGdeltArticles(
@@ -98,24 +157,25 @@ export async function fetchGdeltArticles(
     return cached.articles;
   }
 
-  try {
-    const url = buildGdeltDocUrl(query, maxrecords, timespan);
-    const response = await fetchWithProxy(url);
+  const resp = await gdeltBreaker.execute(async () => {
+    return client.searchGdeltDocuments({
+      query,
+      maxRecords: maxrecords,
+      timespan,
+      toneFilter: '',
+      sort: '',
+    });
+  }, emptyGdeltFallback);
 
-    if (!response.ok) {
-      console.warn(`[GDELT-Intel] Failed to fetch: ${response.status}`);
-      return cached?.articles || [];
-    }
-
-    const data = await response.json();
-    const articles: GdeltArticle[] = data.articles || [];
-
-    articleCache.set(cacheKey, { articles, timestamp: Date.now() });
-    return articles;
-  } catch (error) {
-    console.error('[GDELT-Intel] Fetch error:', error);
+  if (resp.error) {
+    console.warn(`[GDELT-Intel] RPC error: ${resp.error}`);
     return cached?.articles || [];
   }
+
+  const articles: GdeltArticle[] = (resp.articles || []).map(toGdeltArticle);
+
+  articleCache.set(cacheKey, { articles, timestamp: Date.now() });
+  return articles;
 }
 
 export async function fetchHotspotContext(hotspot: Hotspot): Promise<GdeltArticle[]> {
@@ -173,4 +233,53 @@ export function extractDomain(url: string): string {
   } catch {
     return '';
   }
+}
+
+// ---- Positive GDELT queries (Happy variant) ----
+
+export async function fetchPositiveGdeltArticles(
+  query: string,
+  toneFilter = 'tone>5',
+  sort = 'ToneDesc',
+  maxrecords = 15,
+  timespan = '72h',
+): Promise<GdeltArticle[]> {
+  const cacheKey = `positive:${query}:${toneFilter}:${sort}:${maxrecords}:${timespan}`;
+  const cached = articleCache.get(cacheKey);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.articles;
+  }
+
+  const resp = await gdeltBreaker.execute(async () => {
+    return client.searchGdeltDocuments({
+      query,
+      maxRecords: maxrecords,
+      timespan,
+      toneFilter,
+      sort,
+    });
+  }, emptyGdeltFallback);
+
+  if (resp.error) {
+    console.warn(`[GDELT-Intel] Positive RPC error: ${resp.error}`);
+    return cached?.articles || [];
+  }
+
+  const articles: GdeltArticle[] = (resp.articles || []).map(toGdeltArticle);
+  articleCache.set(cacheKey, { articles, timestamp: Date.now() });
+  return articles;
+}
+
+export async function fetchPositiveTopicIntelligence(topic: IntelTopic): Promise<TopicIntelligence> {
+  const articles = await fetchPositiveGdeltArticles(topic.query);
+  return { topic, articles, fetchedAt: new Date() };
+}
+
+export async function fetchAllPositiveTopicIntelligence(): Promise<TopicIntelligence[]> {
+  const results = await Promise.allSettled(
+    POSITIVE_GDELT_TOPICS.map(topic => fetchPositiveTopicIntelligence(topic))
+  );
+  return results
+    .filter((r): r is PromiseFulfilledResult<TopicIntelligence> => r.status === 'fulfilled')
+    .map(r => r.value);
 }

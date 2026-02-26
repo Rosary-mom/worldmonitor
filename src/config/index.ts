@@ -8,7 +8,6 @@ export { SITE_VARIANT } from './variant';
 
 // Shared base configuration (always included)
 export {
-  API_URLS,
   REFRESH_INTERVALS,
   MONITOR_COLORS,
   STORAGE_KEYS,
@@ -41,6 +40,7 @@ export {
   DEFAULT_PANELS,
   DEFAULT_MAP_LAYERS,
   MOBILE_DEFAULT_MAP_LAYERS,
+  LAYER_TO_SOURCE,
 } from './panels';
 
 // ============================================

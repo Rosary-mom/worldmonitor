@@ -2,6 +2,143 @@
 
 All notable changes to World Monitor are documented here.
 
+## [2.5.6] - 2026-02-23
+
+### Added
+
+- **Greek (Ελληνικά) locale** — full translation of all 1,397 i18n keys (#256)
+- **Nigeria RSS feeds** — 5 new sources: Premium Times, Vanguard, Channels TV, Daily Trust, ThisDay Live
+- **Greek locale feeds** — Naftemporiki, in.gr, iefimerida.gr for Greek-language news coverage
+- **Brasil Paralelo source** — Brazilian news with RSS feed and source tier (#260)
+
+### Performance
+
+- **AIS relay optimization** — backpressure queue with configurable watermarks, spatial indexing for chokepoint detection (O(chokepoints) vs O(chokepoints × vessels)), pre-serialized + pre-gzipped snapshot cache eliminating per-request JSON.stringify + gzip CPU (#266)
+
+### Fixed
+
+- **Vietnam flag country code** — corrected flag emoji in language selector (#245)
+- **Sentry noise filters** — added patterns for SW FetchEvent, PostHog ingest; enabled SW POST method for PostHog analytics (#246)
+- **Service Worker same-origin routing** — restricted SW route patterns to same-origin only, preventing cross-origin fetch interception (#247, #251)
+- **Social preview bot allowlisting** — whitelisted Twitterbot, facebookexternalhit, and other crawlers on OG image assets (#251)
+- **Windows CORS for Tauri** — allow `http://` origin from `tauri.localhost` for Windows desktop builds (#262)
+- **Linux AppImage GLib crash** — fix GLib symbol mismatch on newer distros by bundling compatible libraries (#263)
+
+---
+
+## [2.5.2] - 2026-02-21
+
+### Fixed
+
+- **QuotaExceededError handling** — detect storage quota exhaustion and stop further writes to localStorage/IndexedDB instead of silently failing; shared `markStorageQuotaExceeded()` flag across persistent-cache and utility storage
+- **deck.gl null.getProjection crash** — wrap `setProps()` calls in try/catch to survive map mid-teardown races in debounced/RAF callbacks
+- **MapLibre "Style is not done loading"** — guard `setFilter()` in mousemove/mouseout handlers during theme switches
+- **YouTube invalid video ID** — validate video ID format (`/^[\w-]{10,12}$/`) before passing to IFrame Player constructor
+- **Vercel build skip on empty SHA** — guard `ignoreCommand` against unset `VERCEL_GIT_PREVIOUS_SHA` (first deploy, force deploy) which caused `git diff` to fail and cancel builds
+- **Sentry noise filters** — added 7 patterns: iOS readonly property, SW FetchEvent, toLowerCase/trim/indexOf injections, QuotaExceededError
+
+---
+
+## [2.5.1] - 2026-02-20
+
+### Performance
+
+- **Batch FRED API requests** — frontend now sends a single request with comma-separated series IDs instead of 7 parallel edge function invocations, eliminating Vercel 25s timeouts
+- **Parallel UCDP page fetches** — replaced sequential loop with Promise.all for up to 12 pages, cutting fetch time from ~96s worst-case to ~8s
+- **Bot protection middleware** — blocks known social-media crawlers from hitting API routes, reducing unnecessary edge function invocations
+- **Extended API cache TTLs** — country-intel 12h→24h, GDELT 2h→4h, nuclear 12h→24h; Vercel ignoreCommand skips non-code deploys
+
+### Fixed
+
+- **Partial UCDP cache poisoning** — failed page fetches no longer silently produce incomplete results cached for 6h; partial results get 10-min TTL in both Redis and memory, with `partial: true` flag propagated to CDN cache headers
+- **FRED upstream error masking** — single-series failures now return 502 instead of empty 200; batch mode surfaces per-series errors and returns 502 when all fail
+- **Sentry `Load failed` filter** — widened regex from `^TypeError: Load failed$` to `^TypeError: Load failed( \(.*\))?$` to catch host-suffixed variants (e.g., gamma-api.polymarket.com)
+- **Tooltip XSS hardening** — replaced `rawHtml()` with `safeHtml()` allowlist sanitizer for panel info tooltips
+- **UCDP country endpoint** — added missing HTTP method guards (OPTIONS/GET)
+- **Middleware exact path matching** — social preview bot allowlist uses `Set.has()` instead of `startsWith()` prefix matching
+
+### Changed
+
+- FRED batch API supports up to 15 comma-separated series IDs with deduplication
+- Missing FRED API key returns 200 with `X-Data-Status: skipped-no-api-key` header instead of silent empty response
+- LAYER_TO_SOURCE config extracted from duplicate inline mappings into shared constant
+
+---
+
+## [2.5.0] - 2026-02-20
+
+### Highlights
+
+**Local LLM Support (Ollama / LM Studio)** — Run AI summarization entirely on your own hardware with zero cloud dependency. The desktop app auto-discovers models from any OpenAI-compatible local inference server (Ollama, LM Studio, llama.cpp, vLLM) and populates a selection dropdown. A 4-tier fallback chain ensures summaries always generate: Local LLM → Groq → OpenRouter → browser-side T5. Combined with the Tauri desktop app, this enables fully air-gapped intelligence analysis where no data leaves your machine.
+
+### Added
+
+- **Ollama / LM Studio integration** — local AI summarization via OpenAI-compatible `/v1/chat/completions` endpoint with automatic model discovery, embedding model filtering, and fallback to manual text input
+- **4-tier summarization fallback chain** — Ollama (local) → Groq (cloud) → OpenRouter (cloud) → Transformers.js T5 (browser), each with 5-second timeout before silently advancing to the next
+- **Shared summarization handler factory** — all three API tiers use identical logic for headline deduplication (Jaccard >0.6), variant-aware prompting, language-aware output, and Redis caching (`summary:v3:{mode}:{variant}:{lang}:{hash}`)
+- **Settings window with 3 tabs** — dedicated **LLMs** tab (Ollama endpoint/model, Groq, OpenRouter), **API Keys** tab (12+ data source credentials), and **Debug & Logs** tab (traffic log, verbose mode, log file access). Each tab runs an independent verification pipeline
+- **Consolidated keychain vault** — all desktop secrets stored as a single JSON blob in one OS keychain entry (`secrets-vault`), reducing macOS Keychain authorization prompts from 20+ to exactly 1 on app startup. One-time auto-migration from individual entries with cleanup
+- **Cross-window secret synchronization** — saving credentials in the Settings window immediately syncs to the main dashboard via `localStorage` broadcast, with no app restart needed
+- **API key verification pipeline** — each credential is validated against its provider's actual API endpoint. Network errors (timeouts, DNS failures) soft-pass to prevent transient failures from blocking key storage; only explicit 401/403 marks a key invalid
+- **Plaintext URL inputs** — endpoint URLs (Ollama API, relay URLs, model names) display as readable text instead of masked password dots in Settings
+- **5 new defense/intel RSS feeds** — Military Times, Task & Purpose, USNI News, Oryx OSINT, UK Ministry of Defence
+- **Koeberg nuclear power plant** — added to the nuclear facilities map layer (the only commercial reactor in Africa, Cape Town, South Africa)
+- **Privacy & Offline Architecture** documentation — README now details the three privacy levels: full cloud, desktop with cloud APIs, and air-gapped local with Ollama
+- **AI Summarization Chain** documentation — README includes provider fallback flow diagram and detailed explanation of headline deduplication, variant-aware prompting, and cross-user cache deduplication
+
+### Changed
+
+- AI fallback chain now starts with Ollama (local) before cloud providers
+- Feature toggles increased from 14 to 15 (added AI/Ollama)
+- Desktop architecture uses consolidated vault instead of per-key keychain entries
+- README expanded with ~85 lines of new content covering local LLM support, privacy architecture, summarization chain internals, and desktop readiness framework
+
+### Fixed
+
+- URL and model fields in Settings display as plaintext instead of masked password dots
+- OpenAI-compatible endpoint flow hardened for Ollama/LM Studio response format differences (thinking tokens, missing `choices` array edge cases)
+- Sentry null guard for `getProjection()` crash with 6 additional noise filters
+- PathLayer cache cleared on layer toggle-off to prevent stale WebGL buffer rendering
+
+---
+
+## [2.4.1] - 2026-02-19
+
+### Fixed
+
+- **Map PathLayer cache**: Clear PathLayer on toggle-off to prevent stale WebGL buffers
+- **Sentry noise**: Null guard for `getProjection()` crash and 6 additional noise filters
+- **Markdown docs**: Resolve lint errors in documentation files
+
+---
+
+## [2.4.0] - 2026-02-19
+
+### Added
+
+- **Live Webcams Panel**: 2x2 grid of live YouTube webcam feeds from global hotspots with region filters (Middle East, Europe, Asia-Pacific, Americas), grid/single view toggle, idle detection, and full i18n support (#111)
+- **Linux download**: added `.AppImage` option to download banner
+
+### Changed
+
+- **Mobile detection**: use viewport width only for mobile detection; touch-capable notebooks (e.g. ROG Flow X13) now get desktop layout (#113)
+- **Webcam feeds**: curated Tel Aviv, Mecca, LA, Miami; replaced dead Tokyo feed; diverse ALL grid with Jerusalem, Tehran, Kyiv, Washington
+
+### Fixed
+
+- **Le Monde RSS**: English feed URL updated (`/en/rss/full.xml` → `/en/rss/une.xml`) to fix 404
+- **Workbox precache**: added `html` to `globPatterns` so `navigateFallback` works for offline PWA
+- **Panel ordering**: one-time migration ensures Live Webcams follows Live News for existing users
+- **Mobile popups**: improved sheet/touch/controls layout (#109)
+- **Intelligence alerts**: disabled on mobile to reduce noise (#110)
+- **RSS proxy**: added 8 missing domains to allowlist
+- **HTML tags**: repaired malformed tags in panel template literals
+- **ML worker**: wrapped `unloadModel()` in try/catch to prevent unhandled timeout rejections
+- **YouTube player**: optional chaining on `playVideo?.()` / `pauseVideo?.()` for initialization race
+- **Panel drag**: guarded `.closest()` on non-Element event targets
+- **Beta mode**: resolved race condition and timeout failures
+- **Sentry noise**: added filters for Firefox `too much recursion`, maplibre `_layers`/`id`/`type` null crashes
+
 ## [2.3.9] - 2026-02-18
 
 ### Added

@@ -1,4 +1,5 @@
 import { t } from '@/services/i18n';
+import { isMobileDevice } from '@/utils';
 
 const STORAGE_KEY = 'mobile-warning-dismissed';
 
@@ -30,6 +31,12 @@ export class MobileWarningModal {
 
     document.body.appendChild(this.element);
     this.setupEventListeners();
+
+    // Remove will-change after entrance animation to free GPU memory
+    const modal = this.element.querySelector('.mobile-warning-modal') as HTMLElement | null;
+    modal?.addEventListener('animationend', () => {
+      modal.style.willChange = 'auto';
+    }, { once: true });
   }
 
   private setupEventListeners(): void {
@@ -61,16 +68,8 @@ export class MobileWarningModal {
   }
 
   public static shouldShow(): boolean {
-    // Check if already dismissed permanently
-    if (localStorage.getItem(STORAGE_KEY) === 'true') {
-      return false;
-    }
-
-    // Check if mobile device (screen width < 768px or touch-primary device)
-    const isMobileWidth = window.innerWidth < 768;
-    const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
-
-    return isMobileWidth || isTouchDevice;
+    if (localStorage.getItem(STORAGE_KEY) === 'true') return false;
+    return isMobileDevice();
   }
 
   public getElement(): HTMLElement {

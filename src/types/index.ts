@@ -25,6 +25,10 @@ export interface NewsItem {
   lon?: number;
   locationName?: string;
   lang?: string;
+  // Happy variant: positive content category
+  happyCategory?: import('@/services/positive-classifier').HappyContentCategory;
+  // Image URL extracted from RSS media/enclosure tags
+  imageUrl?: string;
 }
 
 export type VelocityLevel = 'normal' | 'elevated' | 'spike';
@@ -255,63 +259,6 @@ export interface UcdpGeoEvent {
   source_original: string;
 }
 
-// UNHCR Displacement Data
-export interface DisplacementFlow {
-  originCode: string;
-  originName: string;
-  asylumCode: string;
-  asylumName: string;
-  refugees: number;
-  originLat?: number;
-  originLon?: number;
-  asylumLat?: number;
-  asylumLon?: number;
-}
-
-export interface CountryDisplacement {
-  code: string;
-  name: string;
-  // Origin-country displacement outflow metrics
-  refugees: number;
-  asylumSeekers: number;
-  idps: number;
-  stateless: number;
-  totalDisplaced: number;
-  // Host-country intake metrics
-  hostRefugees: number;
-  hostAsylumSeekers: number;
-  hostTotal: number;
-  lat?: number;
-  lon?: number;
-}
-
-export interface UnhcrSummary {
-  year: number;
-  globalTotals: {
-    refugees: number;
-    asylumSeekers: number;
-    idps: number;
-    stateless: number;
-    total: number;
-  };
-  countries: CountryDisplacement[];
-  topFlows: DisplacementFlow[];
-}
-
-// Climate Anomaly Data (Open-Meteo / ERA5)
-export type AnomalySeverity = 'normal' | 'moderate' | 'extreme';
-
-export interface ClimateAnomaly {
-  zone: string;
-  lat: number;
-  lon: number;
-  tempDelta: number;
-  precipDelta: number;
-  severity: AnomalySeverity;
-  type: 'warm' | 'cold' | 'wet' | 'dry' | 'mixed';
-  period: string;
-}
-
 // WorldPop Population Exposure
 export interface CountryPopulation {
   code: string;
@@ -411,6 +358,28 @@ export interface RepairShip {
   eta: string;
   operator?: string;
   note?: string;
+}
+
+// Cable health types (computed from NGA maritime warning signals)
+export type CableHealthStatus = 'ok' | 'degraded' | 'fault' | 'unknown';
+
+export interface CableHealthEvidence {
+  source: string;
+  summary: string;
+  ts: string;
+}
+
+export interface CableHealthRecord {
+  status: CableHealthStatus;
+  score: number;
+  confidence: number;
+  lastUpdated: string;
+  evidence: CableHealthEvidence[];
+}
+
+export interface CableHealthResponse {
+  generatedAt: string;
+  cables: Record<string, CableHealthRecord>;
 }
 
 export interface ShippingChokepoint {
@@ -554,6 +523,14 @@ export interface MapLayers {
   commodityHubs: boolean;
   // Gulf FDI layers
   gulfInvestments: boolean;
+  // Happy variant layers
+  positiveEvents: boolean;
+  kindness: boolean;
+  happiness: boolean;
+  speciesRecovery: boolean;
+  renewableInstallations: boolean;
+  // Trade route layers
+  tradeRoutes: boolean;
 }
 
 export interface AIDataCenter {
@@ -625,13 +602,6 @@ export interface CriticalMineralProject {
   significance: string;
 }
 
-export interface PredictionMarket {
-  title: string;
-  yesPrice: number;
-  volume?: number;
-  url?: string;
-}
-
 export interface AppState {
   currentView: 'global' | 'us';
   mapZoom: number;
@@ -686,33 +656,6 @@ export interface ProtestCluster {
   primaryCause?: string;
 }
 
-// Flight Delay Types
-export type FlightDelaySource = 'faa' | 'eurocontrol' | 'computed';
-export type FlightDelaySeverity = 'normal' | 'minor' | 'moderate' | 'major' | 'severe';
-export type FlightDelayType = 'ground_stop' | 'ground_delay' | 'departure_delay' | 'arrival_delay' | 'general';
-export type AirportRegion = 'americas' | 'europe' | 'apac' | 'mena' | 'africa';
-
-export interface AirportDelayAlert {
-  id: string;
-  iata: string;
-  icao: string;
-  name: string;
-  city: string;
-  country: string;
-  lat: number;
-  lon: number;
-  region: AirportRegion;
-  delayType: FlightDelayType;
-  severity: FlightDelaySeverity;
-  avgDelayMinutes: number;
-  delayedFlightsPct?: number;
-  cancelledFlights?: number;
-  totalFlights?: number;
-  reason?: string;
-  source: FlightDelaySource;
-  updatedAt: Date;
-}
-
 export interface MonitoredAirport {
   iata: string;
   icao: string;
@@ -721,7 +664,7 @@ export interface MonitoredAirport {
   country: string;
   lat: number;
   lon: number;
-  region: AirportRegion;
+  region: 'americas' | 'europe' | 'apac' | 'mena' | 'africa';
 }
 
 // Military Flight Tracking Types
@@ -841,6 +784,54 @@ export interface MilitaryVessel {
   confidence: 'high' | 'medium' | 'low';
   isInteresting?: boolean;
   note?: string;
+  usniRegion?: string;
+  usniDeploymentStatus?: USNIDeploymentStatus;
+  usniStrikeGroup?: string;
+  usniActivityDescription?: string;
+  usniArticleUrl?: string;
+  usniArticleDate?: string;
+  usniSource?: boolean;
+}
+
+export type USNIDeploymentStatus = 'deployed' | 'underway' | 'in-port' | 'unknown';
+
+export interface USNIVesselEntry {
+  name: string;
+  hullNumber: string;
+  vesselType: MilitaryVesselType;
+  region: string;
+  regionLat: number;
+  regionLon: number;
+  deploymentStatus: USNIDeploymentStatus;
+  homePort?: string;
+  strikeGroup?: string;
+  activityDescription?: string;
+  usniArticleUrl: string;
+  usniArticleDate: string;
+}
+
+export interface USNIStrikeGroup {
+  name: string;
+  carrier?: string;
+  airWing?: string;
+  destroyerSquadron?: string;
+  escorts: string[];
+}
+
+export interface USNIFleetReport {
+  articleUrl: string;
+  articleDate: string;
+  articleTitle: string;
+  battleForceSummary?: {
+    totalShips: number;
+    deployed: number;
+    underway: number;
+  };
+  vessels: USNIVesselEntry[];
+  strikeGroups: USNIStrikeGroup[];
+  regions: string[];
+  parsingWarnings: string[];
+  timestamp: string;
 }
 
 export interface MilitaryVesselCluster {

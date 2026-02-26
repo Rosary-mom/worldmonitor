@@ -1,6 +1,6 @@
 import { Panel } from './Panel';
 import { mlWorker } from '@/services/ml-worker';
-import { generateSummary } from '@/services/summarization';
+import { generateSummary, type SummarizeOptions } from '@/services/summarization';
 import { parallelAnalysis, type AnalyzedHeadline } from '@/services/parallel-analysis';
 import { signalAggregator, logSignalSummary, type RegionalConvergence } from '@/services/signal-aggregator';
 import { focalPointDetector } from '@/services/focal-point-detector';
@@ -9,8 +9,10 @@ import { getTheaterPostureSummaries } from '@/services/military-surge';
 import { isMobileDevice } from '@/utils';
 import { escapeHtml, sanitizeUrl } from '@/utils/sanitize';
 import { SITE_VARIANT } from '@/config';
-import { getPersistentCache, setPersistentCache } from '@/services/persistent-cache';
+import { deletePersistentCache, getPersistentCache, setPersistentCache } from '@/services/persistent-cache';
 import { t } from '@/services/i18n';
+import { isDesktopRuntime } from '@/services/runtime';
+import { getAiFlowSettings, isAnyAiProviderEnabled, subscribeAiFlowChange } from '@/services/ai-flow-settings';
 import type { ClusteredEvent, FocalPoint, MilitaryFlight } from '@/types';
 
 export class InsightsPanel extends Panel {
@@ -21,6 +23,9 @@ export class InsightsPanel extends Panel {
   private lastConvergenceZones: RegionalConvergence[] = [];
   private lastFocalPoints: FocalPoint[] = [];
   private lastMilitaryFlights: MilitaryFlight[] = [];
+  private lastClusters: ClusteredEvent[] = [];
+  private aiFlowUnsubscribe: (() => void) | null = null;
+  private updateGeneration = 0;
   private static readonly BRIEF_COOLDOWN_MS = 120000; // 2 min cooldown (API has limits)
   private static readonly BRIEF_CACHE_KEY = 'summary:world-brief';
 
@@ -35,6 +40,14 @@ export class InsightsPanel extends Panel {
     if (isMobileDevice()) {
       this.hide();
       this.isHidden = true;
+    }
+
+    // Web-only: subscribe to AI flow changes so toggling providers re-runs analysis
+    if (!isDesktopRuntime() && !isMobileDevice()) {
+      this.aiFlowUnsubscribe = subscribeAiFlowChange((changedKey) => {
+        if (changedKey === 'mapNewsFlash') return;
+        void this.onAiFlowChanged();
+      });
     }
   }
 
@@ -235,7 +248,7 @@ export class InsightsPanel extends Panel {
           <div class="insights-progress-fill" style="width: ${percent}%"></div>
         </div>
         <div class="insights-progress-info">
-          <span class="insights-progress-step">Step ${step}/${total}</span>
+          <span class="insights-progress-step">${t('components.insights.step', { step: String(step), total: String(total) })}</span>
           <span class="insights-progress-message">${message}</span>
         </div>
       </div>
@@ -245,17 +258,35 @@ export class InsightsPanel extends Panel {
   public async updateInsights(clusters: ClusteredEvent[]): Promise<void> {
     if (this.isHidden) return;
 
+    this.lastClusters = clusters;
+    this.updateGeneration++;
+    const thisGeneration = this.updateGeneration;
+
     if (clusters.length === 0) {
       this.setDataBadge('unavailable');
-      this.setContent('<div class="insights-empty">Waiting for news data...</div>');
+      this.setContent(`<div class="insights-empty">${t('components.insights.waitingForData')}</div>`);
       return;
     }
+
+    // Web-only: if no AI providers enabled, show disabled state
+    if (!isDesktopRuntime() && !isAnyAiProviderEnabled()) {
+      this.setDataBadge('unavailable');
+      this.renderDisabledState();
+      return;
+    }
+
+    // Build summarize options from AI flow settings (web) or defaults (desktop)
+    const aiFlow = isDesktopRuntime() ? { cloudLlm: true, browserModel: true } : getAiFlowSettings();
+    const summarizeOpts: SummarizeOptions = {
+      skipCloudProviders: !aiFlow.cloudLlm,
+      skipBrowserFallback: !aiFlow.browserModel,
+    };
 
     const totalSteps = 4;
 
     try {
       // Step 1: Filter and rank stories by composite importance score
-      this.setProgress(1, totalSteps, 'Ranking important stories...');
+      this.setProgress(1, totalSteps, t('components.insights.rankingStories'));
 
       const importantClusters = this.selectTopStories(clusters, 8);
 
@@ -316,28 +347,32 @@ export class InsightsPanel extends Panel {
       }
 
       if (importantClusters.length === 0) {
-        this.setContent('<div class="insights-empty">No breaking or multi-source stories yet</div>');
+        this.setContent(`<div class="insights-empty">${t('components.insights.noStories')}</div>`);
         return;
       }
 
-      const titles = importantClusters.map(c => c.primaryTitle);
+      // Cap titles sent to AI at 5 to reduce entity conflation in small models
+      const titles = importantClusters.slice(0, 5).map(c => c.primaryTitle);
 
       // Step 2: Analyze sentiment (browser-based, fast)
-      this.setProgress(2, totalSteps, 'Analyzing sentiment...');
+      this.setProgress(2, totalSteps, t('components.insights.analyzingSentiment'));
       let sentiments: Array<{ label: string; score: number }> | null = null;
 
       if (mlWorker.isAvailable) {
         sentiments = await mlWorker.classifySentiment(titles).catch(() => null);
       }
+      if (this.updateGeneration !== thisGeneration) return;
 
       // Step 3: Generate World Brief (with cooldown)
       const loadedFromPersistentCache = await this.loadBriefFromCache();
+      if (this.updateGeneration !== thisGeneration) return;
+
       let worldBrief = this.cachedBrief;
       const now = Date.now();
 
       let usedCachedBrief = loadedFromPersistentCache;
       if (!worldBrief || now - this.lastBriefUpdate > InsightsPanel.BRIEF_COOLDOWN_MS) {
-        this.setProgress(3, totalSteps, 'Generating world brief...');
+        this.setProgress(3, totalSteps, t('components.insights.generatingBrief'));
 
         // Pass focal point context + theater posture to AI for correlation-aware summarization
         // Tech variant: no geopolitical context, just tech news summarization
@@ -348,7 +383,9 @@ export class InsightsPanel extends Panel {
         const result = await generateSummary(titles, (_step, _total, msg) => {
           // Show sub-progress for summarization
           this.setProgress(3, totalSteps, `Generating brief: ${msg}`);
-        }, geoContext);
+        }, geoContext, undefined, summarizeOpts);
+
+        if (this.updateGeneration !== thisGeneration) return;
 
         if (result) {
           worldBrief = result.summary;
@@ -368,6 +405,8 @@ export class InsightsPanel extends Panel {
       // Step 4: Wait for parallel analysis to complete
       this.setProgress(4, totalSteps, 'Multi-perspective analysis...');
       await parallelPromise;
+
+      if (this.updateGeneration !== thisGeneration) return;
 
       this.renderInsights(importantClusters, sentiments, worldBrief);
     } catch (error) {
@@ -629,5 +668,46 @@ export class InsightsPanel extends Panel {
         ${focalPointsHtml}
       </div>
     `;
+  }
+
+  private renderDisabledState(): void {
+    this.setContent(`
+      <div class="insights-disabled">
+        <div class="insights-disabled-icon">⚡</div>
+        <div class="insights-disabled-title">${t('components.insights.insightsDisabledTitle')}</div>
+        <div class="insights-disabled-hint">${t('components.insights.insightsDisabledHint')}</div>
+      </div>
+    `);
+  }
+
+  private async onAiFlowChanged(): Promise<void> {
+    this.updateGeneration++;
+    // Reset brief cache so new provider settings take effect immediately
+    this.cachedBrief = null;
+    this.lastBriefUpdate = 0;
+    try {
+      await deletePersistentCache(InsightsPanel.BRIEF_CACHE_KEY);
+    } catch {
+      // Best effort; fallback regeneration still works from memory reset.
+    }
+
+    if (!isAnyAiProviderEnabled()) {
+      this.setDataBadge('unavailable');
+      this.renderDisabledState();
+      return;
+    }
+
+    if (this.lastClusters.length > 0) {
+      void this.updateInsights(this.lastClusters);
+      return;
+    }
+
+    this.setDataBadge('unavailable');
+    this.setContent(`<div class="insights-empty">${t('components.insights.waitingForData')}</div>`);
+  }
+
+  public override destroy(): void {
+    this.aiFlowUnsubscribe?.();
+    super.destroy();
   }
 }

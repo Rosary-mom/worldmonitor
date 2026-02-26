@@ -1,4 +1,4 @@
-import { isDesktopRuntime } from './runtime';
+import { getApiBaseUrl, isDesktopRuntime } from './runtime';
 import { invokeTauri } from './tauri-bridge';
 
 export type RuntimeSecretKey =
@@ -19,7 +19,11 @@ export type RuntimeSecretKey =
   | 'AISSTREAM_API_KEY'
   | 'FINNHUB_API_KEY'
   | 'NASA_FIRMS_API_KEY'
-  | 'UC_DP_KEY';
+  | 'UC_DP_KEY'
+  | 'OLLAMA_API_URL'
+  | 'OLLAMA_MODEL'
+  | 'WORLDMONITOR_API_KEY'
+  | 'WTO_API_KEY';
 
 export type RuntimeFeatureId =
   | 'aiGroq'
@@ -35,7 +39,10 @@ export type RuntimeFeatureId =
   | 'aisRelay'
   | 'openskyRelay'
   | 'finnhubMarkets'
-  | 'nasaFirms';
+  | 'nasaFirms'
+  | 'aiOllama'
+  | 'wtoTrade'
+  | 'supplyChain';
 
 export interface RuntimeFeatureDefinition {
   id: RuntimeFeatureId;
@@ -57,8 +64,12 @@ export interface RuntimeConfig {
 }
 
 const TOGGLES_STORAGE_KEY = 'worldmonitor-runtime-feature-toggles';
-const SIDECAR_ENV_UPDATE_URL = 'http://127.0.0.1:46123/api/local-env-update';
-const SIDECAR_SECRET_VALIDATE_URL = 'http://127.0.0.1:46123/api/local-validate-secret';
+function getSidecarEnvUpdateUrl(): string {
+  return `${getApiBaseUrl()}/api/local-env-update`;
+}
+function getSidecarSecretValidateUrl(): string {
+  return `${getApiBaseUrl()}/api/local-validate-secret`;
+}
 
 const defaultToggles: Record<RuntimeFeatureId, boolean> = {
   aiGroq: true,
@@ -75,9 +86,19 @@ const defaultToggles: Record<RuntimeFeatureId, boolean> = {
   openskyRelay: true,
   finnhubMarkets: true,
   nasaFirms: true,
+  aiOllama: true,
+  wtoTrade: true,
+  supplyChain: true,
 };
 
 export const RUNTIME_FEATURES: RuntimeFeatureDefinition[] = [
+  {
+    id: 'aiOllama',
+    name: 'Ollama local summarization',
+    description: 'Local LLM provider via OpenAI-compatible endpoint (Ollama or LM Studio, desktop-first).',
+    requiredSecrets: ['OLLAMA_API_URL', 'OLLAMA_MODEL'],
+    fallback: 'Falls back to Groq, then OpenRouter, then local browser model.',
+  },
   {
     id: 'aiGroq',
     name: 'Groq summarization',
@@ -178,6 +199,20 @@ export const RUNTIME_FEATURES: RuntimeFeatureDefinition[] = [
     requiredSecrets: ['NASA_FIRMS_API_KEY'],
     fallback: 'FIRMS fire layer uses public VIIRS feed.',
   },
+  {
+    id: 'wtoTrade',
+    name: 'WTO trade policy data',
+    description: 'Trade restrictions, tariff trends, barriers, and flows from WTO.',
+    requiredSecrets: ['WTO_API_KEY'],
+    fallback: 'Trade policy panel shows disabled state.',
+  },
+  {
+    id: 'supplyChain',
+    name: 'Supply Chain Intelligence',
+    description: 'Shipping rates via FRED Baltic Dry Index. Chokepoints and minerals use public data.',
+    requiredSecrets: ['FRED_API_KEY'],
+    fallback: 'Chokepoints and minerals always available; shipping requires FRED key.',
+  },
 ];
 
 function readEnvSecret(key: RuntimeSecretKey): string {
@@ -199,6 +234,7 @@ function readStoredToggles(): Record<RuntimeFeatureId, boolean> {
 const URL_SECRET_KEYS = new Set<RuntimeSecretKey>([
   'WS_RELAY_URL',
   'VITE_OPENSKY_RELAY_URL',
+  'OLLAMA_API_URL',
 ]);
 
 export interface SecretVerificationResult {
@@ -213,6 +249,12 @@ export function validateSecret(key: RuntimeSecretKey, value: string): { valid: b
   if (URL_SECRET_KEYS.has(key)) {
     try {
       const parsed = new URL(trimmed);
+      if (key === 'OLLAMA_API_URL') {
+        if (!['http:', 'https:'].includes(parsed.protocol)) {
+          return { valid: false, hint: 'Must be an http(s) URL' };
+        }
+        return { valid: true };
+      }
       if (!['http:', 'https:', 'ws:', 'wss:'].includes(parsed.protocol)) {
         return { valid: false, hint: 'Must be an http(s) or ws(s) URL' };
       }
@@ -222,8 +264,18 @@ export function validateSecret(key: RuntimeSecretKey, value: string): { valid: b
     }
   }
 
+  if (key === 'WORLDMONITOR_API_KEY') {
+    if (trimmed.length < 16) return { valid: false, hint: 'API key must be at least 16 characters' };
+    return { valid: true };
+  }
+
   return { valid: true };
 }
+
+let secretsReadyResolve!: () => void;
+export const secretsReady = new Promise<void>(r => { secretsReadyResolve = r; });
+
+if (!isDesktopRuntime()) secretsReadyResolve();
 
 const listeners = new Set<() => void>();
 
@@ -367,7 +419,7 @@ async function pushSecretToSidecar(key: string, value: string): Promise<void> {
     headers.set('Authorization', `Bearer ${token}`);
   }
 
-  const response = await fetch(SIDECAR_ENV_UPDATE_URL, {
+  const response = await fetch(getSidecarEnvUpdateUrl(), {
     method: 'POST',
     headers,
     body: JSON.stringify({ key, value: value || null }),
@@ -406,7 +458,7 @@ export async function verifySecretWithApi(
   }
 
   try {
-    const response = await callSidecarWithAuth(SIDECAR_SECRET_VALIDATE_URL, {
+    const response = await callSidecarWithAuth(getSidecarSecretValidateUrl(), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ key, value: value.trim(), context }),
@@ -452,7 +504,7 @@ export async function loadDesktopSecrets(): Promise<void> {
     const allSecrets = await invokeTauri<Record<string, string>>('get_all_secrets');
 
     const syncResults = await Promise.allSettled(
-      Object.entries(allSecrets).map(async ([key, value]) => {
+      Object.entries(allSecrets).filter(([, value]) => value && value.trim().length > 0).map(async ([key, value]) => {
         runtimeConfig.secrets[key as RuntimeSecretKey] = { value, source: 'vault' };
         try {
           await pushSecretToSidecar(key as RuntimeSecretKey, value);
@@ -470,5 +522,7 @@ export async function loadDesktopSecrets(): Promise<void> {
     notifyConfigChanged();
   } catch (error) {
     console.warn('[runtime-config] Failed to load desktop secrets from vault', error);
+  } finally {
+    secretsReadyResolve();
   }
 }

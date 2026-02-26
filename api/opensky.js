@@ -1,73 +1,90 @@
-// OpenSky Network API proxy - v3
-// Note: OpenSky seems to block some cloud provider IPs
 import { getCorsHeaders, isDisallowedOrigin } from './_cors.js';
 
 export const config = { runtime: 'edge' };
 
-export default async function handler(req) {
-  const cors = getCorsHeaders(req);
-  if (isDisallowedOrigin(req)) {
-    return new Response(JSON.stringify({ error: 'Origin not allowed' }), { status: 403, headers: cors });
+function getRelayBaseUrl() {
+  const relayUrl = process.env.WS_RELAY_URL;
+  if (!relayUrl) return null;
+  return relayUrl.replace('wss://', 'https://').replace('ws://', 'http://').replace(/\/$/, '');
+}
+
+function getRelayHeaders(baseHeaders = {}) {
+  const headers = { ...baseHeaders };
+  const relaySecret = process.env.RELAY_SHARED_SECRET || '';
+  if (relaySecret) {
+    const relayHeader = (process.env.RELAY_AUTH_HEADER || 'x-relay-key').toLowerCase();
+    headers[relayHeader] = relaySecret;
+    headers.Authorization = `Bearer ${relaySecret}`;
   }
-  const url = new URL(req.url);
+  return headers;
+}
 
-  // Build OpenSky API URL with bounding box params
-  const params = new URLSearchParams();
-  ['lamin', 'lomin', 'lamax', 'lomax'].forEach(key => {
-    const val = url.searchParams.get(key);
-    if (val) params.set(key, val);
-  });
+async function fetchWithTimeout(url, options, timeoutMs = 15000) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
+}
 
-  const openskyUrl = `https://opensky-network.org/api/states/all${params.toString() ? '?' + params.toString() : ''}`;
+export default async function handler(req) {
+  const corsHeaders = getCorsHeaders(req, 'GET, OPTIONS');
+
+  if (isDisallowedOrigin(req)) {
+    return new Response(JSON.stringify({ error: 'Origin not allowed' }), {
+      status: 403,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders },
+    });
+  }
+
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: corsHeaders });
+  }
+  if (req.method !== 'GET') {
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders },
+    });
+  }
+
+  const relayBaseUrl = getRelayBaseUrl();
+  if (!relayBaseUrl) {
+    return new Response(JSON.stringify({ error: 'WS_RELAY_URL is not configured' }), {
+      status: 503,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders },
+    });
+  }
 
   try {
-    // Try fetching with different headers to avoid blocks
-    const response = await fetch(openskyUrl, {
-      headers: {
-        'Accept': 'application/json',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Connection': 'keep-alive',
-      },
+    const requestUrl = new URL(req.url);
+    const relayUrl = `${relayBaseUrl}/opensky${requestUrl.search || ''}`;
+    const response = await fetchWithTimeout(relayUrl, {
+      headers: getRelayHeaders({ Accept: 'application/json' }),
     });
 
-    if (response.status === 429) {
-      return Response.json({ error: 'Rate limited', time: Date.now(), states: null }, {
-        status: 429,
-        headers: cors,
-      });
-    }
+    const body = await response.text();
+    const headers = {
+      'Content-Type': response.headers.get('content-type') || 'application/json',
+      'Cache-Control': response.headers.get('cache-control') || 'no-cache',
+      ...corsHeaders,
+    };
+    const xCache = response.headers.get('x-cache');
+    if (xCache) headers['X-Cache'] = xCache;
 
-    // Check if response is OK
-    if (!response.ok) {
-      const text = await response.text();
-      return Response.json({
-        error: `OpenSky HTTP ${response.status}: ${text.substring(0, 200)}`,
-        time: Date.now(),
-        states: null
-      }, {
-        status: response.status,
-        headers: cors,
-      });
-    }
-
-    const data = await response.json();
-    return Response.json(data, {
+    return new Response(body, {
       status: response.status,
-      headers: {
-        ...cors,
-        'Cache-Control': 'public, max-age=30, s-maxage=30, stale-while-revalidate=15',
-      },
+      headers,
     });
   } catch (error) {
-    return Response.json({
-      error: `Fetch failed: ${error.name} - ${error.message}`,
-      time: Date.now(),
-      states: null
-    }, {
-      status: 500,
-      headers: cors,
+    const isTimeout = error?.name === 'AbortError';
+    return new Response(JSON.stringify({
+      error: isTimeout ? 'Relay timeout' : 'Relay request failed',
+      details: error?.message || String(error),
+    }), {
+      status: isTimeout ? 504 : 502,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders },
     });
   }
 }

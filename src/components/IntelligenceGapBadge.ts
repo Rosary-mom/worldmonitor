@@ -3,6 +3,7 @@ import { getRecentAlerts, type UnifiedAlert } from '@/services/cross-module-inte
 import { t } from '@/services/i18n';
 import { getSignalContext } from '@/utils/analysis-constants';
 import { escapeHtml } from '@/utils/sanitize';
+import { trackFindingClicked } from '@/services/analytics';
 
 const LOW_COUNT_THRESHOLD = 3;
 const MAX_VISIBLE_FINDINGS = 10;
@@ -10,6 +11,7 @@ const SORT_TIME_TOLERANCE_MS = 60000;
 const REFRESH_INTERVAL_MS = 10000;
 const ALERT_HOURS = 6;
 const STORAGE_KEY = 'worldmonitor-intel-findings';
+const POPUP_STORAGE_KEY = 'wm-alert-popup-enabled';
 
 type FindingSource = 'signal' | 'alert';
 
@@ -38,10 +40,12 @@ export class IntelligenceFindingsBadge {
   private audio: HTMLAudioElement | null = null;
   private audioEnabled = true;
   private enabled: boolean;
+  private popupEnabled: boolean;
   private contextMenu: HTMLElement | null = null;
 
   constructor() {
     this.enabled = IntelligenceFindingsBadge.getStoredEnabledState();
+    this.popupEnabled = localStorage.getItem(POPUP_STORAGE_KEY) === '1';
 
     this.badge = document.createElement('button');
     this.badge.className = 'intel-findings-badge';
@@ -62,9 +66,22 @@ export class IntelligenceFindingsBadge {
       this.showContextMenu(e.clientX, e.clientY);
     });
 
-    // Event delegation for finding items and "more" link
+    // Event delegation for finding items, toggle, and "more" link
     this.dropdown.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
+
+      // Handle popup toggle click
+      if (target.closest('.popup-toggle-row')) {
+        e.stopPropagation();
+        this.popupEnabled = !this.popupEnabled;
+        if (this.popupEnabled) {
+          localStorage.setItem(POPUP_STORAGE_KEY, '1');
+        } else {
+          localStorage.removeItem(POPUP_STORAGE_KEY);
+        }
+        this.renderDropdown();
+        return;
+      }
 
       // Handle "more findings" click - show all in modal
       if (target.closest('.findings-more')) {
@@ -82,6 +99,7 @@ export class IntelligenceFindingsBadge {
       const finding = this.findings.find(f => f.id === id);
       if (!finding) return;
 
+      trackFindingClicked(finding.id, finding.source, finding.type, finding.priority);
       if (finding.source === 'signal' && this.onSignalClick) {
         this.onSignalClick(finding.original as CorrelationSignal);
       } else if (finding.source === 'alert' && this.onAlertClick) {
@@ -127,6 +145,10 @@ export class IntelligenceFindingsBadge {
     return this.enabled;
   }
 
+  public isPopupEnabled(): boolean {
+    return this.popupEnabled;
+  }
+
   public setEnabled(enabled: boolean): void {
     if (this.enabled === enabled) return;
     this.enabled = enabled;
@@ -158,7 +180,7 @@ export class IntelligenceFindingsBadge {
     menu.className = 'intel-findings-context-menu';
     menu.style.left = `${x}px`;
     menu.style.top = `${y}px`;
-    menu.innerHTML = '<div class="context-menu-item">Hide Intelligence Findings</div>';
+    menu.innerHTML = `<div class="context-menu-item">${t('components.intelligenceFindings.hideFindings')}</div>`;
 
     menu.querySelector('.context-menu-item')!.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -205,7 +227,7 @@ export class IntelligenceFindingsBadge {
     if (count > this.lastFindingCount && this.lastFindingCount > 0) {
       this.badge.classList.add('pulse');
       setTimeout(() => this.badge.classList.remove('pulse'), 1000);
-      this.playSound();
+      if (this.popupEnabled) this.playSound();
     }
     this.lastFindingCount = count;
 
@@ -279,13 +301,25 @@ export class IntelligenceFindingsBadge {
     return map[priority] ?? 0;
   }
 
+  private renderPopupToggle(): string {
+    const label = t('components.intelligenceFindings.popupAlerts');
+    const checked = this.popupEnabled;
+    return `<div class="popup-toggle-row">
+        <span class="popup-toggle-label">🔔 ${escapeHtml(label)}</span>
+        <span class="popup-toggle-switch${checked ? ' on' : ''}"><span class="popup-toggle-knob"></span></span>
+      </div>`;
+  }
+
   private renderDropdown(): void {
+    const toggleHtml = this.renderPopupToggle();
+
     if (this.findings.length === 0) {
       this.dropdown.innerHTML = `
         <div class="findings-header">
           <span class="header-title">${t('components.intelligenceFindings.title')}</span>
           <span class="findings-badge none">${t('components.intelligenceFindings.monitoring')}</span>
         </div>
+        ${toggleHtml}
         <div class="findings-content">
           <div class="findings-empty">
             <span class="empty-icon">📡</span>
@@ -336,6 +370,7 @@ export class IntelligenceFindingsBadge {
         <span class="header-title">${t('components.intelligenceFindings.title')}</span>
         <span class="findings-badge ${statusClass}">${statusText}</span>
       </div>
+      ${toggleHtml}
       <div class="findings-content">
         <div class="findings-list">
           ${findingsHtml}
@@ -348,7 +383,7 @@ export class IntelligenceFindingsBadge {
   private getInsight(finding: UnifiedFinding): string {
     if (finding.source === 'signal') {
       const context = getSignalContext((finding.original as CorrelationSignal).type);
-      return context.actionableInsight.split('.')[0] || '';
+      return (context.actionableInsight ?? '').split('.')[0] || '';
     }
     // For alerts, provide actionable insight based on type and severity
     const alert = finding.original as UnifiedAlert;
@@ -463,6 +498,7 @@ export class IntelligenceFindingsBadge {
         const finding = this.findings.find(f => f.id === id);
         if (!finding) return;
 
+        trackFindingClicked(finding.id, finding.source, finding.type, finding.priority);
         if (finding.source === 'signal' && this.onSignalClick) {
           this.onSignalClick(finding.original as CorrelationSignal);
           overlay.remove();

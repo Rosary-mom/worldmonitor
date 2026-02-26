@@ -4,8 +4,36 @@ const DEFAULT_REMOTE_HOSTS: Record<string, string> = {
   world: 'https://worldmonitor.app',
 };
 
-const DEFAULT_LOCAL_API_BASE = 'http://127.0.0.1:46123';
+const DEFAULT_LOCAL_API_PORT = 46123;
 const FORCE_DESKTOP_RUNTIME = import.meta.env.VITE_DESKTOP_RUNTIME === '1';
+
+let _resolvedPort: number | null = null;
+let _portPromise: Promise<number> | null = null;
+
+export async function resolveLocalApiPort(): Promise<number> {
+  if (_resolvedPort !== null) return _resolvedPort;
+  if (_portPromise) return _portPromise;
+  _portPromise = (async () => {
+    try {
+      const { tryInvokeTauri } = await import('@/services/tauri-bridge');
+      const port = await tryInvokeTauri<number>('get_local_api_port');
+      if (port && port > 0) {
+        _resolvedPort = port;
+        return port;
+      }
+    } catch {
+      // IPC failed — allow retry on next call
+    } finally {
+      _portPromise = null;
+    }
+    return DEFAULT_LOCAL_API_PORT;
+  })();
+  return _portPromise;
+}
+
+export function getLocalApiPort(): number {
+  return _resolvedPort ?? DEFAULT_LOCAL_API_PORT;
+}
 
 function normalizeBaseUrl(baseUrl: string): string {
   return baseUrl.replace(/\/$/, '');
@@ -72,7 +100,7 @@ export function getApiBaseUrl(): string {
     return normalizeBaseUrl(configuredBaseUrl);
   }
 
-  return DEFAULT_LOCAL_API_BASE;
+  return `http://127.0.0.1:${getLocalApiPort()}`;
 }
 
 export function getRemoteApiBaseUrl(): string {
@@ -144,6 +172,16 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function isLocalOnlyApiTarget(target: string): boolean {
+  // Security boundary: endpoints that can carry local secrets must use the
+  // `/api/local-*` prefix so cloud fallback is automatically blocked.
+  return target.startsWith('/api/local-');
+}
+
+function isKeyFreeApiTarget(target: string): boolean {
+  return target.startsWith('/api/register-interest');
+}
+
 async function fetchLocalWithStartupRetry(
   nativeFetch: typeof window.fetch,
   localUrl: string,
@@ -176,14 +214,35 @@ async function fetchLocalWithStartupRetry(
     : new Error('Local API unavailable');
 }
 
+// ── Security threat model for the fetch patch ──────────────────────────
+// The LOCAL_API_TOKEN exists to prevent OTHER local processes from
+// accessing the sidecar on port 46123. The renderer IS the intended
+// client — injecting the token automatically is correct by design.
+//
+// If the renderer is compromised (XSS, supply chain), the attacker
+// already has access to strictly more powerful Tauri IPC commands
+// (get_all_secrets, set_secret, etc.) via window.__TAURI_INTERNALS__.
+// The fetch patch does not expand the attack surface beyond what IPC
+// already provides.
+//
+// Defense layers that protect the renderer trust boundary:
+//   1. CSP: script-src 'self' (no unsafe-inline/eval)
+//   2. IPC origin validation: sensitive commands gated to trusted windows
+//   3. Sidecar allowlists: env-update restricted to ALLOWED_ENV_KEYS
+//   4. DevTools disabled in production builds
+//
+// The token has a 5-minute TTL in the closure to limit exposure window
+// if IPC access is revoked mid-session.
+const TOKEN_TTL_MS = 5 * 60 * 1000;
+
 export function installRuntimeFetchPatch(): void {
   if (!isDesktopRuntime() || typeof window === 'undefined' || (window as unknown as Record<string, unknown>).__wmFetchPatched) {
     return;
   }
 
   const nativeFetch = window.fetch.bind(window);
-  const localBase = getApiBaseUrl();
   let localApiToken: string | null = null;
+  let tokenFetchedAt = 0;
 
   window.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     const target = getApiTargetFromRequestInput(input);
@@ -197,11 +256,21 @@ export function installRuntimeFetchPatch(): void {
       return nativeFetch(input, init);
     }
 
-    if (!localApiToken) {
+    // Resolve dynamic sidecar port on first API call
+    if (_resolvedPort === null) {
+      try { await resolveLocalApiPort(); } catch { /* use default */ }
+    }
+
+    const tokenExpired = localApiToken && (Date.now() - tokenFetchedAt > TOKEN_TTL_MS);
+    if (!localApiToken || tokenExpired) {
       try {
         const { tryInvokeTauri } = await import('@/services/tauri-bridge');
         localApiToken = await tryInvokeTauri<string>('get_local_api_token');
-      } catch { /* token unavailable — sidecar may not require it */ }
+        tokenFetchedAt = Date.now();
+      } catch {
+        localApiToken = null;
+        tokenFetchedAt = 0;
+      }
     }
 
     const headers = new Headers(init?.headers);
@@ -210,13 +279,38 @@ export function installRuntimeFetchPatch(): void {
     }
     const localInit = { ...init, headers };
 
-    const localUrl = `${localBase}${target}`;
+    const localUrl = `${getApiBaseUrl()}${target}`;
     if (debug) console.log(`[fetch] intercept → ${target}`);
+    let allowCloudFallback = !isLocalOnlyApiTarget(target);
+
+    if (allowCloudFallback && !isKeyFreeApiTarget(target)) {
+      try {
+        const { getSecretState, secretsReady } = await import('@/services/runtime-config');
+        await Promise.race([secretsReady, new Promise<void>(r => setTimeout(r, 2000))]);
+        const wmKeyState = getSecretState('WORLDMONITOR_API_KEY');
+        if (!wmKeyState.present || !wmKeyState.valid) {
+          allowCloudFallback = false;
+        }
+      } catch {
+        allowCloudFallback = false;
+      }
+    }
 
     const cloudFallback = async () => {
+      if (!allowCloudFallback) {
+        throw new Error(`Cloud fallback blocked for ${target}`);
+      }
       const cloudUrl = `${getRemoteApiBaseUrl()}${target}`;
       if (debug) console.log(`[fetch] cloud fallback → ${cloudUrl}`);
-      return nativeFetch(cloudUrl, init);
+      const cloudHeaders = new Headers(init?.headers);
+      if (/^\/api\/[^/]+\/v1\//.test(target)) {
+        const { getRuntimeConfigSnapshot } = await import('@/services/runtime-config');
+        const wmKeyValue = getRuntimeConfigSnapshot().secrets['WORLDMONITOR_API_KEY']?.value;
+        if (wmKeyValue) {
+          cloudHeaders.set('X-WorldMonitor-Key', wmKeyValue);
+        }
+      }
+      return nativeFetch(cloudUrl, { ...init, headers: cloudHeaders });
     };
 
     try {
@@ -224,12 +318,19 @@ export function installRuntimeFetchPatch(): void {
       const response = await fetchLocalWithStartupRetry(nativeFetch, localUrl, localInit);
       if (debug) console.log(`[fetch] ${target} → ${response.status} (${Math.round(performance.now() - t0)}ms)`);
       if (!response.ok) {
+        if (!allowCloudFallback) {
+          if (debug) console.log(`[fetch] local-only endpoint ${target} returned ${response.status}; skipping cloud fallback`);
+          return response;
+        }
         if (debug) console.log(`[fetch] local ${response.status}, falling back to cloud`);
         return cloudFallback();
       }
       return response;
     } catch (error) {
       if (debug) console.warn(`[runtime] Local API unavailable for ${target}`, error);
+      if (!allowCloudFallback) {
+        throw error;
+      }
       return cloudFallback();
     }
   };

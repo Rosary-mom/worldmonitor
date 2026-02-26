@@ -4,7 +4,9 @@ import { escapeHtml } from '@/utils/sanitize';
 import { getCSSColor } from '@/utils';
 import type { Topology, GeometryCollection } from 'topojson-specification';
 import type { Feature, Geometry } from 'geojson';
-import type { MapLayers, Hotspot, NewsItem, Earthquake, InternetOutage, RelatedAsset, AssetType, AisDisruptionEvent, AisDensityZone, CableAdvisory, RepairShip, SocialUnrestEvent, AirportDelayAlert, MilitaryFlight, MilitaryVessel, MilitaryFlightCluster, MilitaryVesselCluster, NaturalEvent, CyberThreat } from '@/types';
+import type { MapLayers, Hotspot, NewsItem, InternetOutage, RelatedAsset, AssetType, AisDisruptionEvent, AisDensityZone, CableAdvisory, RepairShip, SocialUnrestEvent, MilitaryFlight, MilitaryVessel, MilitaryFlightCluster, MilitaryVesselCluster, NaturalEvent, CyberThreat, CableHealthRecord } from '@/types';
+import type { AirportDelayAlert } from '@/services/aviation';
+import type { Earthquake } from '@/services/earthquakes';
 import type { TechHubActivity } from '@/services/tech-activity';
 import type { GeoHubActivity } from '@/services/geo-activity';
 import { getNaturalEventIcon } from '@/services/eonet';
@@ -119,6 +121,7 @@ export class MapComponent {
   private aisDensity: AisDensityZone[] = [];
   private cableAdvisories: CableAdvisory[] = [];
   private repairShips: RepairShip[] = [];
+  private healthByCableId: Record<string, CableHealthRecord> = {};
   private protests: SocialUnrestEvent[] = [];
   private flightDelays: AirportDelayAlert[] = [];
   private militaryFlights: MilitaryFlight[] = [];
@@ -136,7 +139,7 @@ export class MapComponent {
   private popup: MapPopup;
   private onHotspotClick?: (hotspot: Hotspot) => void;
   private onTimeRangeChange?: (range: TimeRange) => void;
-  private onLayerChange?: (layer: keyof MapLayers, enabled: boolean) => void;
+  private onLayerChange?: (layer: keyof MapLayers, enabled: boolean, source: 'user' | 'programmatic') => void;
   private layerZoomOverrides: Partial<Record<keyof MapLayers, boolean>> = {};
   private onStateChange?: (state: MapState) => void;
   private highlightedAssets: Record<AssetType, Set<string>> = {
@@ -318,15 +321,7 @@ export class MapComponent {
     return ranges[this.state.timeRange];
   }
 
-  private filterByTime<T extends { time?: Date }>(items: T[]): T[] {
-    if (this.state.timeRange === 'all') return items;
-    const now = Date.now();
-    const cutoff = now - this.getTimeRangeMs();
-    return items.filter((item) => {
-      if (!item.time) return true;
-      return item.time.getTime() >= cutoff;
-    });
-  }
+
 
   private createLayerToggles(): HTMLElement {
     const toggles = document.createElement('div');
@@ -357,7 +352,10 @@ export class MapComponent {
       'sanctions', 'economic', 'waterways',               // geopolitical/economic
       'natural', 'weather',                               // natural events
     ];
-    const layers = SITE_VARIANT === 'tech' ? techLayers : SITE_VARIANT === 'finance' ? financeLayers : fullLayers;
+    const happyLayers: (keyof MapLayers)[] = [
+      'positiveEvents', 'kindness', 'happiness', 'speciesRecovery', 'renewableInstallations',
+    ];
+    const layers = SITE_VARIANT === 'tech' ? techLayers : SITE_VARIANT === 'finance' ? financeLayers : SITE_VARIANT === 'happy' ? happyLayers : fullLayers;
     const layerLabelKeys: Partial<Record<keyof MapLayers, string>> = {
       hotspots: 'components.deckgl.layers.intelHotspots',
       conflicts: 'components.deckgl.layers.conflictZones',
@@ -448,16 +446,17 @@ export class MapComponent {
           helpItem(label('cloudRegions'), 'techCloudRegions'),
           helpItem(label('techHQs'), 'techHQs'),
           helpItem(label('accelerators'), 'techAccelerators'),
+          helpItem(label('techEvents'), 'techEvents'),
         ])}
         ${helpSection('infrastructure', [
           helpItem(label('underseaCables'), 'infraCables'),
           helpItem(label('aiDataCenters'), 'infraDatacenters'),
           helpItem(label('internetOutages'), 'infraOutages'),
+          helpItem(label('cyberThreats'), 'techCyberThreats'),
         ])}
         ${helpSection('naturalEconomic', [
           helpItem(label('naturalEvents'), 'naturalEventsTech'),
-          helpItem(label('weatherAlerts'), 'weatherAlerts'),
-          helpItem(label('economicCenters'), 'economicCenters'),
+          helpItem(label('fires'), 'techFires'),
           helpItem(staticLabel('countries'), 'countriesOverlay'),
         ])}
       </div>
@@ -471,6 +470,7 @@ export class MapComponent {
           helpItem(label('financialCenters'), 'financeCenters'),
           helpItem(label('centralBanks'), 'financeCentralBanks'),
           helpItem(label('commodityHubs'), 'financeCommodityHubs'),
+          helpItem(label('gulfInvestments'), 'financeGulfInvestments'),
         ])}
         ${helpSection('infrastructureRisk', [
           helpItem(label('underseaCables'), 'financeCables'),
@@ -499,27 +499,34 @@ export class MapComponent {
           helpItem(label('intelHotspots'), 'geoHotspots'),
           helpItem(staticLabel('sanctions'), 'geoSanctions'),
           helpItem(label('protests'), 'geoProtests'),
+          helpItem(label('ucdpEvents'), 'geoUcdpEvents'),
+          helpItem(label('displacementFlows'), 'geoDisplacement'),
         ])}
         ${helpSection('militaryStrategic', [
           helpItem(label('militaryBases'), 'militaryBases'),
           helpItem(label('nuclearSites'), 'militaryNuclear'),
           helpItem(label('gammaIrradiators'), 'militaryIrradiators'),
           helpItem(label('militaryActivity'), 'militaryActivity'),
+          helpItem(label('spaceports'), 'militarySpaceports'),
         ])}
         ${helpSection('infrastructure', [
           helpItem(label('underseaCables'), 'infraCablesFull'),
           helpItem(label('pipelines'), 'infraPipelinesFull'),
           helpItem(label('internetOutages'), 'infraOutages'),
           helpItem(label('aiDataCenters'), 'infraDatacentersFull'),
+          helpItem(label('cyberThreats'), 'infraCyberThreats'),
         ])}
         ${helpSection('transport', [
-          helpItem(staticLabel('shipping'), 'transportShipping'),
+          helpItem(label('shipTraffic'), 'transportShipping'),
           helpItem(label('flightDelays'), 'transportDelays'),
         ])}
         ${helpSection('naturalEconomic', [
           helpItem(label('naturalEvents'), 'naturalEventsFull'),
+          helpItem(label('fires'), 'firesFull'),
           helpItem(label('weatherAlerts'), 'weatherAlerts'),
+          helpItem(label('climateAnomalies'), 'climateAnomalies'),
           helpItem(label('economicCenters'), 'economicCenters'),
+          helpItem(label('criticalMinerals'), 'mineralsFull'),
         ])}
         ${helpSection('labels', [
           helpItem(staticLabel('countries'), 'countriesOverlay'),
@@ -578,12 +585,17 @@ export class MapComponent {
         <div class="map-legend-item"><span class="map-legend-icon" style="color:#a855f7">📅</span>${escapeHtml(t('components.deckgl.layers.techEvents').toUpperCase())}</div>
         <div class="map-legend-item"><span class="map-legend-icon" style="color:#4ecdc4">💾</span>${escapeHtml(t('components.deckgl.layers.aiDataCenters').toUpperCase())}</div>
       `;
+    } else if (SITE_VARIANT === 'happy') {
+      // Happy variant legend — natural events only
+      legend.innerHTML = `
+        <div class="map-legend-item"><span class="map-legend-icon earthquake">●</span>${escapeHtml(t('components.deckgl.layers.naturalEvents').toUpperCase())}</div>
+      `;
     } else {
       // Geopolitical variant legend
       legend.innerHTML = `
-        <div class="map-legend-item"><span class="legend-dot high"></span>${escapeHtml(t('popups.hotspot.levels.high').toUpperCase())}</div>
-        <div class="map-legend-item"><span class="legend-dot elevated"></span>${escapeHtml(t('popups.hotspot.levels.elevated').toUpperCase())}</div>
-        <div class="map-legend-item"><span class="legend-dot low"></span>${escapeHtml(t('popups.monitoring').toUpperCase())}</div>
+        <div class="map-legend-item"><span class="legend-dot high"></span>${escapeHtml((t('popups.hotspot.levels.high') ?? 'HIGH').toUpperCase())}</div>
+        <div class="map-legend-item"><span class="legend-dot elevated"></span>${escapeHtml((t('popups.hotspot.levels.elevated') ?? 'ELEVATED').toUpperCase())}</div>
+        <div class="map-legend-item"><span class="legend-dot low"></span>${escapeHtml((t('popups.monitoring') ?? 'MONITORING').toUpperCase())}</div>
         <div class="map-legend-item"><span class="map-legend-icon conflict">⚔</span>${escapeHtml(t('modals.search.types.conflict').toUpperCase())}</div>
         <div class="map-legend-item"><span class="map-legend-icon earthquake">●</span>${escapeHtml(t('modals.search.types.earthquake').toUpperCase())}</div>
         <div class="map-legend-item"><span class="map-legend-icon apt">⚠</span>APT</div>
@@ -620,6 +632,14 @@ export class MapComponent {
     let lastPos = { x: 0, y: 0 };
     let lastTouchDist = 0;
     let lastTouchCenter = { x: 0, y: 0 };
+    const shouldIgnoreInteractionStart = (target: EventTarget | null): boolean => {
+      if (!(target instanceof Element)) return false;
+      return Boolean(
+        target.closest(
+          '.map-controls, .time-slider, .layer-toggles, .map-legend, .layer-help-popup, .map-popup, button, select, input, textarea, a'
+        )
+      );
+    };
 
     // Wheel zoom with smooth delta
     this.container.addEventListener(
@@ -652,6 +672,7 @@ export class MapComponent {
 
     // Mouse drag for panning
     this.container.addEventListener('mousedown', (e) => {
+      if (shouldIgnoreInteractionStart(e.target)) return;
       if (e.button === 0) { // Left click
         isDragging = true;
         lastPos = { x: e.clientX, y: e.clientY };
@@ -682,6 +703,7 @@ export class MapComponent {
 
     // Touch events for mobile and trackpad
     this.container.addEventListener('touchstart', (e) => {
+      if (shouldIgnoreInteractionStart(e.target)) return;
       const touch1 = e.touches[0];
       const touch2 = e.touches[1];
 
@@ -816,6 +838,7 @@ export class MapComponent {
     }
 
     // Simple viewBox matching container - keeps SVG and overlays aligned
+    if (!this.svg) return;
     this.svg.attr('viewBox', `0 0 ${width} ${height}`);
 
     // CRITICAL: Always refresh d3 selections from actual DOM to prevent stale references
@@ -1036,11 +1059,13 @@ export class MapComponent {
       const isHighlighted = this.highlightedAssets.cable.has(cable.id);
       const cableAdvisory = this.getCableAdvisory(cable.id);
       const advisoryClass = cableAdvisory ? `cable-${cableAdvisory.severity}` : '';
+      const healthRecord = this.healthByCableId[cable.id];
+      const healthClass = healthRecord?.status === 'fault' ? 'cable-health-fault' : healthRecord?.status === 'degraded' ? 'cable-health-degraded' : '';
       const highlightClass = isHighlighted ? 'asset-highlight asset-highlight-cable' : '';
 
       const path = cableGroup
         .append('path')
-        .attr('class', `cable-path ${advisoryClass} ${highlightClass}`.trim())
+        .attr('class', `cable-path ${advisoryClass} ${healthClass} ${highlightClass}`.trim())
         .attr('d', lineGenerator(cable.points));
 
       path.append('title').text(cable.name);
@@ -1391,13 +1416,15 @@ export class MapComponent {
     // Earthquakes (magnitude-based sizing) - part of NATURAL layer
     if (this.state.layers.natural) {
       console.log('[Map] Rendering earthquakes. Total:', this.earthquakes.length, 'Layer enabled:', this.state.layers.natural);
-      const filteredQuakes = this.filterByTime(this.earthquakes);
+      const filteredQuakes = this.state.timeRange === 'all'
+        ? this.earthquakes
+        : this.earthquakes.filter((eq) => eq.occurredAt >= Date.now() - this.getTimeRangeMs());
       console.log('[Map] After time filter:', filteredQuakes.length, 'earthquakes. TimeRange:', this.state.timeRange);
       let rendered = 0;
       filteredQuakes.forEach((eq) => {
-        const pos = projection([eq.lon, eq.lat]);
+        const pos = projection([eq.location?.longitude ?? 0, eq.location?.latitude ?? 0]);
         if (!pos) {
-          console.log('[Map] Earthquake position null for:', eq.place, eq.lon, eq.lat);
+          console.log('[Map] Earthquake position null for:', eq.place, eq.location?.longitude, eq.location?.latitude);
           return;
         }
         rendered++;
@@ -2870,7 +2897,7 @@ export class MapComponent {
     'natural', 'weather', 'outages', 'ais', 'protests', 'flights', 'military', 'techEvents',
   ]);
 
-  public toggleLayer(layer: keyof MapLayers): void {
+  public toggleLayer(layer: keyof MapLayers, source: 'user' | 'programmatic' = 'user'): void {
     console.log(`[Map.toggleLayer] ${layer}: ${this.state.layers[layer]} -> ${!this.state.layers[layer]}`);
     this.state.layers[layer] = !this.state.layers[layer];
     if (this.state.layers[layer]) {
@@ -2898,12 +2925,12 @@ export class MapComponent {
       btn?.classList.remove('loading');
     }
 
-    this.onLayerChange?.(layer, this.state.layers[layer]);
+    this.onLayerChange?.(layer, this.state.layers[layer], source);
     // Defer render to next frame to avoid blocking the click handler
     requestAnimationFrame(() => this.render());
   }
 
-  public setOnLayerChange(callback: (layer: keyof MapLayers, enabled: boolean) => void): void {
+  public setOnLayerChange(callback: (layer: keyof MapLayers, enabled: boolean, source: 'user' | 'programmatic') => void): void {
     this.onLayerChange = callback;
   }
 
@@ -3119,7 +3146,7 @@ export class MapComponent {
       }
       const btn = document.querySelector(`[data-layer="${layer}"]`);
       btn?.classList.add('active');
-      this.onLayerChange?.(layer, true);
+      this.onLayerChange?.(layer, true, 'programmatic');
       this.render();
     }
   }
@@ -3391,6 +3418,11 @@ export class MapComponent {
     this.cableAdvisories = advisories;
     this.repairShips = repairShips;
     this.popup.setCableActivity(advisories, repairShips);
+    this.render();
+  }
+
+  public setCableHealth(healthMap: Record<string, CableHealthRecord>): void {
+    this.healthByCableId = healthMap;
     this.render();
   }
 

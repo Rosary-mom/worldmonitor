@@ -58,7 +58,7 @@ export class NewsPanel extends Panel {
         chunkSize: 8, // Render 8 items per chunk
         bufferChunks: 1, // 1 chunk buffer above/below
       },
-      (prepared) => this.renderClusterHtml(
+      (prepared) => this.renderClusterHtmlSafely(
         prepared.cluster,
         prepared.isNew,
         prepared.shouldHighlight,
@@ -272,10 +272,12 @@ export class NewsPanel extends Panel {
 
     this.setDataBadge('live');
 
+    // Always show flat items immediately for instant visual feedback,
+    // then upgrade to clustered view in the background when ready.
+    this.renderFlat(items);
+
     if (this.clusteredMode) {
       void this.renderClustersAsync(items);
-    } else {
-      this.renderFlat(items);
     }
   }
 
@@ -298,13 +300,17 @@ export class NewsPanel extends Panel {
       this.renderClusters(enriched);
     } catch (error) {
       if (requestId !== this.renderRequestId) return;
-      console.error('[NewsPanel] Failed to cluster news:', error);
-      this.showError(t('common.failedClusterNews'));
+      // Keep already-rendered flat list visible when clustering fails.
+      console.warn('[NewsPanel] Failed to cluster news, keeping flat list:', error);
     }
   }
 
   private renderFlat(items: NewsItem[]): void {
     this.setCount(items.length);
+    this.currentHeadlines = items
+      .slice(0, 5)
+      .map(item => item.title)
+      .filter((title): title is string => typeof title === 'string' && title.trim().length > 0);
 
     const html = items
       .map(
@@ -341,8 +347,8 @@ export class NewsPanel extends Panel {
     this.setCount(totalItems);
     this.relatedAssetContext.clear();
 
-    // Store headlines for summarization
-    this.currentHeadlines = sorted.slice(0, 10).map(c => c.primaryTitle);
+    // Store headlines for summarization (cap at 5 to reduce entity conflation in small models)
+    this.currentHeadlines = sorted.slice(0, 5).map(c => c.primaryTitle);
 
     const clusterIds = sorted.map(c => c.id);
     let newItemIds: Set<string>;
@@ -379,10 +385,30 @@ export class NewsPanel extends Panel {
     } else {
       // Direct render for small lists
       const html = prepared
-        .map(p => this.renderClusterHtml(p.cluster, p.isNew, p.shouldHighlight, p.showNewTag))
+        .map(p => this.renderClusterHtmlSafely(p.cluster, p.isNew, p.shouldHighlight, p.showNewTag))
         .join('');
       this.setContent(html);
       this.bindRelatedAssetEvents();
+    }
+  }
+
+  private renderClusterHtmlSafely(
+    cluster: ClusteredEvent,
+    isNew: boolean,
+    shouldHighlight: boolean,
+    showNewTag: boolean
+  ): string {
+    try {
+      return this.renderClusterHtml(cluster, isNew, shouldHighlight, showNewTag);
+    } catch (error) {
+      console.error('[NewsPanel] Failed to render cluster card:', error, cluster);
+      const clusterId = typeof cluster?.id === 'string' ? cluster.id : 'unknown-cluster';
+      return `
+        <div class="item clustered item-render-error" data-cluster-id="${escapeHtml(clusterId)}">
+          <div class="item-source">${t('common.error')}</div>
+          <div class="item-title">Failed to display this cluster.</div>
+        </div>
+      `;
     }
   }
 

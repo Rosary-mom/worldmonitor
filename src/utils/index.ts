@@ -112,11 +112,33 @@ export function loadFromStorage<T>(key: string, defaultValue: T): T {
   return defaultValue;
 }
 
+let _storageQuotaExceeded = false;
+
+export function isStorageQuotaExceeded(): boolean {
+  return _storageQuotaExceeded;
+}
+
+export function isQuotaError(e: unknown): boolean {
+  return e instanceof DOMException && (e.name === 'QuotaExceededError' || e.code === 22);
+}
+
+export function markStorageQuotaExceeded(): void {
+  if (!_storageQuotaExceeded) {
+    _storageQuotaExceeded = true;
+    console.warn('[Storage] Quota exceeded — disabling further writes');
+  }
+}
+
 export function saveToStorage<T>(key: string, value: T): void {
+  if (_storageQuotaExceeded) return;
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch (e) {
-    console.warn(`Failed to save ${key} to storage:`, e);
+    if (isQuotaError(e)) {
+      markStorageQuotaExceeded();
+    } else {
+      console.warn(`Failed to save ${key} to storage:`, e);
+    }
   }
 }
 
@@ -124,10 +146,12 @@ export function generateId(): string {
   return `id-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
+/** Breakpoint (px): below this width the app uses the simplified mobile layout. Must match CSS @media (max-width: …). */
+export const MOBILE_BREAKPOINT_PX = 768;
+
+/** True when viewport is below mobile breakpoint. Touch-capable notebooks keep desktop layout. */
 export function isMobileDevice(): boolean {
-  const isMobileWidth = window.innerWidth < 768;
-  const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
-  return isMobileWidth || isTouchDevice;
+  return window.innerWidth < MOBILE_BREAKPOINT_PX;
 }
 
 export function chunkArray<T>(items: T[], size: number): T[][] {

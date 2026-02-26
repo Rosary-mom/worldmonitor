@@ -1,28 +1,21 @@
 import i18next from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
-const SUPPORTED_LANGUAGES = ['en', 'fr', 'de', 'es', 'it', 'pl', 'pt', 'nl', 'sv', 'ru', 'ar', 'zh', 'ja'] as const;
+// English is always needed as fallback — bundle it eagerly.
+import enTranslation from '../locales/en.json';
+
+const SUPPORTED_LANGUAGES = ['en', 'fr', 'de', 'el', 'es', 'it', 'pl', 'pt', 'nl', 'sv', 'ru', 'ar', 'zh', 'ja', 'tr', 'th', 'vi'] as const;
 type SupportedLanguage = typeof SUPPORTED_LANGUAGES[number];
 type TranslationDictionary = Record<string, unknown>;
 
 const SUPPORTED_LANGUAGE_SET = new Set<SupportedLanguage>(SUPPORTED_LANGUAGES);
 const loadedLanguages = new Set<SupportedLanguage>();
 
-const LOCALE_LOADERS: Record<SupportedLanguage, () => Promise<TranslationDictionary>> = {
-  en: async () => (await import('../locales/en.json')).default as TranslationDictionary,
-  fr: async () => (await import('../locales/fr.json')).default as TranslationDictionary,
-  de: async () => (await import('../locales/de.json')).default as TranslationDictionary,
-  es: async () => (await import('../locales/es.json')).default as TranslationDictionary,
-  it: async () => (await import('../locales/it.json')).default as TranslationDictionary,
-  pl: async () => (await import('../locales/pl.json')).default as TranslationDictionary,
-  pt: async () => (await import('../locales/pt.json')).default as TranslationDictionary,
-  nl: async () => (await import('../locales/nl.json')).default as TranslationDictionary,
-  sv: async () => (await import('../locales/sv.json')).default as TranslationDictionary,
-  ru: async () => (await import('../locales/ru.json')).default as TranslationDictionary,
-  ar: async () => (await import('../locales/ar.json')).default as TranslationDictionary,
-  zh: async () => (await import('../locales/zh.json')).default as TranslationDictionary,
-  ja: async () => (await import('../locales/ja.json')).default as TranslationDictionary,
-};
+// Lazy-load only the locale that's actually needed — all others stay out of the bundle.
+const localeModules = import.meta.glob<TranslationDictionary>(
+  ['../locales/*.json', '!../locales/en.json'],
+  { import: 'default' },
+);
 
 const RTL_LANGUAGES = new Set(['ar']);
 
@@ -50,7 +43,19 @@ async function ensureLanguageLoaded(lng: string): Promise<SupportedLanguage> {
     return normalized;
   }
 
-  const translation = await LOCALE_LOADERS[normalized]();
+  let translation: TranslationDictionary;
+  if (normalized === 'en') {
+    translation = enTranslation as TranslationDictionary;
+  } else {
+    const loader = localeModules[`../locales/${normalized}.json`];
+    if (!loader) {
+      console.warn(`No locale file for "${normalized}", falling back to English`);
+      translation = enTranslation as TranslationDictionary;
+    } else {
+      translation = await loader();
+    }
+  }
+
   i18next.addResourceBundle(normalized, 'translation', translation, true, true);
   loadedLanguages.add(normalized);
   return normalized;
@@ -65,14 +70,13 @@ export async function initI18n(): Promise<void> {
     return;
   }
 
-  const fallbackTranslation = await LOCALE_LOADERS.en();
   loadedLanguages.add('en');
 
   await i18next
     .use(LanguageDetector)
     .init({
       resources: {
-        en: { translation: fallbackTranslation },
+        en: { translation: enTranslation as TranslationDictionary },
       },
       supportedLngs: [...SUPPORTED_LANGUAGES],
       nonExplicitSupportedLngs: true,
@@ -121,7 +125,7 @@ export function isRTL(): boolean {
 
 export function getLocale(): string {
   const lang = getCurrentLanguage();
-  const map: Record<string, string> = { en: 'en-US', zh: 'zh-CN', pt: 'pt-BR', ja: 'ja-JP' };
+  const map: Record<string, string> = { en: 'en-US', el: 'el-GR', zh: 'zh-CN', pt: 'pt-BR', ja: 'ja-JP', tr: 'tr-TR', th: 'th-TH', vi: 'vi-VN' };
   return map[lang] || lang;
 }
 
@@ -131,6 +135,7 @@ export const LANGUAGES = [
   { code: 'zh', label: '中文', flag: '🇨🇳' },
   { code: 'fr', label: 'Français', flag: '🇫🇷' },
   { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
+  { code: 'el', label: 'Ελληνικά', flag: '🇬🇷' },
   { code: 'es', label: 'Español', flag: '🇪🇸' },
   { code: 'it', label: 'Italiano', flag: '🇮🇹' },
   { code: 'pl', label: 'Polski', flag: '🇵🇱' },
@@ -139,4 +144,7 @@ export const LANGUAGES = [
   { code: 'sv', label: 'Svenska', flag: '🇸🇪' },
   { code: 'ru', label: 'Русский', flag: '🇷🇺' },
   { code: 'ja', label: '日本語', flag: '🇯🇵' },
+  { code: 'th', label: 'ไทย', flag: '🇹🇭' },
+  { code: 'tr', label: 'Türkçe', flag: '🇹🇷' },
+  { code: 'vi', label: 'Tiếng Việt', flag: '🇻🇳' },
 ];

@@ -2,9 +2,10 @@ import { escapeHtml, sanitizeUrl } from '@/utils/sanitize';
 import { t } from '@/services/i18n';
 import { getCSSColor } from '@/utils';
 import type { CountryScore } from '@/services/country-instability';
-import type { PredictionMarket, NewsItem } from '@/types';
+import type { NewsItem } from '@/types';
+import type { PredictionMarket } from '@/services/prediction';
 import type { AssetType } from '@/types';
-import type { CountryBriefSignals } from '@/App';
+import type { CountryBriefSignals } from '@/app/app-context';
 import type { StockIndexData } from '@/components/CountryIntelModal';
 import { getNearbyInfrastructure, haversineDistanceKm } from '@/services/related-assets';
 import { PORTS } from '@/config/ports';
@@ -75,6 +76,7 @@ export class CountryBriefPage {
   private onExportImage?: (code: string, name: string) => void;
   private boundExportMenuClose: (() => void) | null = null;
   private boundCitationClick: ((e: Event) => void) | null = null;
+  private abortController: AbortController = new AbortController();
 
   constructor() {
     this.overlay = document.createElement('div');
@@ -114,13 +116,17 @@ export class CountryBriefPage {
 
   private levelBadge(level: string): string {
     const color = this.levelColor(level);
-    return `<span class="cb-badge" style="background:${color}20;color:${color};border:1px solid ${color}40">${level.toUpperCase()}</span>`;
+    const levelKey = level as 'critical' | 'high' | 'elevated' | 'moderate' | 'normal' | 'low';
+    const label = t(`countryBrief.levels.${levelKey}`);
+    return `<span class="cb-badge" style="background:${color}20;color:${color};border:1px solid ${color}40">${label.toUpperCase()}</span>`;
   }
 
   private trendIndicator(trend: string): string {
     const arrow = trend === 'rising' ? '↗' : trend === 'falling' ? '↘' : '→';
     const cls = trend === 'rising' ? 'trend-up' : trend === 'falling' ? 'trend-down' : 'trend-stable';
-    return `<span class="cb-trend ${cls}">${arrow} ${trend}</span>`;
+    const trendKey = trend as 'rising' | 'falling' | 'stable';
+    const trendLabel = t(`countryBrief.trends.${trendKey}`);
+    return `<span class="cb-trend ${cls}">${arrow} ${trendLabel}</span>`;
   }
 
   private scoreRing(score: number, level: string): string {
@@ -214,7 +220,13 @@ export class CountryBriefPage {
     this.overlay.classList.add('active');
   }
 
+  public get signal(): AbortSignal {
+    return this.abortController.signal;
+  }
+
   public show(country: string, code: string, score: CountryScore | null, signals: CountryBriefSignals): void {
+    this.abortController.abort();
+    this.abortController = new AbortController();
     this.currentCode = code;
     this.currentName = country;
     this.currentScore = score;
@@ -251,6 +263,7 @@ export class CountryBriefPage {
               </button>
               <div class="cb-export-menu hidden">
                 <button class="cb-export-option" data-format="image">${t('common.exportImage')}</button>
+                <button class="cb-export-option" data-format="pdf">${t('common.exportPdf')}</button>
                 <button class="cb-export-option" data-format="json">${t('common.exportJson')}</button>
                 <button class="cb-export-option" data-format="csv">${t('common.exportCsv')}</button>
               </div>
@@ -351,6 +364,8 @@ export class CountryBriefPage {
           if (this.onExportImage && this.currentCode && this.currentName) {
             this.onExportImage(this.currentCode, this.currentName);
           }
+        } else if (format === 'pdf') {
+          this.exportPdf();
         } else {
           this.exportBrief(format as 'json' | 'csv');
         }
@@ -608,7 +623,44 @@ export class CountryBriefPage {
     else exportCountryBriefCSV(data);
   }
 
+  private exportPdf(): void {
+    const content = this.overlay.querySelector('.cb-body');
+    const header = this.overlay.querySelector('.cb-header');
+    if (!content) return;
+
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:fixed;left:-9999px;width:0;height:0;border:none';
+    document.body.appendChild(iframe);
+    const doc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!doc) { document.body.removeChild(iframe); return; }
+
+    const styles = Array.from(document.querySelectorAll('link[rel="stylesheet"], style'))
+      .map(el => el.outerHTML).join('\n');
+
+    doc.open();
+    doc.write(`<!DOCTYPE html><html><head><meta charset="utf-8">${styles}
+      <style>
+        @media print { body { margin: 0; padding: 16px; background: #fff; color: #111; }
+          .cb-grid { display: block !important; }
+          .cb-grid > * { break-inside: avoid; margin-bottom: 16px; }
+          .cb-badge, .cb-trend { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+          canvas { max-width: 100% !important; }
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .country-brief-overlay { position: static !important; background: none !important; }
+      </style>
+    </head><body>${header ? header.outerHTML : ''}${content.outerHTML}</body></html>`);
+    doc.close();
+
+    iframe.contentWindow!.onafterprint = () => document.body.removeChild(iframe);
+    setTimeout(() => {
+      iframe.contentWindow!.print();
+      setTimeout(() => { if (iframe.parentNode) document.body.removeChild(iframe); }, 5000);
+    }, 300);
+  }
+
   public hide(): void {
+    this.abortController.abort();
     this.overlay.classList.remove('active');
     this.currentCode = null;
     this.currentName = null;

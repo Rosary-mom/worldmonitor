@@ -11,6 +11,8 @@
     "map": "Interactive Map",
     "techMap": "Global Teknik",
     "politics": "Världsnyheter",
+    "us": "USA",
+    "europe": "Europa",
     "tech": "Teknologi",
     "finance": "Finansiell",
     "gov": "Regering",
@@ -39,6 +41,7 @@
     "energy": "Energi & resurser",
     "etfFlows": "BTC ETF-spårare",
     "economic": "Ekonomiska indikatorer",
+    "tradePolicy": "Handelspolitik",
     "macroSignals": "Marknadsradar",
     "commodities": "Handelsvaror",
     "monitors": "Mina monitorer",
@@ -58,14 +61,15 @@
     "gccInvestments": "GCC-investeringar",
     "geoHubs": "Geopolitical Hotspots",
     "polymarket": "Förutsägelser",
-    "climate": "Klimatanomalier"
+    "climate": "Klimatanomalier",
+    "liveWebcams": "Webbkameror"
   },
   "modals": {
     "search": {
-      "placeholder": "Sök efter nyheter, pipelines, baser, marknader...",
-      "hint": "Nyheter • Rörledningar • Baser • Kablar • Datacenter • Marknader",
+      "placeholder": "Sök eller skriv ett kommando...",
+      "hint": "Sök • Länder • Lager • Paneler • Navigering • Inställningar",
       "recent": "Senaste sökningar",
-      "empty": "Sök i alla datakällor",
+      "empty": "Sök data eller kör kommandon",
       "noResults": "No results found",
       "navigate": "navigera",
       "select": "välja",
@@ -92,10 +96,10 @@
         "techhq": "Teknikhuvudkontor",
         "accelerator": "Accelerator"
       },
-      "placeholderTech": "Sök företag, AI-labb, startups, evenemang...",
-      "hintTech": "HQs • Företag • AI Labs • Startups • Acceleratorer • Events",
-      "placeholderFinance": "Sök börser, marknader, centralbanker...",
-      "hintFinance": "Börser • Finansiella centra • Centralbanker • Råvaror"
+      "placeholderTech": "Sök eller skriv ett kommando...",
+      "hintTech": "Sök • Företag • AI-labb • Lager • Navigering • Inställningar",
+      "placeholderFinance": "Sök eller skriv ett kommando...",
+      "hintFinance": "Sök • Börser • Marknader • Lager • Navigering • Inställningar"
     },
     "signal": {
       "source": "Source",
@@ -185,7 +189,9 @@
         "OTX_API_KEY": "Valfri berikningskälla för cyberhot-lagret.",
         "ABUSEIPDB_API_KEY": "Valfri berikningskälla för rykte för skadliga IP-adresser.",
         "FINNHUB_API_KEY": "Aktiekurser och marknadsdata i realtid.",
-        "NASA_FIRMS_API_KEY": "Brandinformationssystem för resurshantering."
+        "NASA_FIRMS_API_KEY": "Brandinformationssystem för resurshantering.",
+        "OLLAMA_API_URL": "e.g. http://127.0.0.1:11434 (Ollama) or http://127.0.0.1:1234/v1 (LM Studio) — OpenAI-compatible endpoint.",
+        "OLLAMA_MODEL": "e.g. llama3.1:8b — model tag to use for summarization."
       }
     },
     "countryIntel": {
@@ -253,6 +259,29 @@
         "base": "Militärbaser",
         "nuclear": "Kärntekniska anläggningar",
         "port": "Hamnar"
+      },
+      "levels": {
+        "critical": "Critical",
+        "high": "High",
+        "elevated": "Elevated",
+        "moderate": "Moderate",
+        "normal": "Normal",
+        "low": "Low"
+      },
+      "trends": {
+        "rising": "Rising",
+        "falling": "Falling",
+        "stable": "Stable"
+      },
+      "fallback": {
+        "instabilityIndex": "**Instability Index: {{score}}/100** ({{level}}, {{trend}})",
+        "protestsDetected": "{{count}} active protests detected",
+        "aircraftTracked": "{{count}} military aircraft tracked",
+        "vesselsTracked": "{{count}} military vessels tracked",
+        "internetOutages": "{{count}} internet outages",
+        "recentEarthquakes": "{{count}} recent earthquakes",
+        "stockIndex": "Stock index: {{value}}",
+        "recentHeadlines": "**Recent headlines:**"
       }
     },
     "story": {
@@ -301,6 +330,15 @@
       "showingMatches": "Visar {{count}} av {{total}} matchningar",
       "match": "träff",
       "matches": "träffar"
+    },
+    "webcams": {
+      "regions": {
+        "all": "ALLA",
+        "mideast": "MELLANÖSTERN",
+        "europe": "EUROPA",
+        "americas": "AMERIKA",
+        "asia": "ASIEN"
+      }
     },
     "playback": {
       "live": "LIVE",
@@ -374,7 +412,8 @@
         "financialCenters": "Finansiella centra",
         "centralBanks": "centralbanker",
         "commodityHubs": "Råvaruhubbar",
-        "gulfInvestments": "GCC-investeringar"
+        "gulfInvestments": "GCC-investeringar",
+        "tradeRoutes": "Handelsrutter"
       },
       "layersTitle": "Lager",
       "layerGuide": "Lagerguide",
@@ -466,7 +505,8 @@
           "transportShipping": "Fartyg, chokepoints, 61 strategiska hamnar",
           "transportDelays": "Flygplatsförseningar och markstopp (FAA)",
           "naturalEventsFull": "Jordbävningar (USGS) + stormar, bränder, vulkaner, översvämningar (NASA EONET)",
-          "waterwaysLabels": "Strategiska chokepointetiketter"
+          "waterwaysLabels": "Strategiska chokepointetiketter",
+          "tradeRoutes": "Stora globala sjöfartsleder som förbinder hamnar via strategiska flaskhalsar"
         },
         "notes": {
           "timeAffects": "Påverkar: Jordbävningar, väder, protester, avbrott"
@@ -581,19 +621,76 @@
       },
       "clickToViewMap": "Klicka för att se på kartan",
       "refresh": "Uppdatera",
-      "infoTooltip": "<strong>Metodik</strong><p>Aggregerar militära flygplan och marinfartyg efter teater.</p><ul><li><strong>Normal:</strong> Baslinjeaktivitet</li><li><strong>Hög:</strong> (över 50 trösklar) flygplan)</li><li><strong>Kritisk:</strong> Hög koncentration (100+ flygplan)</li></ul><p><strong>Strike Capable:</strong> Tankers + AWACS + Jagarfartyg närvarande i tillräckligt antal för ihållande operationer.</p>"
+      "infoTooltip": "<strong>Metodik</strong><p>Aggregerar militära flygplan och marinfartyg efter teater.</p><ul><li><strong>Normal:</strong> Baslinjeaktivitet</li><li><strong>Hög:</strong> (över 50 trösklar) flygplan)</li><li><strong>Kritisk:</strong> Hög koncentration (100+ flygplan)</li></ul><p><strong>Strike Capable:</strong> Tankers + AWACS + Jagarfartyg närvarande i tillräckligt antal för ihållande operationer.</p>",
+      "scanningTheaters": "Skannar teatrar",
+      "positions": "Flygplanspositioner",
+      "navalVesselsLoading": "Marinfartyg",
+      "theaterAnalysis": "Teateranalys",
+      "connectingStreams": "Ansluter till live ADS-B & AIS-strömmar...",
+      "initialLoadNote": "Första laddningen tar 30-60 sekunder medan spårningsdata ackumuleras",
+      "acquiringData": "Hämtar data",
+      "acquiringDesc": "Ansluter till ADS-B-nätverket för militära flygdata. Detta kan ta 30-60 sekunder vid första laddningen.",
+      "openSkyAdsb": "OpenSky ADS-B",
+      "aisVesselStream": "AIS Fartygsström",
+      "retryNow": "Försök igen nu",
+      "feedRateLimited": "Flöde hastighetsbegränsat",
+      "rateLimitedDesc": "OpenSky API har begränsningar. Panelen försöker automatiskt igen om några minuter, eller så kan du prova nu.",
+      "rateLimitedTip": "Tips: Högtrafiktimmar (UTC 12:00-20:00) har ofta högre gränser.",
+      "tryAgain": "Försök igen",
+      "badges": {
+        "critical": "KRIT",
+        "elevated": "FÖRH",
+        "normal": "NORM"
+      },
+      "trendStable": "stabil",
+      "domains": {
+        "air": "LUFT",
+        "sea": "SJÖ"
+      },
+      "strike": "STRIKE",
+      "staleWarning": "Använder cachad data - liveflöde tillfälligt otillgängligt",
+      "updated": "Uppdaterad:",
+      "theaters": {
+        "iran-theater": "Iran-teatern",
+        "taiwan-theater": "Taiwansundet",
+        "baltic-theater": "Baltiska teatern",
+        "blacksea-theater": "Svarta havet",
+        "korea-theater": "Koreahalvön",
+        "south-china-sea": "Sydkinesiska havet",
+        "east-med-theater": "Östra Medelhavet",
+        "israel-gaza-theater": "Israel/Gaza",
+        "yemen-redsea-theater": "Jemen/Röda havet"
+      }
     },
     "techEvents": {
       "loading": "Laddar tekniska händelser...",
       "noEvents": "Inga händelser att visa",
       "showOnMap": "Visa på kartan",
-      "moreInfo": "Mer info"
+      "moreInfo": "Mer info",
+      "retry": "Retry",
+      "upcoming": "Upcoming",
+      "conferences": "Conferences",
+      "earnings": "Earnings",
+      "all": "All",
+      "conferencesCount": "{{count}} conferences",
+      "onMap": "{{count}} on map",
+      "techmemeEvents": "Techmeme Events ↗",
+      "today": "TODAY",
+      "soon": "SOON"
     },
     "techReadiness": {
       "internetUsers": "Internetanvändare",
       "mobileSubscriptions": "Mobilabonnemang",
       "rdSpending": "FoU-utgifter",
-      "infoTooltip": "<strong>Global Tech Readiness</strong><br>Sammansatt poäng (0-100) baserat på Världsbankens data:<br><br><strong>Visade mätvärden:</strong><br>🌐 Internetanvändare (% av befolkningen) <br>📱 per mobilabonnemang (R&PH_0__0 personer) Utgifter (% av BNP)<br><br><strong>Vikter:</strong> FoU (35%), Internet (30%), Bredband (20%), Mobilt (15%)<br><br><em>— = Ingen aktuell data tillgänglig</em><br><em> (2019-2024)</em>"
+      "infoTooltip": "<strong>Global Tech Readiness</strong><br>Sammansatt poäng (0-100) baserat på Världsbankens data:<br><br><strong>Visade mätvärden:</strong><br>🌐 Internetanvändare (% av befolkningen) <br>📱 per mobilabonnemang (R&PH_0__0 personer) Utgifter (% av BNP)<br><br><strong>Vikter:</strong> FoU (35%), Internet (30%), Bredband (20%), Mobilt (15%)<br><br><em>— = Ingen aktuell data tillgänglig</em><br><em> (2019-2024)</em>",
+      "fetchingData": "Fetching World Bank Data",
+      "internetUsersIndicator": "Internet Users",
+      "mobileSubscriptionsIndicator": "Mobile Subscriptions",
+      "broadbandAccess": "Broadband Access",
+      "rdExpenditure": "R&D Expenditure",
+      "analyzingCountries": "Analyzing 200+ countries...",
+      "source": "Source: World Bank",
+      "updated": "Updated: {{date}}"
     },
     "cascade": {
       "filters": {
@@ -672,7 +769,37 @@
       "noSpending": "Inga nya statliga utmärkelser",
       "awards": "utmärkelser",
       "noData": "Inga ekonomiska data tillgängliga",
-      "noOilData": "Oljedata ej tillgänglig"
+      "noOilData": "Oljedata ej tillgänglig",
+      "centralBanks": "Central Banks",
+      "noBisData": "BIS data temporarily unavailable - will retry",
+      "policyRate": "Policy Rate",
+      "exchangeRate": "Exchange Rate",
+      "creditToGdp": "Credit / GDP",
+      "realEer": "Real EER",
+      "change": "Change",
+      "cut": "cut",
+      "hike": "hike",
+      "hold": "hold"
+    },
+    "tradePolicy": {
+      "restrictions": "Restriktioner",
+      "tariffs": "Tullar",
+      "flows": "Handelsflöden",
+      "barriers": "Handelsbarriärer",
+      "noRestrictions": "Inga aktiva handelsrestriktioner",
+      "noTariffData": "Inga tulldata tillgängliga",
+      "noFlowData": "Inga handelsflödesdata tillgängliga",
+      "noBarriers": "Inga handelsbarriärer rapporterade",
+      "apiKeyMissing": "WTO API-nyckel krävs — lägg till den i Inställningar",
+      "upstreamUnavailable": "WTO-data tillfälligt otillgänglig — visar cachad data",
+      "appliedRate": "Tillämpad Tullsats",
+      "boundRate": "Bunden Tullsats",
+      "exports": "Export",
+      "imports": "Import",
+      "yoyChange": "Förändring på Årsbasis",
+      "highTariff": "Hög",
+      "moderateTariff": "Måttlig",
+      "lowTariff": "Låg"
     },
     "satelliteFires": {
       "region": "Område",
@@ -726,7 +853,41 @@
       "infoTooltip": "<strong>GDELT Intelligence</strong> Global nyhetsövervakning i realtid:<ul><li>Utvalda ämneskategorier (konflikter, cyber, etc.)</li><li>Artiklar från 100+ språk översatta</li><li>__Uppdateringar var 4____DEL: Projekt varje 4__5 minuter (gdeltproject.org)"
     },
     "investments": {
-      "infoTooltip": "Databas över Saudiarabien och Förenade Arabemiratens utländska direktinvesteringar i global kritisk infrastruktur. Klicka på en rad för att flyga till investeringen på kartan."
+      "infoTooltip": "Databas över Saudiarabien och Förenade Arabemiratens utländska direktinvesteringar i global kritisk infrastruktur. Klicka på en rad för att flyga till investeringen på kartan.",
+      "searchPlaceholder": "Search assets, countries, entities…",
+      "allCountries": "All Countries",
+      "saudiArabia": "Saudi Arabia",
+      "uae": "UAE",
+      "allSectors": "All Sectors",
+      "allEntities": "All Entities",
+      "allStatuses": "All Statuses",
+      "operational": "Operational",
+      "underConstruction": "Under Construction",
+      "announced": "Announced",
+      "rumoured": "Rumoured",
+      "divested": "Divested",
+      "asset": "Asset",
+      "country": "Country",
+      "sector": "Sector",
+      "status": "Status",
+      "investment": "Investment",
+      "year": "Year",
+      "noMatch": "No investments match filters",
+      "undisclosed": "Undisclosed",
+      "sectors": {
+        "ports": "Ports",
+        "pipelines": "Pipelines",
+        "energy": "Energy",
+        "datacenters": "Data Centers",
+        "airports": "Airports",
+        "railways": "Railways",
+        "telecoms": "Telecoms",
+        "water": "Water",
+        "logistics": "Logistics",
+        "mining": "Mining",
+        "realEstate": "Real Estate",
+        "manufacturing": "Manufacturing"
+      }
     },
     "prediction": {
       "infoTooltip": "<strong>Prognosmarknader</strong> Marknader för prognoser för riktiga pengar:<ul><li>Priserna återspeglar sannolikhetsuppskattningar av publiken</li><li>Högre volym = mer tillförlitlig signal</li><li>Geopolitiska och aktuella händelser fokus</li></ul>marknad:Polymarket.com)"
@@ -746,11 +907,71 @@
     },
     "strategicRisk": {
       "infoTooltip": "<strong>Metodik</strong> Sammansatt poäng (0-100) blandning:<ul><li>50 % Landinstabilitet (topp 5 viktade)</li><li>30% Geografiska konvergenszoner</li><li>20% infrastrukturincidenter PH_5______4 minuter PH_5____upps.",
-      "noRisks": "Inga betydande risker upptäckta"
+      "noRisks": "Inga betydande risker upptäckta",
+      "levels": {
+        "critical": "Kritisk",
+        "elevated": "Förhöjd",
+        "moderate": "Måttlig",
+        "low": "Låg"
+      },
+      "trend": "Trend",
+      "trends": {
+        "escalating": "Eskalerande",
+        "deEscalating": "Avtrappande",
+        "stable": "Stabil"
+      },
+      "insufficientData": "Insufficient Data",
+      "unableToAssess": "Unable to assess risk level.",
+      "enableDataSources": "Enable data sources to begin monitoring.",
+      "requiredDataSources": "Required Data Sources",
+      "optionalSources": "Optional Sources",
+      "enableCoreFeeds": "Enable Core Feeds",
+      "waitingForData": "Waiting for data...",
+      "refresh": "Refresh",
+      "learningMode": "Learning Mode - {{minutes}}m until reliable",
+      "noData": "no data",
+      "enable": "Enable",
+      "convergenceMetric": "Convergence",
+      "ciiDeviation": "CII Deviation",
+      "infraEvents": "Infra Events",
+      "highAlerts": "High Alerts",
+      "topRisks": "Top Risks",
+      "recentAlerts": "Recent Alerts ({{count}})",
+      "updated": "Updated: {{time}}",
+      "time": {
+        "justNow": "just now",
+        "minutesAgo": "{{count}}m ago",
+        "hoursAgo": "{{count}}h ago"
+      }
     },
     "insights": {
       "infoTooltip": "<strong>AI-driven analys</strong><br>• <strong>World Brief</strong>: AI-sammanfattning (Groq/OpenRouter)<br>• <strong>Sentiment</strong>: Nyhetstonanalys<br>• <strong>__2__hastighet: snabbrörlig PH______2__position: <strong>Fokalpunkter</strong>: Korrelerar nyhetsenheter med kartsignaler (militär, protester, avbrott)<br><em>Endast skrivbord • Drivs av Llama 3.3 + Focal Point Detection</em>",
-      "noStories": "Inga breaking- eller flerkällshistorier ännu"
+      "noStories": "Inga breaking- eller flerkällshistorier ännu",
+      "step": "Step {{step}}/{{total}}",
+      "waitingForData": "Waiting for news data...",
+      "rankingStories": "Ranking important stories...",
+      "analyzingSentiment": "Analyzing sentiment...",
+      "generatingBrief": "Generating world brief...",
+      "settingsTitle": "Settings",
+      "sectionMap": "Map",
+      "sectionAi": "AI Analysis",
+      "mapFlashLabel": "Live Event Pulse",
+      "mapFlashDesc": "Flash locations on the map when breaking news arrives",
+      "aiFlowTitle": "Settings",
+      "aiFlowCloudLabel": "Moln-AI (Groq & OpenRouter)",
+      "aiFlowCloudDesc": "Skicka rubriker till molnet för AI-sammanfattning (rekommenderat)",
+      "aiFlowBrowserLabel": "Lokal webbläsarmodell",
+      "aiFlowBrowserDesc": "Kör AI lokalt i din webbläsare",
+      "aiFlowBrowserWarn": "Cirka 250 MB data kommer att laddas ner till din dator",
+      "aiFlowOllamaCta": "Vill du ha helt lokal AI?",
+      "aiFlowOllamaCtaDesc": "Ladda ner skrivbordsappen för Ollama-stöd",
+      "aiFlowDownloadDesktop": "Ladda ner skrivbordsapp →",
+      "aiFlowStatusActive": "Moln-AI aktiv",
+      "aiFlowStatusCloudAndBrowser": "Moln-AI + Webbläsarmodell aktiva",
+      "aiFlowStatusBrowserOnly": "Endast webbläsarmodell",
+      "aiFlowStatusDisabled": "Inga AI-leverantörer aktiverade",
+      "insightsDisabledTitle": "AI-analys är inaktiverad",
+      "insightsDisabledHint": "Enable providers via the settings gear in the map header"
     },
     "techHubs": {
       "infoTooltip": "<strong>Teknisk hubbaktivitet</strong><br>Visar tekniska nav med mest nyhetsaktivitet.<br><br><em>Aktivitetsnivåer:</em><br>• <span style=\"color: {{highColor}}\">Hög</span> — Nyheter från 50+ PH_• 50+ stil: {{elevatedColor}}\">Höjd</span> — Poäng 20-49<br>• <span style=\"color: {{lowColor}}\">Låg</span> — Poäng under 20<br><br>Klicka på ett nav för att zooma till dess plats.",
@@ -790,13 +1011,137 @@
       "learnMore": "Läs mer",
       "active": "Aktiv",
       "proposed": "Föreslagen",
-      "updated": "Uppdaterad"
+      "updated": "Uppdaterad",
+      "dashboard": "AI Regulation Dashboard",
+      "actionsCount": "{{count}} actions",
+      "deadlinesCount": "{{count}} deadlines",
+      "days": "days",
+      "activeCount": "Active Regulations ({{count}})",
+      "proposedCount": "Proposed Regulations ({{count}})",
+      "moreProvisions": "+{{count}} more...",
+      "source": "Source",
+      "stances": {
+        "strict": "Strict",
+        "moderate": "Moderate",
+        "permissive": "Permissive",
+        "undefined": "Undefined"
+      }
+    },
+    "etfFlows": {
+      "unavailable": "ETF-data tillfälligt otillgänglig",
+      "netFlow": "Nettoflöde",
+      "estFlow": "Ber. flöde",
+      "totalVol": "Total volym",
+      "etfs": "ETF:er",
+      "netInflow": "NETTOINFLÖDE",
+      "netOutflow": "NETTOUTFLÖDE",
+      "table": {
+        "ticker": "Ticker",
+        "issuer": "Utgivare",
+        "estFlow": "Ber. flöde",
+        "volume": "Volym",
+        "change": "Förändring"
+      }
+    },
+    "macroSignals": {
+      "overall": "Totalt",
+      "verdict": {
+        "buy": "KÖP",
+        "cash": "KONTANT"
+      },
+      "bullish": "{{count}}/{{total}} hausse",
+      "signals": {
+        "liquidity": "Likviditet",
+        "flow": "Flöde",
+        "regime": "Regim",
+        "btcTrend": "BTC-trend",
+        "hashRate": "Hash Rate",
+        "mining": "Utvinning",
+        "fearGreed": "Rädsla &amp; Girighet"
+      }
     },
     "export": {
       "exportData": "Exportera data"
     },
     "runtimeConfig": {
       "getApiKey": "Hämta API-nyckel"
+    },
+    "panel": {
+      "showMethodologyInfo": "Show methodology info",
+      "dragToResize": "Drag to resize (double-click to reset)",
+      "openSettings": "Open Settings"
+    },
+    "languageSelector": {
+      "selectLanguage": "Select Language"
+    },
+    "serviceStatus": {
+      "checkingServices": "Checking services...",
+      "allOperational": "All services operational",
+      "ok": "OK",
+      "degraded": "Degraded",
+      "outage": "Outage",
+      "backendUnavailable": "Desktop local backend unavailable. Falling back to cloud API.",
+      "desktopReadiness": "Desktop readiness",
+      "acceptanceChecks": "Acceptance checks: {{ready}}/{{total}} ready · key-backed features {{available}}/{{featureTotal}}",
+      "nonParityFallbacks": "Non-parity fallbacks ({{count}})",
+      "categories": {
+        "all": "All",
+        "cloud": "Cloud",
+        "dev": "Dev Tools",
+        "comm": "Comms",
+        "ai": "AI",
+        "saas": "SaaS"
+      }
+    },
+    "verification": {
+      "title": "Information Verification Checklist",
+      "hint": "Based on Bellingcat's OSH Framework",
+      "verdicts": {
+        "verified": "VERIFIED",
+        "likely": "LIKELY AUTHENTIC",
+        "uncertain": "UNCERTAIN",
+        "unreliable": "UNRELIABLE"
+      },
+      "notesTitle": "Verification Notes",
+      "noNotes": "No notes added",
+      "addNotePlaceholder": "Add verification note...",
+      "add": "Add",
+      "resetChecklist": "Reset Checklist",
+      "checks": {
+        "recency": "Recent timestamp confirmed",
+        "geolocation": "Location verified",
+        "source": "Primary source identified",
+        "crossref": "Cross-referenced with other sources",
+        "noAi": "No AI generation artifacts",
+        "noRecrop": "Not recycled/old footage",
+        "metadata": "Metadata verified",
+        "context": "Context established"
+      }
+    },
+    "liveNews": {
+      "retry": "Retry",
+      "notLive": "{{name}} is not currently live",
+      "cannotEmbed": "{{name}} cannot be embedded in this app (YouTube {{code}})",
+      "openOnYouTube": "Open on YouTube",
+      "manage": "Hantera kanaler",
+      "addChannel": "Lägg till kanal",
+      "remove": "Ta bort",
+      "youtubeHandle": "YouTube-handtag (t.ex. @Channel)",
+      "displayName": "Visningsnamn (valfritt)",
+      "openPanelSettings": "Panelvisningsinställningar",
+      "channelSettings": "Kanalinställningar",
+      "save": "Spara",
+      "cancel": "Avbryt",
+      "confirmDelete": "Ta bort denna kanal?",
+      "confirmTitle": "Bekräfta",
+      "restoreDefaults": "Återställ standardkanaler",
+      "availableChannels": "Tillgängliga kanaler",
+      "customChannel": "Anpassad kanal",
+      "regionNorthAmerica": "Nordamerika",
+      "regionEurope": "Europa",
+      "regionLatinAmerica": "Latinamerika",
+      "regionAsia": "Asien",
+      "regionAfrica": "Afrika"
     }
   },
   "popups": {
@@ -928,6 +1273,9 @@
       "repairStatus": {
         "onStation": "På Station",
         "enRoute": "På väg"
+      },
+      "health": {
+        "evidence": "HÄLSOBEVIS"
       },
       "description": "Undervattens telekommunikationskabel för internationell internettrafik. Dessa fiberoptiska kablar utgör ryggraden i global internetanslutning och överför över 95 % av interkontinental data."
     },
@@ -1144,6 +1492,12 @@
       "heading": "RUBRIK",
       "mmsi": "MMSI",
       "hull": "SKROV #",
+      "region": "REGION",
+      "strikeGroup": "STRIKE GROUP",
+      "deploymentStatus": "STATUS",
+      "usniIntel": "USNI Intel",
+      "usniSource": "Source: USNI News Fleet Tracker",
+      "approximatePosition": "Position approximate — based on USNI weekly report, not real-time AIS.",
       "darkDescription": "⚠ Fartyget har blivit mörkt - AIS-signal förlorad. Kan indikera känsliga operationer."
     },
     "militaryCluster": {
@@ -1374,6 +1728,7 @@
     "loading": "Laddar...",
     "error": "Ett fel inträffade",
     "updated": "Uppdaterad: {{time}}",
+    "retrying": "Försöker igen...",
     "failedToLoad": "Kunde inte ladda data",
     "noDataShort": "Inga data",
     "noDataAvailable": "Inga data tillgängliga",
@@ -1407,6 +1762,7 @@
     "exportJson": "Exportera JSON",
     "exportData": "Exportera data",
     "exportImage": "Exportera bild",
+    "exportPdf": "Exportera PDF",
     "unrest": "Oroligheter",
     "conflict": "Konflikt",
     "security": "Säkerhet",
@@ -1421,7 +1777,9 @@
     "noData": "Inga data tillgängliga",
     "ago": "{{time}} sedan",
     "close": "Stäng",
-    "currentVariant": "(aktuell)"
+    "currentVariant": "(aktuell)",
+    "retry": "Retry",
+    "refresh": "Refresh"
   },
   "header": {
     "world": "VÄRLD",
@@ -1437,7 +1795,56 @@
     "filterSources": "Filtrera källor...",
     "sourcesEnabled": "{{enabled}}/{{total}} aktiverad",
     "finance": "FINANCE",
-    "toggleTheme": "Växla mellan mörkt/ljusläge"
+    "toggleTheme": "Växla mellan mörkt/ljusläge",
+    "panelDisplayCaption": "Välj vilka paneler som ska visas på instrumentpanelen",
+    "tabGeneral": "Allmänt",
+    "tabPanels": "Paneler",
+    "tabSources": "Källor",
+    "languageLabel": "Språk",
+    "sourceRegionAll": "Alla",
+    "sourceRegionWorldwide": "Världen",
+    "sourceRegionUS": "USA",
+    "sourceRegionMiddleEast": "Mellanöstern",
+    "sourceRegionAfrica": "Afrika",
+    "sourceRegionLatAm": "Latinamerika",
+    "sourceRegionAsiaPacific": "Asien-Stillahavsområdet",
+    "sourceRegionEurope": "Europa",
+    "sourceRegionTopical": "Tematiskt",
+    "sourceRegionIntel": "Underrättelser",
+    "sourceRegionTechNews": "Tech News",
+    "sourceRegionAiMl": "AI & ML",
+    "sourceRegionStartupsVc": "Startups & VC",
+    "sourceRegionRegionalTech": "Regional Ecosystems",
+    "sourceRegionDeveloper": "Developer",
+    "sourceRegionCybersecurity": "Cybersecurity",
+    "sourceRegionTechPolicy": "Policy & Research",
+    "sourceRegionTechMedia": "Media & Podcasts",
+    "sourceRegionMarkets": "Markets & Analysis",
+    "sourceRegionFixedIncomeFx": "Fixed Income & FX",
+    "sourceRegionCommodities": "Commodities",
+    "sourceRegionCryptoDigital": "Crypto & Digital",
+    "sourceRegionCentralBanks": "Central Banks & Economy",
+    "sourceRegionDeals": "Deals & Corporate",
+    "sourceRegionFinRegulation": "Financial Regulation",
+    "sourceRegionGulfMena": "Gulfen & MENA",
+    "filterPanels": "Filtrera paneler...",
+    "panelCatCore": "Kärna",
+    "panelCatIntelligence": "Underrättelser",
+    "panelCatRegionalNews": "Regionala Nyheter",
+    "panelCatMarketsFinance": "Marknader & Finans",
+    "panelCatTopical": "Aktuellt",
+    "panelCatDataTracking": "Data & Spårning",
+    "panelCatTechAi": "Tech & AI",
+    "panelCatStartupsVc": "Startups & VC",
+    "panelCatSecurityPolicy": "Säkerhet & Politik",
+    "panelCatMarkets": "Marknader",
+    "panelCatFixedIncomeFx": "Räntor & Valuta",
+    "panelCatCommodities": "Råvaror",
+    "panelCatCryptoDigital": "Krypto & Digitalt",
+    "panelCatCentralBanks": "Centralbanker & Ekonomi",
+    "panelCatDeals": "Affärer & Institutionellt",
+    "panelCatGulfMena": "Gulfen & MENA",
+    "panelCatTradePolicy": "Handelspolitik"
   },
   "app": {
     "title": "World Monitor",
@@ -1490,6 +1897,29 @@
       "base": "Militärbaser",
       "nuclear": "Kärntekniska anläggningar",
       "port": "Hamnar"
+    },
+    "levels": {
+      "critical": "Kritisk",
+      "high": "Hög",
+      "elevated": "Förhöjd",
+      "moderate": "Måttlig",
+      "normal": "Normal",
+      "low": "Låg"
+    },
+    "trends": {
+      "rising": "Stigande",
+      "falling": "Fallande",
+      "stable": "Stabil"
+    },
+    "fallback": {
+      "instabilityIndex": "**Instabilitetsindex: {{score}}/100** ({{level}}, {{trend}})",
+      "protestsDetected": "{{count}} aktiva protester upptäckta",
+      "aircraftTracked": "{{count}} militära flygplan spårade",
+      "vesselsTracked": "{{count}} militära fartyg spårade",
+      "internetOutages": "{{count}} internetavbrott",
+      "recentEarthquakes": "{{count}} senaste jordbävningar",
+      "stockIndex": "Aktieindex: {{value}}",
+      "recentHeadlines": "**Senaste rubriker:**"
     }
   }
 }

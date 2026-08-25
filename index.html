@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https: http://localhost:5173 ws: wss: blob: data:; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://www.youtube.com https://static.cloudflareinsights.com https://vercel.live https://us-assets.i.posthog.com; worker-src 'self' blob:; font-src 'self' data: https:; media-src 'self' data: blob: https:; frame-src 'self' https://worldmonitor.app https://tech.worldmonitor.app https://happy.worldmonitor.app https://www.youtube.com https://www.youtube-nocookie.com;" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https: http://localhost:5173 ws: wss: blob: data:; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://www.youtube.com https://static.cloudflareinsights.com https://vercel.live https://us-assets.i.posthog.com; worker-src 'self' blob:; font-src 'self' data: https:; media-src 'self' data: blob: https:; frame-src 'self' https://worldmonitor.app https://tech.worldmonitor.app https://happy.worldmonitor.app https://www.youtube.com https://www.youtube-nocookie.com https://rosary-mom.github.io;" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
 
     <!-- Primary Meta Tags -->
@@ -89,7 +89,6 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favico/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favico/favicon-16x16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/favico/apple-touch-icon.png" />
-
 
     <!-- Theme: apply stored preference before first paint to prevent FOUC -->
     <script>(function(){try{var t=localStorage.getItem('worldmonitor-theme');var v=localStorage.getItem('worldmonitor-variant');if(!v){var h=location.hostname;if(h.startsWith('happy.'))v='happy';else if(h.startsWith('tech.'))v='tech';else if(h.startsWith('finance.'))v='finance';}if(v)document.documentElement.dataset.variant=v;if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}else if(v==='happy'){document.documentElement.dataset.theme='light';}}catch(e){}document.documentElement.classList.add('no-transition');})()</script>
@@ -195,6 +194,32 @@
           </div>
         </div>
       </div>
+
+      <!-- ==================== ROSARY-ATLAS Agent Graph ==================== -->
+      <section id="rosary-atlas-graph" style="padding: 3rem 1rem; background: #0a0a0a; margin: 2rem 0;">
+        <div style="max-width: 1400px; margin: 0 auto;">
+          <h2 style="color: #fff; text-align: center; margin-bottom: 1.5rem; font-size: 1.8rem;">
+            ROSARY-ATLAS – Multi-Agent Organigramm
+          </h2>
+          <p style="color: #aaa; text-align: center; margin-bottom: 2rem; max-width: 800px; margin-left: auto; margin-right: auto;">
+            Live-Visualisierung des Agenten-Orchesters (Excellenzen • Dirigenten • Scouts)
+          </p>
+          
+          <div style="border-radius: 12px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.5); border: 1px solid #333;">
+            <iframe 
+              src="/rosary-atlas/vault-graph.html" 
+              width="100%" 
+              height="850"
+              style="border: none; display: block; background: #111;"
+              title="ROSARY-ATLAS Interactive Agent Graph"
+              loading="lazy"
+              allowfullscreen>
+            </iframe>
+          </div>
+        </div>
+      </section>
+      <!-- ==================== Ende ROSARY-ATLAS Graph ==================== -->
+
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

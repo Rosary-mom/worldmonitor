@@ -221,6 +221,35 @@
       <!-- ==================== Ende ROSARY-ATLAS Graph ==================== -->
 
     </div>
+
+    <!-- ROSARY-ATLAS Floating Button (oben rechts) -->
+    <a href="/rosary-atlas/vault-graph.html" 
+       target="_blank" 
+       rel="noopener"
+       id="rosary-atlas-btn"
+       style="
+         position: fixed;
+         top: 12px;
+         right: 180px;
+         z-index: 9999;
+         background: linear-gradient(135deg, #0f5040, #1a7a5c);
+         color: white;
+         padding: 8px 16px;
+         border-radius: 6px;
+         font-family: system-ui, sans-serif;
+         font-size: 13px;
+         font-weight: 600;
+         text-decoration: none;
+         box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+         border: 1px solid #2a8a6a;
+         transition: all 0.2s ease;
+       "
+       onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.5)'"
+       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.4)'"
+    >
+      ATLAS Graph
+    </a>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

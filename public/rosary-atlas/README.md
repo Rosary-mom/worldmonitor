@@ -1,24 +1,35 @@
-# Maps/Graphs – Diagramme & Visualisierungen
+# ROSARY-ATLAS – Agent Organigramm & Loops
 
-## Übersicht
+Dieses Verzeichnis enthält die aktuelle Visualisierung und Dokumentation des **ROSARY-ATLAS Multi-Agent-Systems**.
 
-Dieser Ordner enthält Mermaid-Diagramme für die Struktur und Abläufe von ROSARY-ATLAS.
+ROSARY-ATLAS ist ein lokal betriebenes, Obsidian-basiertes Multi-Agent-Orchester (powered by Hermes + Grok), das als Second Brain und automatisierte Scout-Schwarm für Rosary.health / ROSARY Projekte dient.
 
-### Enthaltene Diagramme
-- **00-Organigramm-Mermaid.md** – Gesamtes Organigramm (Excellenzen, Dirigenten, Scouts)
-- **01-Haupt-Loop.md** – Trigger → Scout → Output → Sleep (Sequenz)
-- **02-Daily-Cron-Loop.md** – Tägliche Cron-Jobs von TriggerMaster
-- **03-Scout-Aktivierungs-Loop.md** – Detailierter Scout-Aktivierungs-Loop (Sequenz)
-- **04-Gesamt-Orchester-Loop.md** – Gesamt-Orchester-Loop (ATLAS + AMEISE + Excellenzen) mit Flowchart und Sequence
+## Enthaltene Dateien
+
+### Mermaid-Diagramme
+- **00-Organigramm-Mermaid.md** – Gesamtstruktur (Excellenzen • Dirigenten • Scouts)
+- **01-Haupt-Loop.md** – Kernprozess: Trigger → Scout → Output → Sleep
+- **02-Daily-Cron-Loop.md** – Tägliche Automatisierung (07:45 / 08:15 / 14:00)
+- **03-Scout-Aktivierungs-Loop.md** – Detaillierter Weck- und Schlaf-Prozess
+- **04-Gesamt-Orchester-Loop.md** – Zusammenspiel von ATLAS, AMEISE und den Excellenzen
 
 ### Interaktiver Graph
-Zusätzlich zum statischen Mermaid-Code steht der **interaktive Vault-Graph** zur Verfügung:
-- `vault-graph.html` (im selben Ordner)
-- Generiert aus dem gesamten Vault mit Notes, Links und Beziehungen
+- **vault-graph.html** – Selbstständige, offline-fähige HTML-Datei mit interaktivem Force-Directed-Graph des gesamten Vaults (37+ Notes, farbige Gruppen, Timeline, Suche).
 
-## Hinweise
-- Alle Diagramme sind als Mermaid-Code gespeichert.
-- Für Obsidian: Diagramme werden automatisch gerendert.
-- **Screenshots**: Hier können PNG/SVG-Exports der Diagramme abgelegt werden (z.B. für Präsentationen oder Docs).
+## Verwendung auf der Website
 
-*ROSARY-ATLAS V4 • Maps/Graphs*
+### 1. Mermaid-Diagramme einbetten
+Die `.md`-Dateien enthalten reinen Mermaid-Code.  
+Auf GitHub und den meisten modernen Websites (inkl. monitor.rosenkranz.eu.com) werden sie automatisch gerendert.
+
+### 2. Interaktiven Graph einbinden
+Die Datei `vault-graph.html` kann direkt verlinkt oder in einem `<iframe>` eingebettet werden:
+
+```html
+<iframe 
+  src="/rosary-atlas/vault-graph.html" 
+  width="100%" 
+  height="800" 
+  style="border: none; border-radius: 8px;"
+  title="ROSARY-ATLAS Interactive Agent Graph">
+</iframe>

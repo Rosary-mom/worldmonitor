@@ -24,6 +24,10 @@ Gewerbeanmeldung Gemeinde Bitz, Nr. 202300000034, seit 25.10.2023 – Tätigkeit
 
 - [Gewerbeanmeldung (PDF, geschwärzt)](nachweise/Gewerbeanmeldung-Uni-Campus-Leiter-geschwaerzt.pdf) – online: https://monitor.rosenkranz.eu.com/rosary-atlas/nachweise/Gewerbeanmeldung-Uni-Campus-Leiter-geschwaerzt.pdf
 
+## Für Gründer
+
+- [Gründer-Rohmodell: Vom Kleingewerbe zur UG & Co. KG – Leitfaden mit Checkliste (PDF, keine Rechts- oder Steuerberatung)](downloads/Gruender-Rohmodell.pdf) – online: https://monitor.rosenkranz.eu.com/rosary-atlas/downloads/Gruender-Rohmodell.pdf
+
 ## Agenten-Gruppen (91)
 
 | Gruppe | Anzahl |

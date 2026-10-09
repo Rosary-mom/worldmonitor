@@ -2,19 +2,19 @@
 
 ```mermaid
 sequenceDiagram
-    participant User as Mensch / ATLAS
-    participant TM as TriggerMaster
-    participant AMEISE as Dirigent AMEISE
+    participant User as Mensch / Dirigent
+    participant TM as Auslöser (Excellenz)
+    participant DIR as Dirigent (Schwärme)
     participant Scout as Scout
-    participant Hunt as Hunt/
-    participant Ship as Ship/Digests
-    participant Wiki as Wiki/
+    participant Sig as Signale
+    participant Ship as Ausgaben/Digests
+    participant Wiki as Wiki
 
     User->>TM: Manueller Befehl oder Cron/Keyword
-    TM->>AMEISE: Optional Delegation
+    TM->>DIR: Optional Delegation
     TM->>Scout: Wecken + klarer Auftrag
     Note over Scout: Status → WACH
-    Scout->>Hunt: Hunt-Signal
+    Scout->>Sig: Signal
     Scout->>Scout: Detaillierte Analyse
     Scout->>Ship: Digest (≤ 8 Zeilen)
     Scout->>TM: „Aufgabe erledigt – gehe wieder schlafen“
@@ -22,4 +22,4 @@ sequenceDiagram
     TM->>Wiki: Protokoll + Historie aktualisieren
 ```
 
-*Detailierter Scout-Aktivierungs-Loop – ROSARY-ATLAS V4*
+*Detaillierter Scout-Aktivierungs-Loop – ROSARY-ATLAS V4 · Stand 09.10.2026*

@@ -1,8 +1,8 @@
-# Daily Cron-Loop (TriggerMaster)
+# Daily Cron-Loop (Auslöser-Excellenz)
 
 ```mermaid
 flowchart LR
-    A[07:45 Status-Check<br/>nur lesen] --> B[08:15 Hunt-Scan<br/>+ Keyword-Check]
+    A[07:45 Status-Check<br/>nur lesen] --> B[08:15 Signal-Scan<br/>+ Keyword-Check]
     B -->|relevante Keywords| C[Passenden Scout wecken]
     C --> D[Scout arbeitet]
     D --> E[Outputs + Protokoll]
@@ -11,4 +11,4 @@ flowchart LR
     G --> A
 ```
 
-*Daily Cron-Loop – ROSARY-ATLAS V4*
+*Daily Cron-Loop – ROSARY-ATLAS V4 · Stand 09.10.2026*

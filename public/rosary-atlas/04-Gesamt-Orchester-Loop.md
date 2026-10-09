@@ -1,35 +1,36 @@
-# Gesamt-Orchester-Loop (ATLAS + AMEISE + Excellenzen)
+# Gesamt-Orchester-Loop (Dirigenten + Excellenzen + Grok Bots)
 
 ```mermaid
 flowchart TD
-    ATLAS[Dirigent ATLAS<br/>Gesamtorchester] --> AMEISE[Dirigent AMEISE<br/>Scout-Schwärme]
-    ATLAS --> TM[TriggerMaster]
-    AMEISE --> TM
-    TM -->|weckt bei Bedarf| Scouts
-    Scouts --> Hunt
-    Hunt --> Ship
+    DIR1[Dirigent<br/>Gesamtorchester] --> DIR2[Dirigent<br/>Scout-Schwärme]
+    DIR1 --> TM[Auslöser-Excellenz]
+    DIR2 --> TM
+    TM -->|weckt bei Bedarf| Scouts[Scouts + Mesh-Scouts]
+    Scouts --> Sig[Signale]
+    Sig --> Ship[Ausgaben / Digests]
     Ship --> Wiki
-    Wiki --> KnowledgeWeaver
-    KnowledgeWeaver --> ATLAS
-    CostSentinel --> ATLAS
-    MeshGuardian --> ATLAS
+    Wiki --> KW[Wissens-Excellenz]
+    KW --> DIR1
+    CS[Budget-Excellenz] --> DIR1
+    MG[MeshGuardian<br/>Grok Bot] --> DIR1
+    GB[Grok Bots<br/>StateForge · BootstrapRunner · SkillPropagator · CostAuditor] --> MG
 ```
 
 ```mermaid
 sequenceDiagram
-    participant User as Mensch / ATLAS
-    participant TM as TriggerMaster
-    participant AMEISE as Dirigent AMEISE
+    participant User as Mensch / Dirigent
+    participant TM as Auslöser (Excellenz)
+    participant DIR as Dirigent (Schwärme)
     participant Scout as Scout
-    participant Hunt as Hunt/
-    participant Ship as Ship/Digests
-    participant Wiki as Wiki/
+    participant Sig as Signale
+    participant Ship as Ausgaben/Digests
+    participant Wiki as Wiki
 
     User->>TM: Manueller Befehl oder Cron/Keyword
-    TM->>AMEISE: Optional Delegation
+    TM->>DIR: Optional Delegation
     TM->>Scout: Wecken + klarer Auftrag
     Note over Scout: Status → WACH
-    Scout->>Hunt: Hunt-Signal
+    Scout->>Sig: Signal
     Scout->>Scout: Detaillierte Analyse
     Scout->>Ship: Digest (≤ 8 Zeilen)
     Scout->>TM: „Aufgabe erledigt – gehe wieder schlafen“
@@ -37,4 +38,4 @@ sequenceDiagram
     TM->>Wiki: Protokoll + Historie aktualisieren
 ```
 
-*Gesamt-Orchester-Loop – ROSARY-ATLAS V4*
+*Gesamt-Orchester-Loop – ROSARY-ATLAS V4 · Stand 09.10.2026*

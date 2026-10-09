@@ -16,7 +16,13 @@ ROSARY-ATLAS ist ein lokal betriebenes, Obsidian-basiertes Multi-Agent-Orchester
 - **04-Gesamt-Orchester-Loop.md** – Zusammenspiel von Dirigenten, Excellenzen und Grok Bots
 
 ### Interaktiver Graph
-- **vault-graph.html** – Selbstständige, offline-fähige HTML-Datei mit interaktivem Force-Directed-Graph des Vaults (145 Notizen, 450 Verknüpfungen, 13 Gruppen, Timeline, Suche; Notiznamen anonymisiert).
+- **vault-graph.html** – Selbstständige, offline-fähige HTML-Datei mit interaktivem Force-Directed-Graph des Vaults (146 Notizen, 452 Verknüpfungen, 14 Gruppen inkl. „Nachweise“, Timeline, Suche; Notiznamen anonymisiert).
+
+## Nachweis
+
+Gewerbeanmeldung Gemeinde Bitz, Nr. 202300000034, seit 25.10.2023 – Tätigkeit: Leitung Fernuniversität und Ferncampus mit Logos Bibel. Betreiber: Uwe A. E. Rosenkranz, Einzelunternehmen (natürliche Person, persönliche Haftung), KMU.
+
+- [Gewerbeanmeldung (PDF, geschwärzt)](nachweise/Gewerbeanmeldung-Uni-Campus-Leiter-geschwaerzt.pdf) – online: https://monitor.rosenkranz.eu.com/rosary-atlas/nachweise/Gewerbeanmeldung-Uni-Campus-Leiter-geschwaerzt.pdf
 
 ## Agenten-Gruppen (91)
 

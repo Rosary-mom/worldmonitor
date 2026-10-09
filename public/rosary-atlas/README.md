@@ -27,6 +27,7 @@ Gewerbeanmeldung Gemeinde Bitz, Nr. 202300000034, seit 25.10.2023 – Tätigkeit
 ## Für Gründer
 
 - [Gründer-Rohmodell: Vom Kleingewerbe über die UG & Co. KG zur GmbH – Leitfaden mit Checkliste (PDF, keine Rechts- oder Steuerberatung)](downloads/Gruender-Rohmodell.pdf) – online: https://monitor.rosenkranz.eu.com/rosary-atlas/downloads/Gruender-Rohmodell.pdf
+- [Gründer-Rohmodell als Blogbeitrag mit Rechnern (Orientierung, keine Beratung)](blog/gruender-rohmodell.html) – online: https://monitor.rosenkranz.eu.com/rosary-atlas/blog/gruender-rohmodell.html
 
 ## Agenten-Gruppen (91)
 

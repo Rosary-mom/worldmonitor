@@ -4,7 +4,7 @@ Dieses Verzeichnis enthält die öffentliche Visualisierung und Dokumentation de
 
 ROSARY-ATLAS ist ein lokal betriebenes, Obsidian-basiertes Multi-Agent-Orchester (powered by Hermes + Grok), das als Second Brain und automatisierter Scout-Schwarm für Rosary.health / ROSARY Projekte dient.
 
-**Öffentliche Fassung:** Bots werden mit Namen gezeigt (5 Grok Bots, 5 Pilot-Bots, Regie). Alle übrigen 91 Agenten erscheinen nur als Gruppen mit Anzahl; Notiznamen im Graphen sind anonymisiert („Knoten N“).
+**Öffentliche Fassung:** Bots werden mit Namen gezeigt (5 Grok Bots, 5 Pilot-Bots, Regie). Alle übrigen 93 Agenten erscheinen nur als Gruppen mit Anzahl; Notiznamen im Graphen sind anonymisiert („Knoten N“).
 
 ## Enthaltene Dateien
 
@@ -16,7 +16,7 @@ ROSARY-ATLAS ist ein lokal betriebenes, Obsidian-basiertes Multi-Agent-Orchester
 - **04-Gesamt-Orchester-Loop.md** – Zusammenspiel von Dirigenten, Excellenzen und Grok Bots
 
 ### Interaktiver Graph
-- **vault-graph.html** – Selbstständige, offline-fähige HTML-Datei mit interaktivem Force-Directed-Graph des Vaults (146 Notizen, 452 Verknüpfungen, 14 Gruppen inkl. „Nachweise“, Timeline, Suche; Notiznamen anonymisiert).
+- **vault-graph.html** – Selbstständige, offline-fähige HTML-Datei mit interaktivem Force-Directed-Graph des Vaults (153 Notizen, 483 Verknüpfungen, 14 Gruppen inkl. „Nachweise“, Timeline, Suche; Notiznamen anonymisiert).
 
 ## Nachweis
 
@@ -29,7 +29,7 @@ Gewerbeanmeldung Gemeinde Bitz, Nr. 202300000034, seit 25.10.2023 – Tätigkeit
 - [Gründer-Rohmodell: Vom Kleingewerbe über die UG & Co. KG zur GmbH – Leitfaden mit Checkliste (PDF, keine Rechts- oder Steuerberatung)](downloads/Gruender-Rohmodell.pdf) – online: https://monitor.rosenkranz.eu.com/rosary-atlas/downloads/Gruender-Rohmodell.pdf
 - [Gründer-Rohmodell als Blogbeitrag mit Rechnern (Orientierung, keine Beratung)](blog/gruender-rohmodell.html) – online: https://monitor.rosenkranz.eu.com/rosary-atlas/blog/gruender-rohmodell.html
 
-## Agenten-Gruppen (91)
+## Agenten-Gruppen (93)
 
 | Gruppe | Anzahl |
 |---|---|
@@ -44,7 +44,7 @@ Gewerbeanmeldung Gemeinde Bitz, Nr. 202300000034, seit 25.10.2023 – Tätigkeit
 | 📣 Kanäle | 6 |
 | 🎁 Angebote | 8 |
 | 💶 Erlösmodelle | 4 |
-| 🗺️ Wegweiser | 7 |
+| 🗺️ Wegweiser | 9 |
 | 🧬 TechBio | 7 |
 
 **Bots:** Grok Bots – MeshGuardian, StateForge, BootstrapRunner, SkillPropagator, CostAuditor · Pilot-Bots – Landwirtschaft, Politik, Handel, Education, Remigration · Regie – Koordination aller Agenten und Bots.

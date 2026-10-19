@@ -22,7 +22,7 @@ graph TD
         PB5[🔄 Remigration Bot]
     end
 
-    subgraph Agenten["🗂️ Agenten (91, nach Bereichen)"]
+    subgraph Agenten["🗂️ Agenten (93, nach Bereichen)"]
         EX["🛡️ Excellenzen · 5<br/>immer WACH"]
         DI["🎼 Dirigenten · 2<br/>Gesamtorchester & Schwärme"]
         ST["🧭 Steuerung · 6"]
@@ -34,7 +34,7 @@ graph TD
         KA["📣 Kanäle · 6"]
         AN["🎁 Angebote · 8"]
         ER["💶 Erlösmodelle · 4"]
-        WE["🗺️ Wegweiser · 7"]
+        WE["🗺️ Wegweiser · 9"]
         TB["🧬 TechBio · 7"]
     end
 

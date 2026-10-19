@@ -1,9 +1,11 @@
 # ROSARY ATLAS Organigramm (Mermaid)
 
-*Stand 09.10.2026 – öffentliche Fassung: Bots mit Namen, alle übrigen Agenten nur als Gruppen mit Anzahl.*
+*Stand 19.10.2026 – öffentliche Fassung: Bots mit Namen (5 Grok Bots, 5 Pilot-Bots, Regie), alle übrigen Agenten nur als Gruppen mit Anzahl.*
 
 ```mermaid
 graph TD
+    RG["🎬 Regie<br/>Koordination aller Agenten und Bots"]
+
     subgraph GrokBots["🤖 Grok Bots (immer WACH)"]
         GB1[MeshGuardian]
         GB2[StateForge]
@@ -41,6 +43,8 @@ graph TD
     ST --> EX
     EX -->|weckt| SC
     EX -->|weckt| MS
+    RG --> GrokBots
+    RG --> PilotBots
     GrokBots --> EX
     ST --> HT
     HT --> OT

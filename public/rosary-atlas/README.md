@@ -4,7 +4,7 @@ Dieses Verzeichnis enthält die öffentliche Visualisierung und Dokumentation de
 
 ROSARY-ATLAS ist ein lokal betriebenes, Obsidian-basiertes Multi-Agent-Orchester (powered by Hermes + Grok), das als Second Brain und automatisierter Scout-Schwarm für Rosary.health / ROSARY Projekte dient.
 
-**Öffentliche Fassung:** Bots werden mit Namen gezeigt (5 Grok Bots, 5 Pilot-Bots). Alle übrigen 91 Agenten erscheinen nur als Gruppen mit Anzahl; Notiznamen im Graphen sind anonymisiert („Knoten N“).
+**Öffentliche Fassung:** Bots werden mit Namen gezeigt (5 Grok Bots, 5 Pilot-Bots, Regie). Alle übrigen 91 Agenten erscheinen nur als Gruppen mit Anzahl; Notiznamen im Graphen sind anonymisiert („Knoten N“).
 
 ## Enthaltene Dateien
 
@@ -47,7 +47,7 @@ Gewerbeanmeldung Gemeinde Bitz, Nr. 202300000034, seit 25.10.2023 – Tätigkeit
 | 🗺️ Wegweiser | 7 |
 | 🧬 TechBio | 7 |
 
-**Bots:** Grok Bots – MeshGuardian, StateForge, BootstrapRunner, SkillPropagator, CostAuditor · Pilot-Bots – Landwirtschaft, Politik, Handel, Education, Remigration.
+**Bots:** Grok Bots – MeshGuardian, StateForge, BootstrapRunner, SkillPropagator, CostAuditor · Pilot-Bots – Landwirtschaft, Politik, Handel, Education, Remigration · Regie – Koordination aller Agenten und Bots.
 
 ## Verwendung auf der Website
 

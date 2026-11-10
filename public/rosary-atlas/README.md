@@ -9,6 +9,7 @@ ROSARY-ATLAS ist ein lokal betriebenes, Obsidian-basiertes Multi-Agent-Orchester
 ## Enthaltene Dateien
 
 ### Mermaid-Diagramme
+
 - **00-Organigramm-Mermaid.md** – Gesamtstruktur (Grok Bots • Pilot-Bots • 13 Agenten-Gruppen)
 - **01-Haupt-Loop.md** – Kernprozess: Trigger → Scout → Output → Sleep
 - **02-Daily-Cron-Loop.md** – Tägliche Automatisierung (07:45 / 08:15 / 14:00)
@@ -16,7 +17,13 @@ ROSARY-ATLAS ist ein lokal betriebenes, Obsidian-basiertes Multi-Agent-Orchester
 - **04-Gesamt-Orchester-Loop.md** – Zusammenspiel von Dirigenten, Excellenzen und Grok Bots
 
 ### Interaktiver Graph
-- **vault-graph.html** – Selbstständige, offline-fähige HTML-Datei mit interaktivem Force-Directed-Graph des Vaults (153 Notizen, 483 Verknüpfungen, 14 Gruppen inkl. „Nachweise“, Timeline, Suche; Notiznamen anonymisiert).
+
+- **vault-graph.html** – Selbstständige, offline-fähige HTML-Datei mit interaktivem Force-Directed-Graph des Vaults (Stand 10.11.2026: 167 Notizen, 519 Verknüpfungen; Gruppen inkl. „Nachweise“, Timeline, Suche; Notiznamen anonymisiert).
+
+### Organigramm (Stand 10.11.2026)
+
+- **organigramm-v2.html** – Organigramm v2 mit Koordination und MediTeam, manuelle und automatische Trigger – online: https://monitor.rosenkranz.eu.com/rosary-atlas/organigramm-v2.html
+- **organigramm-widget.html** – kompaktes, iframe-taugliches Widget (z. B. für rosary.center) – online: https://monitor.rosenkranz.eu.com/rosary-atlas/organigramm-widget.html
 
 ## Nachweis
 
@@ -52,10 +59,12 @@ Gewerbeanmeldung Gemeinde Bitz, Nr. 202300000034, seit 25.10.2023 – Tätigkeit
 ## Verwendung auf der Website
 
 ### 1. Mermaid-Diagramme einbetten
+
 Die `.md`-Dateien enthalten Mermaid-Code in ```` ```mermaid ````-Blöcken.
 Auf GitHub und mit jedem Mermaid-Renderer werden sie automatisch dargestellt.
 
 ### 2. Interaktiven Graph einbinden
+
 Die Datei `vault-graph.html` kann direkt verlinkt oder in einem `<iframe>` eingebettet werden:
 
 ```html

@@ -1,7 +1,7 @@
 // api/rosary-breaking-news.ts
 export const config = { runtime: 'edge' };
 
-export default async function handler(req: Request) {
+export default async function handler(_req: Request) {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET',
@@ -12,13 +12,14 @@ export default async function handler(req: Request) {
     const res = await fetch(
       'https://raw.githubusercontent.com/Rosary-mom/worldmonitor/main/data/breaking-news.json'
     );
+    if (!res.ok) throw new Error(`Feed HTTP ${res.status}`);
     const data = await res.json();
 
     return new Response(JSON.stringify(data), { 
       status: 200, 
       headers: corsHeaders 
     });
-  } catch (e) {
+  } catch {
     return new Response(JSON.stringify({ error: 'Feed temporär nicht verfügbar' }), { 
       status: 503, 
       headers: corsHeaders 

@@ -8,6 +8,7 @@
   Lokales Rechenwerkzeug für die ESG Decision Engine (Uwe Rosenkranz).
   Keine Netzwerkaufrufe, keine Cookies, kein Speicher, kein Live-Gang.
   Formeln und Defaults aus den im Kopf jeder Karte genannten Quellen.
+  Fragen & Antworten: feste, belegte Antworten im Dateiinneren, ohne KI.
 -->
 <style>
 :root {
@@ -318,6 +319,130 @@ footer.foot {
   * { transition: none !important; }
 }
 
+.view-switch {
+  display: inline-flex;
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.view-switch button {
+  border: 0;
+  border-right: 1px solid var(--gold);
+  border-radius: 0;
+  background: var(--kern);
+  color: var(--bord);
+  padding: 8px 12px;
+  font-size: .78rem;
+}
+.view-switch button:last-child { border-right: 0; }
+.view-switch button[aria-pressed="true"] {
+  background: var(--bord);
+  color: var(--kern);
+}
+.plain {
+  margin: 10px 0 12px;
+  padding: 12px 14px;
+  background: #fffdf8;
+  border: 1px solid rgba(184,144,47,.45);
+  border-left: 3px solid var(--gold);
+  border-radius: 8px;
+}
+.plain p {
+  margin: 0 0 8px;
+  color: var(--ink);
+  font-size: .95rem;
+  line-height: 1.55;
+}
+.plain p:last-child { margin-bottom: 0; }
+.plain .live {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(184,144,47,.35);
+  color: var(--bord);
+  font-family: var(--f-quote);
+  font-style: italic;
+}
+.chart-fig { margin: 12px 0 4px; padding: 0; }
+.chart-cap {
+  margin: 0 0 6px;
+  color: var(--bord);
+  font-family: var(--f-head);
+  font-weight: 800;
+  font-size: .72rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.chart-box {
+  width: 100%;
+  background: var(--kern);
+  border: 1px solid rgba(184,144,47,.4);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.chart-box svg { display: block; width: 100%; height: auto; }
+body.view-formel .plain { display: none; }
+body.view-einfach .formula { display: none; }
+.qa-intro { margin: 0 0 10px; color: var(--muted); font-size: .9rem; }
+.qa-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+.qa-chip {
+  padding: 5px 11px;
+  border: 1px solid var(--gold);
+  border-radius: 999px;
+  background: var(--kern);
+  color: var(--bord);
+  font-family: var(--f-head);
+  font-weight: 800;
+  font-size: .72rem;
+  letter-spacing: .02em;
+  cursor: pointer;
+  text-align: left;
+  line-height: 1.3;
+}
+.qa-chip:hover { background: var(--sand2); }
+.qa-log {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 88px;
+  max-height: 340px;
+  overflow-y: auto;
+  padding: 8px 4px;
+  background: rgba(246,239,226,.45);
+  border: 1px solid rgba(184,144,47,.35);
+  border-radius: 8px;
+}
+.qa-msg {
+  max-width: 92%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: .92rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+.qa-msg.user { align-self: flex-end; background: var(--bord); color: var(--kern); }
+.qa-msg.bot {
+  align-self: flex-start;
+  background: #fffdf8;
+  border: 1px solid rgba(184,144,47,.45);
+  color: var(--ink);
+}
+.qa-form { display: flex; gap: 8px; margin-top: 10px; }
+.qa-form input { flex: 1; }
+.qa-form .btn-send {
+  padding: 8px 16px;
+  border: 1px solid var(--gold);
+  background: var(--bord);
+  color: var(--kern);
+  font-size: .85rem;
+  white-space: nowrap;
+}
+.qa-form .btn-send:hover { background: #4a0814; }
+@media (max-width: 860px) {
+  .qa-msg { max-width: 100%; }
+  .qa-form { flex-wrap: wrap; }
+  .qa-form .btn-send { width: 100%; }
+}
+
 </style>
 </head>
 <body>
@@ -330,6 +455,11 @@ footer.foot {
   </header>
   <div class="toolbar">
     <button type="button" class="btn-reset" id="btn-reset">Zurücksetzen</button>
+    <div class="view-switch" role="group" aria-label="Ansicht der Karten">
+      <button type="button" id="view-formel" aria-pressed="false">Formel</button>
+      <button type="button" id="view-einfach" aria-pressed="false">Einfach erklärt</button>
+      <button type="button" id="view-beide" aria-pressed="true">Beides</button>
+    </div>
   </div>
 
   <section class="card" id="card-q" aria-labelledby="h-q">
@@ -350,6 +480,16 @@ footer.foot {
           <span class="lbl">Wachstum (Modellgröße der Quelle)</span>
           <span class="val" id="q1-out" data-test="q1-out">–</span>
         </div>
+        <div class="plain" id="q1-plain">
+          <p>Der Q-Hebel beschreibt in dieser Variante, wie ein Modellwert („Wachstum“) mit den Jahren ansteigt. Der erste Teil wächst exponentiell: e hoch (a mal t) wird mit q und mit charcoal_stability multipliziert. Der zweite Teil wächst linear: b mal t kommt einfach dazu.</p>
+          <p>t ist die betrachtete Zeit in Jahren. a steuert, wie steil die Exponentialkurve ist. q und charcoal_stability skalieren den exponentiellen Anteil, b den linearen Anteil.</p>
+          <p>Das Ergebnis ist eine Modellgröße der Quelle, keine Prognose und keine Umrechnung in Geld oder Credits. Die Kurve zeigt den Verlauf von Jahr 0 bis zum dargestellten Ende; die Markierung sitzt bei deinem aktuellen t.</p>
+          <p class="live" id="q1-plain-live">Mit deinen Werten ergibt sich …</p>
+        </div>
+        <figure class="chart-fig">
+          <figcaption class="chart-cap">Wachstum über die Jahre (lineare Skala)</figcaption>
+          <div class="chart-box" id="q1-chart" data-test="q1-chart"></div>
+        </figure>
       </div>
       <div class="variant">
         <h3>Variante Rosenkranz-Rat Engine</h3>
@@ -368,6 +508,16 @@ footer.foot {
           <span class="lbl">Wachstum (Modellgröße der Quelle)</span>
           <span class="val" id="q2-out" data-test="q2-out">–</span>
         </div>
+        <div class="plain" id="q2-plain">
+          <p>Diese zweite Variante stammt aus einer anderen Datei und rechnet anders: alle Faktoren stehen in einem Produkt, es gibt keinen zusätzlichen linearen Summanden.</p>
+          <p>y ist die Zeit in Jahren, a wieder der Exponent. qNebelFaktor und charcoalStability skalieren stark (in der Quelle bereits mit 200 multipliziert). Der Bruch m·y/d wächst mit den Jahren. dehydrogenaseFactor wird in der Quelle bei jedem Plot als Zufallszahl zwischen 0,8 und 1,0 neu gezogen; ein fester Default fehlt dort. Hier steht fest 1 – das ist eine Annahme.</p>
+          <p>Die Werte können sehr groß werden; die Kurve ist deshalb logarithmisch gezeichnet und als solche beschriftet. Auch das ist eine Modellgröße der Quelle, keine Prognose.</p>
+          <p class="live" id="q2-plain-live">Mit deinen Werten ergibt sich …</p>
+        </div>
+        <figure class="chart-fig">
+          <figcaption class="chart-cap">Wachstum über die Jahre (logarithmische Skala)</figcaption>
+          <div class="chart-box" id="q2-chart" data-test="q2-chart"></div>
+        </figure>
       </div>
     </div>
   </section>
@@ -376,6 +526,12 @@ footer.foot {
     <h2 id="h-r">2. Fraktale Resilienz</h2>
     <p class="formula">H<sub>t</sub> = H<sub>0</sub> + ∫<sub>0</sub><sup>t</sup> (∂<sup>α</sup>/∂t<sup>α</sup>) B<sup>H</sup>(τ) dτ</p>
     <p class="source"><strong>Quelle</strong> Rosenkranz-Rat, <code>fractal-resilience.html</code>, Formel Zeilen 33–41, Startwerte H = 0,72 und α = 0,65 in Zeilen 46–50, Code-Heuristik Zeilen 96–107 (Commit 58c27ad). H<sub>0</sub> kommt in der Anzeige vor, im Code steht fest die 1 in <code>Ht = 1 + (i·dt)^(1−α) · B</code> – deshalb Default H<sub>0</sub> = 1. t ist dort kein Eingabefeld; mit n = 800 und dt = 0,025 ergibt sich t ≈ 19,975, hier gerundet 20. Ein Zufalls-Seed fehlt auf der Seite (Math.random).</p>
+    <div class="plain" id="r-plain">
+      <p>Die Formel beschreibt, wie sich ein Wert H<sub>t</sub> aus einem Startwert H<sub>0</sub> und der fraktionalen Ableitung einer fraktalen Brownschen Bewegung B<sup>H</sup> über die Zeit aufbaut.</p>
+      <p>H (Hurst) steuert, wie glatt oder rau der Zufallspfad ist (zwischen 0 und 1, ohne die Ränder). α bestimmt die Ordnung der Ableitung. t ist das Zeitende, N die Zahl der Rechenschritte. Der Seed macht den Zufallspfad wiederholbar; auf der Originalseite gibt es keinen Seed, der Wert 42 ist eine Annahme.</p>
+      <p>Das Ergebnis links ist eine numerische Näherung, keine geschlossene Lösung der angezeigten Gleichung. Rechts steht zum Vergleich die einfachere Faustformel der Seite, gerechnet mit demselben Pfad. Eine Umrechnung von H<sub>t</sub> in ESG-Credits steht in der Quelle nicht und wird deshalb hier nicht vorgenommen.</p>
+      <p class="live" id="r-plain-live">Mit deinen Werten ergibt sich …</p>
+    </div>
     <div class="fields">
       <label class="fld"><span class="name">H₀</span><span class="hint">im Seitencode fest 1</span><input type="number" step="any" id="r-H0" value="1"></label>
       <label class="fld">H (Hurst)<input type="number" step="any" id="r-H" value="0.72" min="0.01" max="0.99"></label>
@@ -385,8 +541,11 @@ footer.foot {
       <label class="fld"><span class="name">Seed</span><span class="hint">Annahme: Seite hat keinen Seed</span><input type="number" step="1" id="r-seed" value="42"></label>
     </div>
     <p class="note">Das ist eine numerische Näherung, keine geschlossene Lösung der angezeigten Gleichung. Verfahren: fraktionale Brownsche Bewegung B<sup>H</sup> auf dem Raster [0, t] mit Davies–Harte (Seed fest), Grünwald–Letnikov-Ableitung der Ordnung α, Integration mit der Trapezregel.</p>
-    <svg class="spark" id="r-spark" viewBox="0 0 800 120" preserveAspectRatio="none" role="img" aria-label="Pfad von B hoch H (dünn) und H t (kräftig)"></svg>
-    <p class="note" style="margin-top:4px">Kurve: B<sup>H</sup> in Tinte, H<sub>t</sub> in Bordeaux.</p>
+    <figure class="chart-fig">
+      <figcaption class="chart-cap">H<sub>t</sub> über die Zeit, Vergleich mit der Heuristik der Seite</figcaption>
+      <div class="chart-box" id="r-chart" data-test="r-chart"></div>
+    </figure>
+    <p class="note" style="margin-top:4px">Durchgezogen: H<sub>t</sub> (numerische Näherung). Gestrichelt: Heuristik der Seite, derselbe Zufallspfad. Dünn in Tinte: B<sup>H</sup>.</p>
     <div class="results-row">
       <div class="result">
         <span class="lbl">H<sub>t</sub> (numerische Näherung)</span>
@@ -409,6 +568,12 @@ footer.foot {
     <div class="fields">
       <label class="fld"><span class="name">k</span><span class="hint">Annahme Regie, im USP nur symbolisch</span><input type="number" step="any" id="s-k" value="1"></label>
       <label class="fld"><span class="name">φ</span><span class="hint">Annahme Regie, im USP nur symbolisch</span><input type="number" step="any" id="s-phi" value="1.618034"></label>
+    </div>
+    <div class="plain" id="s-plain">
+      <p>S(r) = k · r hoch φ beschreibt eine skaleninvariante Größe: wenn sich r ändert, ändert sich S nach einer Potenzregel. L ist die Differenz zwischen dem Wert ohne Maßnahme (r<sub>ohne</sub>) und mit Maßnahme (r<sub>mit</sub>) und wird als Redundanz-Verlust gelesen.</p>
+      <p>k skaliert insgesamt, φ bestimmt den Exponenten. Beide stehen in der USP-Seite nur als Symbole; die Zahlen 1 und 1,618034 sind Annahmen von Regie. Die r-Werte der Zeilen stammen aus den Vorschlägen vom 10.11.2026. Beispiel: beim Vorschlag Tagesvers-Bilder sinkt r von 7 auf 1.</p>
+      <p>Die Balken vergleichen S(r<sub>ohne</sub>) und S(r<sub>mit</sub>) je Zeile; L steht daneben. Die Summe der L-Werte unten ist keine Formel aus einer Quelle, nur die Addition dieser Liste.</p>
+      <p class="live" id="s-plain-live">Mit deinen Werten ergibt sich …</p>
     </div>
     <div class="table-wrap">
       <table>
@@ -434,12 +599,22 @@ footer.foot {
       </table>
     </div>
     <p style="margin:10px 0 0"><button type="button" class="btn-add" id="s-add">Zeile hinzufügen</button></p>
+    <figure class="chart-fig">
+      <figcaption class="chart-cap">Vergleich S(r<sub>ohne</sub>) und S(r<sub>mit</sub>) je Vorschlag, mit L</figcaption>
+      <div class="chart-box" id="s-chart" data-test="s-chart"></div>
+    </figure>
   </section>
 
   <section class="card" id="card-g" aria-labelledby="h-g">
     <h2 id="h-g">4. Goldene Summe</h2>
     <p class="formula">h ≈ Σ<sub>k=0</sub><sup>n</sup> binom(n,k) · (1/φ)<sup>k</sup> · h<sup>(k)</sup>(Q)</p>
     <p class="source"><strong>Quelle</strong> USP <code>index.html</code>, Zeile 28 (Commit 98c91a7): „Rosenkranz-Approximation n=17 → 153“ und die Summe selbst. Default n = 17 steht dort. Die Ableitungen h<sup>(k)</sup>(Q) sind auf der Seite nicht beziffert.</p>
+    <div class="plain" id="g-plain">
+      <p>Die Goldene Summe nähert einen Wert h durch eine endliche Summe an: für jedes k von 0 bis n wird der Binomialkoeffizient binom(n,k) mit (1/φ)<sup>k</sup> und mit der k-ten Ableitung h<sup>(k)</sup>(Q) multipliziert, dann werden alle Terme addiert.</p>
+      <p>n steht in der USP-Seite auf 17. φ ist dort nur ein Symbol; derselbe Startwert wie bei der Skaleninvarianz ist eine Annahme. Die Ableitungen selbst beziffert die Seite nicht – deshalb stehen hier standardmäßig lauter Einsen (Annahme).</p>
+      <p>Der Hinweis „n=17 → 153“ meint die 17. Dreieckszahl, nicht das Ergebnis dieser Summe. Bei lauter Einsen wäre die Summe (1 + 1/φ)<sup>n</sup>. Die Balken zeigen die einzelnen Summanden für k = 0 bis n.</p>
+      <p class="live" id="g-plain-live">Mit deinen Werten ergibt sich …</p>
+    </div>
     <div class="fields">
       <label class="fld"><span class="name">n</span><input type="number" step="1" id="g-n" value="17" min="0" max="60"></label>
       <label class="fld"><span class="name">φ</span><span class="hint">Annahme: im USP nur symbolisch; gleicher Startwert wie oben</span><input type="number" step="any" id="g-phi" value="1.618034"></label>
@@ -453,10 +628,28 @@ footer.foot {
       <span class="lbl">Summe h</span>
       <span class="val" id="g-out" data-test="g-out">–</span>
     </div>
+    <figure class="chart-fig">
+      <figcaption class="chart-cap">Die einzelnen Summanden der Goldenen Summe</figcaption>
+      <div class="chart-box" id="g-chart" data-test="g-chart"></div>
+    </figure>
     <div class="table-wrap">
       <table id="g-table"></table>
     </div>
     <p class="note" id="g-note"></p>
+  </section>
+
+  <section class="card" id="qaChat" aria-labelledby="h-qa" data-test="qa-chat">
+    <h2 id="h-qa">Fragen &amp; Antworten</h2>
+    <p class="qa-intro">Stell eine Frage zu den Formeln, Variablen oder Quellen. Die Antworten stammen nur aus diesem Rechner und den angegebenen Quellen – ohne Netz und ohne KI. Es werden keine Eingaben gespeichert.</p>
+    <div class="qa-chips" id="qa-chips"></div>
+    <div class="qa-log" id="qa-log" role="log" aria-live="polite" aria-relevant="additions"></div>
+    <form class="qa-form" id="qa-form" action="#">
+      <label class="fld" style="flex:1;font-weight:400">
+        <span class="name">Deine Frage</span>
+        <input type="text" id="qa-input" name="frage" autocomplete="off" placeholder="Frage eingeben …">
+      </label>
+      <button type="submit" class="btn-send" id="qa-send">Fragen</button>
+    </form>
   </section>
 
   <footer class="foot">Rechenwerkzeug für Szenarien, keine Prognose.</footer>
@@ -693,6 +886,8 @@ function computeQ() {
   const g2 = qHebel2(num("q2-y"), num("q2-a"), num("q2-q"), num("q2-c"), num("q2-m"), num("q2-d"), num("q2-h"));
   document.getElementById("q1-out").textContent = fmt(g1, 4);
   document.getElementById("q2-out").textContent = fmt(g2, 4);
+  updatePlainQ(g1, g2);
+  drawQCharts();
 }
 
 function polyline(values, w, h, pad) {
@@ -735,6 +930,8 @@ function computeResilience() {
     outH.textContent = "–";
     outB.textContent = "–";
     note.textContent = "Bitte prüf die Eingaben: N ≥ 2, t > 0, alle Felder Zahlen.";
+    clearChart("r-chart");
+    updatePlainR(NaN, NaN, NaN, t);
     return;
   }
   let warn = "";
@@ -748,6 +945,8 @@ function computeResilience() {
     outA.textContent = "–";
     outH.textContent = "–";
     outB.textContent = "–";
+    clearChart("r-chart");
+    updatePlainR(NaN, NaN, NaN, t);
     return;
   }
   try {
@@ -759,20 +958,16 @@ function computeResilience() {
     outA.textContent = fmt(Ht, 6);
     outH.textContent = fmt(heur, 6);
     outB.textContent = fmt(B[N], 6);
-    const svg = document.getElementById("r-spark");
-    const w = 800, h = 120, pad = 8;
-    const dB = polyline(B, w, h, pad);
     const HtPath = new Float64Array(N + 1);
-    // running trapezoid of D for the sparkline
+    const heurPath = new Float64Array(N + 1);
     HtPath[0] = H0;
+    heurPath[0] = H0;
     for (let i = 1; i <= N; i++) {
       HtPath[i] = HtPath[i - 1] + 0.5 * (D[i - 1] + D[i]) * dt;
+      heurPath[i] = H0 + Math.pow(i * dt, 1 - alpha) * B[i];
     }
-    const dH = polyline(HtPath, w, h, pad);
-    svg.innerHTML =
-      '<polyline fill="none" stroke="#2b211c" stroke-width="1.2" points=""></polyline>' +
-      '<path d="' + dB + '" fill="none" stroke="#2b211c" stroke-width="1.2"/>' +
-      '<path d="' + dH + '" fill="none" stroke="#6b1028" stroke-width="2.2"/>';
+    drawRChart(B, HtPath, heurPath, t, dt);
+    updatePlainR(Ht, heur, B[N], t);
     note.textContent =
       "Numerische Näherung mit Davies–Harte-fBm, Grünwald–Letnikov-Ableitung der Ordnung α und Trapezregel. " +
       "Raster: N = " + N + " Schritte, Δt = t/N = " + fmt(dt, 6) + ", Startwert B(0) = 0, Seed " + seed + "." +
@@ -786,6 +981,8 @@ function computeResilience() {
     outH.textContent = "–";
     outB.textContent = "–";
     note.textContent = "Rechnung nicht möglich: " + (err && err.message ? err.message : String(err));
+    clearChart("r-chart");
+    updatePlainR(NaN, NaN, NaN, t);
   }
 }
 
@@ -816,10 +1013,13 @@ function computeGold() {
     out.textContent = "–";
     box.innerHTML = "";
     note.textContent = "n muss eine ganze Zahl zwischen 0 und 60 sein.";
+    clearChart("g-chart");
+    updatePlainG(NaN, n);
     return;
   }
   const parsed = parseDerivs(document.getElementById("g-deriv").value, n);
   let sum = 0;
+  const terms = [];
   let rows = "<tr><th>k</th><th class='num'>binom(n,k)</th><th class='num'>(1/φ)<sup>k</sup></th><th class='num'>h<sup>(k)</sup>(Q)</th><th class='num'>Term</th></tr>";
   for (let k = 0; k <= n; k++) {
     const b = binom(n, k);
@@ -827,11 +1027,14 @@ function computeGold() {
     const h = parsed.out[k];
     const term = b * p * h;
     sum += term;
+    terms.push(term);
     rows += "<tr><td>" + k + "</td><td class='num'>" + fmt(b, 2) + "</td><td class='num'>" + fmt(p, 6) +
       "</td><td class='num'>" + fmt(h, 6) + "</td><td class='num'>" + fmt(term, 6) + "</td></tr>";
   }
   box.innerHTML = rows;
   out.textContent = fmt(sum, 6);
+  drawGChart(terms);
+  updatePlainG(sum, n);
   const bits = [];
   if (n !== nRaw) bits.push("n wurde auf die ganze Zahl " + n + " gerundet.");
   if (parsed.notes.length) bits.push(parsed.notes.join("; ") + " (Annahme).");
@@ -877,6 +1080,8 @@ function computeScale() {
     if (Number.isFinite(L)) total += L;
   });
   document.getElementById("s-total").textContent = fmt(total, 4);
+  drawSChart(k, phi);
+  updatePlainS(total);
 }
 
 function computeAll() {
@@ -937,7 +1142,750 @@ function onReady() {
     computeScale();
   });
   document.getElementById("btn-reset").addEventListener("click", restoreDefaults);
+  initViewToggle();
+  initQa();
   computeAll();
+}
+
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function clearChart(id) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = "";
+}
+
+function niceNum(x) {
+  if (!Number.isFinite(x) || x === 0) return 0;
+  const exp = Math.floor(Math.log10(Math.abs(x)));
+  const f = Math.abs(x) / Math.pow(10, exp);
+  let nf;
+  if (f < 1.5) nf = 1;
+  else if (f < 3) nf = 2;
+  else if (f < 7) nf = 5;
+  else nf = 10;
+  return nf * Math.pow(10, exp) * (x < 0 ? -1 : 1);
+}
+
+function ticksLinear(min, max, count) {
+  if (!(max > min)) { max = min + 1; }
+  const span = max - min;
+  const step = Math.abs(niceNum(span / Math.max(1, count)));
+  const t0 = Math.floor(min / step) * step;
+  const out = [];
+  for (let v = t0; v <= max + step * 0.5; v += step) {
+    if (v >= min - step * 0.01 && v <= max + step * 0.01) out.push(v);
+    if (out.length > 12) break;
+  }
+  if (!out.length) out.push(min, max);
+  return out;
+}
+
+function formatTick(v, log) {
+  if (!Number.isFinite(v)) return "–";
+  if (log) {
+    if (v <= 0) return "–";
+    const e = Math.log10(v);
+    const er = Math.round(e);
+    if (Math.abs(e - er) < 1e-9) return "10^" + er;
+    return "10^" + e.toFixed(1).replace(".", ",");
+  }
+  const abs = Math.abs(v);
+  if (abs >= 1e6) return fmt(v / 1e6, 2) + " Mio.";
+  if (abs >= 1000) return fmt(v, 1);
+  if (abs >= 10) return fmt(v, 1);
+  return fmt(v, 3);
+}
+
+function svgWrap(w, h, aria, body) {
+  return '<svg viewBox="0 0 ' + w + ' ' + h + '" width="100%" role="img" aria-label="' + esc(aria) + '">' +
+    '<rect x="0" y="0" width="' + w + '" height="' + h + '" fill="#f6efe2"/>' +
+    body + "</svg>";
+}
+
+function drawLineChart(el, opts) {
+  const w = opts.w || 640;
+  const h = opts.h || 260;
+  const log = !!opts.logY;
+  const pl = opts.pl || (log ? 72 : 58);
+  const pr = opts.pr || 16;
+  const pt = opts.pt || 22;
+  const pb = opts.pb || 40;
+  const iw = w - pl - pr;
+  const ih = h - pt - pb;
+  const series = opts.series || [];
+  let xMin = opts.xMin, xMax = opts.xMax, yMin = opts.yMin, yMax = opts.yMax;
+  if (xMin == null || xMax == null || yMin == null || yMax == null) {
+    xMin = Infinity; xMax = -Infinity; yMin = Infinity; yMax = -Infinity;
+    series.forEach(function (s) {
+      (s.points || []).forEach(function (p) {
+        if (!Number.isFinite(p.x) || !Number.isFinite(p.y)) return;
+        if (log && p.y <= 0) return;
+        if (p.x < xMin) xMin = p.x;
+        if (p.x > xMax) xMax = p.x;
+        if (p.y < yMin) yMin = p.y;
+        if (p.y > yMax) yMax = p.y;
+      });
+    });
+  }
+  if (!(xMax > xMin)) { xMax = xMin + 1; }
+  if (log) {
+    if (!(yMin > 0)) yMin = 1;
+    if (!(yMax > yMin)) yMax = yMin * 10;
+    yMin = Math.pow(10, Math.floor(Math.log10(yMin)));
+    yMax = Math.pow(10, Math.ceil(Math.log10(yMax)));
+    if (yMax <= yMin) yMax = yMin * 10;
+  } else {
+    if (!(yMax > yMin)) { yMax = yMin + 1; }
+    const padY = (yMax - yMin) * 0.08;
+    yMin -= padY;
+    yMax += padY;
+  }
+  function xPos(x) { return pl + ((x - xMin) / (xMax - xMin)) * iw; }
+  function yPos(y) {
+    if (log) {
+      const ly = Math.log10(Math.max(y, yMin));
+      const l0 = Math.log10(yMin), l1 = Math.log10(yMax);
+      return pt + (1 - (ly - l0) / (l1 - l0)) * ih;
+    }
+    return pt + (1 - (y - yMin) / (yMax - yMin)) * ih;
+  }
+  let parts = [];
+  parts.push('<line x1="' + pl + '" y1="' + (pt + ih) + '" x2="' + (pl + iw) + '" y2="' + (pt + ih) + '" stroke="#b8902f" stroke-width="1"/>');
+  parts.push('<line x1="' + pl + '" y1="' + pt + '" x2="' + pl + '" y2="' + (pt + ih) + '" stroke="#b8902f" stroke-width="1"/>');
+  const xt = ticksLinear(xMin, xMax, 6);
+  xt.forEach(function (v) {
+    const x = xPos(v);
+    parts.push('<line x1="' + x.toFixed(1) + '" y1="' + (pt + ih) + '" x2="' + x.toFixed(1) + '" y2="' + (pt + ih + 4) + '" stroke="#b8902f"/>');
+    parts.push('<text x="' + x.toFixed(1) + '" y="' + (pt + ih + 16) + '" text-anchor="middle" font-size="10" fill="#4a3c36" font-family="Palatino, Georgia, serif">' + esc(formatTick(v, false)) + "</text>");
+  });
+  let yt;
+  if (log) {
+    yt = [];
+    const e0 = Math.round(Math.log10(yMin));
+    const e1 = Math.round(Math.log10(yMax));
+    const step = (e1 - e0 > 6) ? Math.ceil((e1 - e0) / 6) : 1;
+    for (let e = e0; e <= e1 + 0.01; e += step) yt.push(Math.pow(10, e));
+  } else {
+    yt = ticksLinear(yMin, yMax, 5);
+  }
+  yt.forEach(function (v) {
+    if (log && v < yMin / 1.01) return;
+    const y = yPos(v);
+    parts.push('<line x1="' + pl + '" y1="' + y.toFixed(1) + '" x2="' + (pl + iw) + '" y2="' + y.toFixed(1) + '" stroke="rgba(184,144,47,.28)"/>');
+    parts.push('<text x="' + (pl - 6) + '" y="' + (y + 3).toFixed(1) + '" text-anchor="end" font-size="10" fill="#4a3c36" font-family="Palatino, Georgia, serif">' + esc(formatTick(v, log)) + "</text>");
+  });
+  series.forEach(function (s) {
+    const pts = (s.points || []).filter(function (p) {
+      return Number.isFinite(p.x) && Number.isFinite(p.y) && (!log || p.y > 0);
+    });
+    if (pts.length < 2) return;
+    let d = "";
+    pts.forEach(function (p, i) {
+      d += (i === 0 ? "M" : "L") + xPos(p.x).toFixed(2) + " " + yPos(p.y).toFixed(2) + " ";
+    });
+    const dash = s.dash ? ' stroke-dasharray="' + s.dash + '"' : "";
+    const sw = s.width || 2;
+    parts.push('<path d="' + d + '" fill="none" stroke="' + (s.color || "#6b1028") + '" stroke-width="' + sw + '"' + dash + "/>");
+  });
+  (opts.markers || []).forEach(function (m) {
+    if (!Number.isFinite(m.x) || !Number.isFinite(m.y) || (log && m.y <= 0)) return;
+    const x = xPos(m.x), y = yPos(m.y);
+    parts.push('<line x1="' + x.toFixed(1) + '" y1="' + pt + '" x2="' + x.toFixed(1) + '" y2="' + (pt + ih) + '" stroke="#6b1028" stroke-width="1" stroke-dasharray="3 3"/>');
+    parts.push('<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="4.5" fill="#6b1028" stroke="#f6efe2" stroke-width="1.5"/>');
+    if (m.label) {
+      const anchor = x > pl + iw * 0.7 ? "end" : "start";
+      const tx = anchor === "end" ? x - 8 : x + 8;
+      parts.push('<text x="' + tx.toFixed(1) + '" y="' + Math.max(pt + 11, y - 8).toFixed(1) + '" text-anchor="' + anchor + '" font-size="10" fill="#6b1028" font-family="Palatino, Georgia, serif">' + esc(m.label) + "</text>");
+    }
+  });
+  if (opts.xLabel) {
+    parts.push('<text x="' + (pl + iw / 2) + '" y="' + (h - 8) + '" text-anchor="middle" font-size="11" fill="#6b1028" font-family="Rockwell, Palatino, Georgia, serif">' + esc(opts.xLabel) + "</text>");
+  }
+  if (opts.yLabel) {
+    parts.push('<text x="14" y="' + (pt + ih / 2) + '" text-anchor="middle" font-size="11" fill="#6b1028" font-family="Rockwell, Palatino, Georgia, serif" transform="rotate(-90 14 ' + (pt + ih / 2) + ')">' + esc(opts.yLabel) + "</text>");
+  }
+  let lx = pl + 8, ly = 14;
+  (opts.legend || []).forEach(function (L) {
+    const dash = L.dash ? ' stroke-dasharray="' + L.dash + '"' : "";
+    parts.push('<line x1="' + lx + '" y1="' + ly + '" x2="' + (lx + 16) + '" y2="' + ly + '" stroke="' + (L.color || "#6b1028") + '" stroke-width="2"' + dash + "/>");
+    parts.push('<text x="' + (lx + 20) + '" y="' + (ly + 3) + '" font-size="10" fill="#2b211c" font-family="Palatino, Georgia, serif">' + esc(L.label) + "</text>");
+    lx += 20 + Math.min(160, L.label.length * 6.2) + 10;
+  });
+  el.innerHTML = svgWrap(w, h, opts.aria || "Diagramm", parts.join(""));
+}
+
+
+function drawQCharts() {
+  const t = num("q1-t"), a = num("q1-a"), q = num("q1-q"), c = num("q1-c"), b = num("q1-b");
+  const el1 = document.getElementById("q1-chart");
+  const tMax = Math.max(1, Number.isFinite(t) && t > 0 ? t : 10);
+  const n = 80;
+  const pts = [];
+  for (let i = 0; i <= n; i++) {
+    const ti = (tMax * i) / n;
+    pts.push({ x: ti, y: qHebel1(ti, a, q, c, b) });
+  }
+  const g1 = Number.isFinite(t) ? qHebel1(t, a, q, c, b) : NaN;
+  drawLineChart(el1, {
+    xMin: 0, xMax: tMax,
+    series: [{ points: pts, color: "#6b1028", width: 2.2 }],
+    markers: Number.isFinite(t) && Number.isFinite(g1) ? [{ x: t, y: g1, label: "t = " + fmt(t, 2) + " · " + fmt(g1, 2) }] : [],
+    xLabel: "Jahre t",
+    yLabel: "Wachstum",
+    aria: "Kurve des Q-Hebels Variante 7gaben-hugel über die Jahre, Markierung beim aktuellen t",
+    legend: [{ color: "#6b1028", label: "Wachstum" }]
+  });
+
+  const y = num("q2-y"), a2 = num("q2-a"), q2 = num("q2-q"), c2 = num("q2-c");
+  const m = num("q2-m"), d = num("q2-d"), h = num("q2-h");
+  const el2 = document.getElementById("q2-chart");
+  const yMax = Math.max(1, Number.isFinite(y) && y > 0 ? y : 10);
+  const pts2 = [];
+  let ymin = Infinity, ymax = -Infinity;
+  for (let i = 1; i <= 120; i++) {
+    const yi = (yMax * i) / 120;
+    const gi = qHebel2(yi, a2, q2, c2, m, d, h);
+    if (gi > 0) {
+      pts2.push({ x: yi, y: gi });
+      if (gi < ymin) ymin = gi;
+      if (gi > ymax) ymax = gi;
+    }
+  }
+  const g2 = Number.isFinite(y) ? qHebel2(y, a2, q2, c2, m, d, h) : NaN;
+  if (Number.isFinite(g2) && g2 > 0) {
+    if (g2 < ymin) ymin = g2;
+    if (g2 > ymax) ymax = g2;
+  }
+  drawLineChart(el2, {
+    xMin: 0, xMax: yMax,
+    yMin: ymin, yMax: ymax,
+    logY: true,
+    series: [{ points: pts2, color: "#6b1028", width: 2.2 }],
+    markers: Number.isFinite(y) && Number.isFinite(g2) && g2 > 0 ? [{ x: y, y: g2, label: "y = " + fmt(y, 2) + " · " + fmt(g2, 2) }] : [],
+    xLabel: "Jahre y",
+    yLabel: "Wachstum",
+    aria: "Kurve des Q-Hebels Variante Rosenkranz-Rat über die Jahre, logarithmische Skala, Markierung beim aktuellen y",
+    legend: [{ color: "#6b1028", label: "Wachstum (logarithmische Skala)" }]
+  });
+}
+
+function drawRChart(B, HtPath, heurPath, t, dt) {
+  const el = document.getElementById("r-chart");
+  const n = HtPath.length;
+  const step = Math.max(1, Math.floor(n / 400));
+  const sHt = [], sHe = [], sB = [];
+  for (let i = 0; i < n; i += step) {
+    const x = i * dt;
+    sHt.push({ x: x, y: HtPath[i] });
+    sHe.push({ x: x, y: heurPath[i] });
+    sB.push({ x: x, y: B[i] });
+  }
+  const last = n - 1;
+  if ((last % step) !== 0) {
+    sHt.push({ x: t, y: HtPath[last] });
+    sHe.push({ x: t, y: heurPath[last] });
+    sB.push({ x: t, y: B[last] });
+  }
+  drawLineChart(el, {
+    w: 640, h: 280,
+    xMin: 0, xMax: t,
+    series: [
+      { points: sB, color: "#2b211c", width: 1.1 },
+      { points: sHt, color: "#6b1028", width: 2.3 },
+      { points: sHe, color: "#b8902f", width: 2, dash: "6 4" }
+    ],
+    markers: [{ x: t, y: HtPath[last], label: "t = " + fmt(t, 2) }],
+    xLabel: "Zeit τ (Jahre)",
+    yLabel: "Wert",
+    aria: "Pfad von H t, der Heuristik der Seite und von B hoch H über die Zeit",
+    legend: [
+      { color: "#6b1028", label: "H_t (numerische Näherung)" },
+      { color: "#b8902f", label: "Heuristik der Seite", dash: "6 4" },
+      { color: "#2b211c", label: "B^H" }
+    ]
+  });
+}
+
+function drawSChart(k, phi) {
+  const el = document.getElementById("s-chart");
+  const rows = document.querySelectorAll("#s-rows tr");
+  const items = [];
+  rows.forEach(function (tr) {
+    const name = tr.querySelector(".p-name") ? tr.querySelector(".p-name").value : "";
+    const rO = parseFloat(String(tr.querySelector(".p-ohne").value).replace(",", "."));
+    const rM = parseFloat(String(tr.querySelector(".p-mit").value).replace(",", "."));
+    const so = k * Math.pow(rO, phi);
+    const sm = k * Math.pow(rM, phi);
+    const L = so - sm;
+    items.push({ name: name || "ohne Namen", so: so, sm: sm, L: L });
+  });
+  const w = 640;
+  const rowH = 36;
+  const pl = 168, pr = 86, pt = 28, pb = 36;
+  const h = Math.max(160, pt + pb + items.length * rowH);
+  const iw = w - pl - pr;
+  let max = 0;
+  items.forEach(function (it) {
+    if (Number.isFinite(it.so) && it.so > max) max = it.so;
+    if (Number.isFinite(it.sm) && it.sm > max) max = it.sm;
+  });
+  if (!(max > 0)) max = 1;
+  max *= 1.08;
+  const xt = ticksLinear(0, max, 5);
+  let parts = [];
+  parts.push('<line x1="' + pl + '" y1="' + (h - pb) + '" x2="' + (pl + iw) + '" y2="' + (h - pb) + '" stroke="#b8902f"/>');
+  parts.push('<line x1="' + pl + '" y1="' + pt + '" x2="' + pl + '" y2="' + (h - pb) + '" stroke="#b8902f"/>');
+  xt.forEach(function (v) {
+    const x = pl + (v / max) * iw;
+    parts.push('<line x1="' + x.toFixed(1) + '" y1="' + pt + '" x2="' + x.toFixed(1) + '" y2="' + (h - pb) + '" stroke="rgba(184,144,47,.28)"/>');
+    parts.push('<text x="' + x.toFixed(1) + '" y="' + (h - pb + 14) + '" text-anchor="middle" font-size="10" fill="#4a3c36" font-family="Palatino, Georgia, serif">' + esc(formatTick(v, false)) + "</text>");
+  });
+  items.forEach(function (it, i) {
+    const y0 = pt + i * rowH;
+    const label = it.name.length > 26 ? it.name.slice(0, 24) + "…" : it.name;
+    parts.push('<text x="' + (pl - 8) + '" y="' + (y0 + 20) + '" text-anchor="end" font-size="10" fill="#2b211c" font-family="Palatino, Georgia, serif">' + esc(label) + "</text>");
+    const y1 = y0 + 7, bh = 9;
+    const w1 = Number.isFinite(it.so) ? Math.max(0, (it.so / max) * iw) : 0;
+    const w2 = Number.isFinite(it.sm) ? Math.max(0, (it.sm / max) * iw) : 0;
+    parts.push('<rect x="' + pl + '" y="' + y1 + '" width="' + w1.toFixed(1) + '" height="' + bh + '" fill="#6b1028"/>');
+    parts.push('<rect x="' + pl + '" y="' + (y1 + 11) + '" width="' + w2.toFixed(1) + '" height="' + bh + '" fill="#b8902f"/>');
+    const Ltxt = "L = " + fmt(it.L, 2);
+    parts.push('<text x="' + (pl + iw + 6) + '" y="' + (y0 + 20) + '" font-size="10" fill="#6b1028" font-family="Palatino, Georgia, serif">' + esc(Ltxt) + "</text>");
+  });
+  parts.push('<text x="' + (pl + iw / 2) + '" y="' + (h - 8) + '" text-anchor="middle" font-size="11" fill="#6b1028" font-family="Rockwell, Palatino, Georgia, serif">S(r)</text>');
+  parts.push('<line x1="' + (pl + 8) + '" y1="12" x2="' + (pl + 24) + '" y2="12" stroke="#6b1028" stroke-width="6"/>');
+  parts.push('<text x="' + (pl + 28) + '" y="15" font-size="10" fill="#2b211c" font-family="Palatino, Georgia, serif">S(r ohne)</text>');
+  parts.push('<line x1="' + (pl + 120) + '" y1="12" x2="' + (pl + 136) + '" y2="12" stroke="#b8902f" stroke-width="6"/>');
+  parts.push('<text x="' + (pl + 140) + '" y="15" font-size="10" fill="#2b211c" font-family="Palatino, Georgia, serif">S(r mit)</text>');
+  el.innerHTML = svgWrap(w, h, "Balkendiagramm: S von r ohne und S von r mit je Vorschlag, daneben L", parts.join(""));
+}
+
+function drawGChart(terms) {
+  const el = document.getElementById("g-chart");
+  const n = terms.length;
+  const w = 640, h = 260;
+  const pl = 54, pr = 16, pt = 22, pb = 40;
+  const iw = w - pl - pr, ih = h - pt - pb;
+  let max = 0, min = 0;
+  for (let i = 0; i < n; i++) {
+    if (Number.isFinite(terms[i])) {
+      if (terms[i] > max) max = terms[i];
+      if (terms[i] < min) min = terms[i];
+    }
+  }
+  if (max === min) { max = min + 1; }
+  if (min > 0) min = 0;
+  const span = max - min;
+  max += span * 0.08;
+  function xPos(i) { return pl + ((i + 0.1) / n) * iw; }
+  function barW() { return Math.max(2, (0.8 / n) * iw); }
+  function yPos(v) { return pt + (1 - (v - min) / (max - min)) * ih; }
+  const y0 = yPos(0);
+  let parts = [];
+  parts.push('<line x1="' + pl + '" y1="' + y0.toFixed(1) + '" x2="' + (pl + iw) + '" y2="' + y0.toFixed(1) + '" stroke="#b8902f"/>');
+  parts.push('<line x1="' + pl + '" y1="' + pt + '" x2="' + pl + '" y2="' + (pt + ih) + '" stroke="#b8902f"/>');
+  ticksLinear(min, max, 5).forEach(function (v) {
+    const y = yPos(v);
+    parts.push('<line x1="' + pl + '" y1="' + y.toFixed(1) + '" x2="' + (pl + iw) + '" y2="' + y.toFixed(1) + '" stroke="rgba(184,144,47,.28)"/>');
+    parts.push('<text x="' + (pl - 6) + '" y="' + (y + 3).toFixed(1) + '" text-anchor="end" font-size="10" fill="#4a3c36" font-family="Palatino, Georgia, serif">' + esc(formatTick(v, false)) + "</text>");
+  });
+  const labelEvery = n > 24 ? 2 : 1;
+  for (let i = 0; i < n; i++) {
+    const v = terms[i];
+    if (!Number.isFinite(v)) continue;
+    const x = xPos(i);
+    const y = yPos(v);
+    const bh = Math.abs(y - y0);
+    const top = Math.min(y, y0);
+    parts.push('<rect x="' + x.toFixed(1) + '" y="' + top.toFixed(1) + '" width="' + barW().toFixed(1) + '" height="' + Math.max(0.5, bh).toFixed(1) + '" fill="#6b1028"/>');
+    if (i % labelEvery === 0) {
+      parts.push('<text x="' + (x + barW() / 2).toFixed(1) + '" y="' + (pt + ih + 14) + '" text-anchor="middle" font-size="10" fill="#4a3c36" font-family="Palatino, Georgia, serif">' + i + "</text>");
+    }
+  }
+  parts.push('<text x="' + (pl + iw / 2) + '" y="' + (h - 8) + '" text-anchor="middle" font-size="11" fill="#6b1028" font-family="Rockwell, Palatino, Georgia, serif">k</text>');
+  parts.push('<text x="14" y="' + (pt + ih / 2) + '" text-anchor="middle" font-size="11" fill="#6b1028" font-family="Rockwell, Palatino, Georgia, serif" transform="rotate(-90 14 ' + (pt + ih / 2) + ')">Term</text>');
+  el.innerHTML = svgWrap(w, h, "Balkendiagramm der " + n + " Summanden der Goldenen Summe", parts.join(""));
+}
+
+function updatePlainQ(g1, g2) {
+  const t = num("q1-t");
+  const y = num("q2-y");
+  const el1 = document.getElementById("q1-plain-live");
+  const el2 = document.getElementById("q2-plain-live");
+  if (el1) {
+    el1.textContent = Number.isFinite(g1) && Number.isFinite(t)
+      ? "Mit deinen Werten ergibt sich nach " + fmt(t, 2) + " Jahren ein Wachstum von " + fmt(g1, 4) + " (Variante 7gaben-hugel)."
+      : "Mit deinen Werten lässt sich das Wachstum gerade nicht berechnen. Bitte prüf die Eingaben.";
+  }
+  if (el2) {
+    el2.textContent = Number.isFinite(g2) && Number.isFinite(y)
+      ? "Mit deinen Werten ergibt sich nach " + fmt(y, 2) + " Jahren ein Wachstum von " + fmt(g2, 4) + " (Variante Rosenkranz-Rat Engine)."
+      : "Mit deinen Werten lässt sich das Wachstum gerade nicht berechnen. Bitte prüf die Eingaben.";
+  }
+}
+
+function updatePlainR(Ht, heur, Bt, t) {
+  const el = document.getElementById("r-plain-live");
+  if (!el) return;
+  if (Number.isFinite(Ht) && Number.isFinite(heur) && Number.isFinite(Bt)) {
+    el.textContent = "Mit deinen Werten ergibt sich nach " + fmt(t, 2) + " Jahren H_t ≈ " + fmt(Ht, 6) +
+      " (numerische Näherung). Die Heuristik der Seite liefert zum Vergleich " + fmt(heur, 6) +
+      ", bei B^H(t) = " + fmt(Bt, 6) + ".";
+  } else {
+    el.textContent = "Mit deinen Werten lässt sich H_t gerade nicht berechnen. Bitte prüf die Eingaben.";
+  }
+}
+
+function tagesversL() {
+  const rows = document.querySelectorAll("#s-rows tr");
+  for (let i = 0; i < rows.length; i++) {
+    const tr = rows[i];
+    const name = tr.querySelector(".p-name") ? String(tr.querySelector(".p-name").value) : "";
+    if (name === "Tagesvers-Bilder") {
+      const txt = tr.querySelector(".p-l") ? tr.querySelector(".p-l").textContent : "";
+      return txt;
+    }
+  }
+  return null;
+}
+
+function updatePlainS(total) {
+  const el = document.getElementById("s-plain-live");
+  if (!el) return;
+  if (!Number.isFinite(total)) {
+    el.textContent = "Mit deinen Werten lässt sich L gerade nicht berechnen. Bitte prüf die Eingaben.";
+    return;
+  }
+  const Ltv = tagesversL();
+  let s = "Mit deinen Werten ergibt sich in dieser Liste eine Summe der L-Werte von " + fmt(total, 4) + ".";
+  if (Ltv) s += " Für den Vorschlag Tagesvers-Bilder beträgt L derzeit " + Ltv + ".";
+  else s += " Der Vorschlag Tagesvers-Bilder ist in der aktuellen Liste nicht enthalten.";
+  el.textContent = s;
+}
+
+function updatePlainG(sum, n) {
+  const el = document.getElementById("g-plain-live");
+  if (!el) return;
+  el.textContent = Number.isFinite(sum)
+    ? "Mit deinen Werten ergibt sich die Summe h ≈ " + fmt(sum, 6) + " (n = " + n + ")."
+    : "Mit deinen Werten lässt sich die Goldene Summe gerade nicht berechnen. Bitte prüf die Eingaben.";
+}
+
+function initViewToggle() {
+  function apply(mode) {
+    document.body.classList.remove("view-formel", "view-einfach", "view-beide");
+    document.body.classList.add("view-" + mode);
+    ["formel", "einfach", "beide"].forEach(function (m) {
+      const btn = document.getElementById("view-" + m);
+      if (btn) btn.setAttribute("aria-pressed", m === mode ? "true" : "false");
+    });
+  }
+  ["formel", "einfach", "beide"].forEach(function (m) {
+    const btn = document.getElementById("view-" + m);
+    if (btn) btn.addEventListener("click", function () { apply(m); });
+  });
+  apply("beide");
+}
+
+
+function normalizeQa(s) {
+  return String(s || "")
+    .toLowerCase()
+    .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function currentLive() {
+  return {
+    q1: document.getElementById("q1-out") ? document.getElementById("q1-out").textContent : "–",
+    q2: document.getElementById("q2-out") ? document.getElementById("q2-out").textContent : "–",
+    ht: document.getElementById("r-out") ? document.getElementById("r-out").textContent : "–",
+    heur: document.getElementById("r-out-heur") ? document.getElementById("r-out-heur").textContent : "–",
+    gold: document.getElementById("g-out") ? document.getElementById("g-out").textContent : "–",
+    stotal: document.getElementById("s-total") ? document.getElementById("s-total").textContent : "–",
+    Lt: tagesversL() || "–",
+    t: document.getElementById("q1-t") ? document.getElementById("q1-t").value : "",
+    y: document.getElementById("q2-y") ? document.getElementById("q2-y").value : ""
+  };
+}
+
+const QA_ITEMS = [
+  {
+    q: "Was berechnet dieser Rechner?",
+    suggest: true,
+    keys: ["was berechnet", "rechner", "werkzeug", "szenarien", "zweck", "wozu", "prognose", "keine prognose", "vorhersage"],
+    a: function () {
+      return "Das ist ein Rechenwerkzeug für Szenarien. Du kannst alle Variablen und Konstanten selbst eintragen; die Ergebnisse rechnen sich sofort neu. Es werden keine Daten gespeichert, keine Cookies gesetzt und nichts ins Netz gesendet. Nichts davon ist eine Prognose. Unten auf der Seite steht deshalb: „Rechenwerkzeug für Szenarien, keine Prognose.“";
+    }
+  },
+  {
+    q: "Was ist der Q-Hebel?",
+    suggest: true,
+    keys: ["q-hebel", "q hebel", "was ist der q", "hebel varianten", "growth rosary"],
+    a: function (L) {
+      return "Der Q-Hebel ist in zwei Varianten aus zwei Quellen abgebildet.\n\nVariante 7gaben-hugel: growth = e^(a·t) · q · charcoal_stability + b · t. Quelle: 7gaben-hugel, Datei 03_Commercial_Validation.py, Zeilen 18–23 (Commit e50b31b).\n\nVariante Rosenkranz-Rat Engine: growth = e^(a·y) · qNebelFaktor · charcoalStability · (m · y / d) · dehydrogenaseFactor. Quelle: Rosenkranz-Rat, engine/index.html, Zeilen 231–238 (Commit 58c27ad).\n\nBeide Ergebnisse sind Modellgrößen der jeweiligen Quelle, keine Prognose. Mit den aktuellen Eingaben: Variante 1 nach t = " + L.t + " Jahren ergibt " + L.q1 + ", Variante 2 nach y = " + L.y + " Jahren ergibt " + L.q2 + ".";
+    }
+  },
+  {
+    q: "Was bedeuten die Variablen beim Q-Hebel (Variante 7gaben-hugel)?",
+    suggest: false,
+    keys: ["variable", "variablen", "7gaben", "hugel", "q_hebel_faktor", "charcoal_stability", "exponent a", "was ist t", "was ist b"],
+    a: function () {
+      return "In der Variante 7gaben-hugel ist t die Zeit in Jahren, a der Exponent der e-Funktion, q der q_hebel_faktor, charcoal_stability ein Skalierungsfaktor des exponentiellen Anteils und b der Faktor des linearen Anteils. In der Quelldatei steht growth_rosary = (exp(years * 0.5) * q_hebel_faktor * charcoal_stability) + (2500 * years / 100), also b = 2500/100 = 25.";
+    }
+  },
+  {
+    q: "Was bedeuten die Variablen bei der Rosenkranz-Rat-Variante des Q-Hebels?",
+    suggest: false,
+    keys: ["qnebelfaktor", "q nebel", "dehydrogenase", "charcoalstability", "rosenkranz-rat", "rosenkranz rat engine", "faktor 1500", "nenner 200"],
+    a: function () {
+      return "In der Variante Rosenkranz-Rat Engine ist y die Zeit in Jahren (die Quelle plottet 0–30), a der Exponent, qNebelFaktor und charcoalStability skalieren das Produkt, m und d bilden den Bruch m·y/d, dehydrogenaseFactor steht als weiterer Faktor.\n\nIn der Quelle gilt: qNebelFaktor = 30,0 · 200 = 6000 (Zeile 235), charcoalStability = 0,62 · 200 = 124 (Zeile 236), m = 1500, d = 200 (Zeile 238), a = 0,5. dehydrogenaseFactor wird dort bei jedem „Update Plot“ als Zufallszahl zwischen 0,8 und 1,0 neu gezogen – ein fester Default fehlt. Hier steht fest 1, das ist eine Annahme.";
+    }
+  },
+  {
+    q: "Woher kommen die Standardwerte des Q-Hebels?",
+    suggest: false,
+    keys: ["standardwerte", "defaults", "default q", "woher kommen", "quelle q-hebel", "commit e50b31b", "commit 58c27ad", "zeilen 18", "zeilen 231"],
+    a: function () {
+      return "Variante 7gaben-hugel: aus 03_Commercial_Validation.py, Zeilen 18–23 (Commit e50b31b). Dort stehen der Exponent 0,5, q_hebel_faktor und charcoal_stability sowie der lineare Teil 2500 · years / 100, also b = 25. Die Grafik betrachtet Jahre 0 bis 10 (Zeile 7). Die Startwerte hier sind t = 10, a = 0,5, q = 30, charcoal_stability = 0,2, b = 25.\n\nVariante Rosenkranz-Rat Engine: aus engine/index.html, Zeilen 231–238 (Commit 58c27ad). Defaults in der Datei: qNebelFaktor = 30,0 · 200 = 6000 (Zeile 235), charcoalStability = 0,62 · 200 = 124 (Zeile 236), m = 1500, d = 200 (Zeile 238), a = 0,5. Die Grafik läuft über y = 0 bis 30. Für dehydrogenaseFactor fehlt dort ein fester Default; hier steht 1 (Annahme).";
+    }
+  },
+  {
+    q: "Was ist der Unterschied zwischen den beiden Q-Hebel-Varianten?",
+    suggest: false,
+    keys: ["unterschied", "beide varianten", "zwei varianten", "vergleich q", "linearer summand"],
+    a: function () {
+      return "Sie stammen aus unterschiedlichen Dateien und sind nicht dieselbe Formel. Variante 7gaben-hugel addiert einen linearen Teil b·t zum exponentiellen Produkt. Variante Rosenkranz-Rat Engine ist ein einziges Produkt und enthält zusätzlich den Bruch m·y/d sowie dehydrogenaseFactor; die Faktoren qNebelFaktor und charcoalStability sind in der Quelle bereits mit 200 multipliziert. Die zweite Variante liefert typischerweise deutlich größere Zahlen, deshalb ist ihre Kurve logarithmisch gezeichnet.";
+    }
+  },
+  {
+    q: "Was ist fraktale Resilienz?",
+    suggest: true,
+    keys: ["fraktale resilienz", "fraktal", "resilienz", "was ist h_t", "was ist ht", "integralformel"],
+    a: function (L) {
+      return "Die fraktale Resilienz steht als H_t = H_0 + Integral von 0 bis t der fraktionalen Ableitung (Ordnung α) von B^H(τ). Quelle: Rosenkranz-Rat, fractal-resilience.html, Formel Zeilen 33–41 (Commit 58c27ad).\n\nDas Ergebnis links ist eine numerische Näherung (Davies–Harte-fBm, Grünwald–Letnikov-Ableitung, Trapezregel), keine geschlossene Lösung. Rechts steht zum Vergleich die Heuristik der Seite, gerechnet mit demselben Pfad. Mit den aktuellen Eingaben: H_t ≈ " + L.ht + ", Heuristik " + L.heur + ".";
+    }
+  },
+  {
+    q: "Was bedeuten H, Alpha, H0, t, N und Seed bei der fraktalen Resilienz?",
+    suggest: false,
+    keys: ["hurst", "caputo", "grunwald", "gruenwald", "was ist alpha", "was ist h0", "was ist seed", "was ist n schritte", "startwert"],
+    a: function () {
+      return "H_0 ist der Startwert. Im Anzeigetext der Seite kommt H_0 vor, im Code steht fest die 1 in Ht = 1 + (i·dt)^(1−α) · B – deshalb ist der Default hier 1.\n\nH ist der Hurst-Parameter und muss zwischen 0 und 1 liegen (ohne die Ränder); Startwert 0,72 aus Zeilen 46–50.\n\nα ist die Ordnung der fraktionalen Ableitung (Caputo / Grünwald–Letnikov); Startwert 0,65 aus denselben Zeilen.\n\nt ist das Zeitende. Auf der Seite ist t kein Eingabefeld; mit n = 800 und dt = 0,025 ergibt sich t ≈ 19,975, hier gerundet 20.\n\nN ist die Zahl der Schritte (Quelle: 800).\n\nDer Seed macht den Zufallspfad wiederholbar. Auf der Seite fehlt ein Seed (dort steht Math.random); der Wert 42 ist eine Annahme.";
+    }
+  },
+  {
+    q: "Warum nutzt die Fractal-Seite eine Heuristik?",
+    suggest: true,
+    keys: ["heuristik", "faustformel", "warum nutzt", "fractal-resilience", "anders gerechnet", "math.random"],
+    a: function () {
+      return "Die Seite fractal-resilience.html rechnet die angezeigte Integralformel nicht so, wie dieser Rechner sie numerisch nähert. Sie setzt H_t = 1 + t^(1−α)·B(t) mit einer anderen, ungesäten Heuristik für B: n = 800 und dt = 0,025 fest, dW = (Math.random()−0,5)·√dt, Summe von (i·dt)^(H−1)·dW (Code-Heuristik Zeilen 96–107).\n\nDie rechte Vergleichszahl und die gestrichelte Kurve nutzen dieselbe geschlossene Heuristik, aber unseren fBm-Pfad mit festem Seed – damit der Vergleich wiederholbar ist. Ein Zufalls-Seed fehlt auf der Originalseite.";
+    }
+  },
+  {
+    q: "Woher kommen die Startwerte der fraktalen Resilienz?",
+    suggest: false,
+    keys: ["startwerte", "default resilienz", "zeilen 46", "zeilen 33", "zeilen 96", "n = 800", "dt = 0"],
+    a: function () {
+      return "Quelle: Rosenkranz-Rat, fractal-resilience.html, Commit 58c27ad. Formel: Zeilen 33–41. Startwerte H = 0,72 und α = 0,65: Zeilen 46–50. Code-Heuristik: Zeilen 96–107. H_0 kommt in der Anzeige vor, im Code steht fest die 1 – Default H_0 = 1. t ist dort kein Eingabefeld; mit n = 800 und dt = 0,025 ergibt sich t ≈ 19,975, hier gerundet 20. Ein Seed fehlt auf der Seite; 42 ist eine Annahme.";
+    }
+  }
+];
+
+
+QA_ITEMS.push(
+  {
+    q: "Was bedeutet L bei der Skaleninvarianz?",
+    suggest: true,
+    keys: ["skaleninvarianz", "redundanz", "was bedeutet l", "was ist l", "s(r)", "s r", "verlust"],
+    a: function (L) {
+      return "S(r) = k · r^φ steht symbolisch in USP index.html, Zeile 28 (Commit 98c91a7, Forscher-Modus): „Skaleninvarianz: S(r) = k · r^φ“. Werte für k und φ stehen dort nicht.\n\nL = k · (r_ohne^φ − r_mit^φ) ist die Ableitung von Regie und wird als Redundanz-Verlust gelesen: die Differenz zwischen S ohne und S mit Maßnahme.\n\nBeispiel in der Quelle der r-Werte: Tagesvers-Bilder, r 7 → 1, L ≈ 22,3. Mit den aktuellen Eingaben ist L für Tagesvers-Bilder " + L.Lt + ", die Summe der L-Werte dieser Liste " + L.stotal + ". Die Summe selbst ist keine Quellenformel, nur die Addition dieser Liste.";
+    }
+  },
+  {
+    q: "Woher kommen k und phi?",
+    suggest: false,
+    keys: ["woher kommen k", "woher kommen phi", "goldene zahl", "1,618", "1.618", "annahme regie", "nur symbolisch"],
+    a: function () {
+      return "S(r) = k · r^φ steht in USP index.html, Zeile 28 (Commit 98c91a7) nur symbolisch. Werte für k und φ stehen dort nicht. Die Defaults k = 1 und φ = 1,618034 sind Annahmen von Regie und im Rechner als Annahme gekennzeichnet. Denselben φ-Startwert nutzt die Goldene Summe, ebenfalls als Annahme, weil φ im USP nur symbolisch vorkommt.";
+    }
+  },
+  {
+    q: "Woher kommen die r-Werte der Tabelle?",
+    suggest: false,
+    keys: ["r-werte", "r werte", "r ohne", "r mit", "vorschlaege", "vorschlage", "tagesvers", "ki-instanzen"],
+    a: function (L) {
+      return "Die r-Werte der Zeilen stammen aus /workspace/ki-instanzen-esg/vorschlaege-2026-11-10.md (Vorschläge 1–8, jeweils r_ohne und r_mit). Beispiel Tagesvers-Bilder: r 7 → 1, L ≈ 22,3. Mit den aktuellen Eingaben beträgt L für Tagesvers-Bilder " + L.Lt + ". Du kannst Zeilen ändern, entfernen oder hinzufügen.";
+    }
+  },
+  {
+    q: "Was ist die Goldene Summe?",
+    suggest: false,
+    keys: ["goldene summe", "rosenkranz-approximation", "binomial", "summe h", "ableitung h"],
+    a: function (L) {
+      return "Die Goldene Summe ist h ≈ Summe von k = 0 bis n von binom(n,k) · (1/φ)^k · h^(k)(Q). Quelle: USP index.html, Zeile 28 (Commit 98c91a7), dort auch als „Rosenkranz-Approximation n=17 → 153“ genannt. Default n = 17 steht dort. φ ist im USP nur symbolisch; der Startwert 1,618034 ist eine Annahme. Die Ableitungen h^(k)(Q) sind auf der Seite nicht beziffert – der Default hier sind lauter Einsen (Annahme).\n\nMit den aktuellen Eingaben ergibt sich die Summe h ≈ " + L.gold + ". Bei h^(k)(Q) = 1 wäre die Summe (1 + 1/φ)^n.";
+    }
+  },
+  {
+    q: "Warum ist 153 nicht die Goldene Summe?",
+    suggest: true,
+    keys: ["153", "dreieckszahl", "dreiecks", "n=17", "n = 17", "nicht die summe", "warum ist 153"],
+    a: function (L) {
+      return "Die USP-Seite nennt „Rosenkranz-Approximation n=17 → 153“. 153 ist die 17. Dreieckszahl, nicht der Wert dieser Summe. Bei h^(k)(Q) = 1 wäre die Summe (1 + 1/φ)^n. Mit den aktuellen Eingaben (Default: alle Ableitungen 1, n = 17, φ = 1,618034) ergibt sich h ≈ " + L.gold + ".";
+    }
+  },
+  {
+    q: "Woher kommen die Ableitungen h^(k)(Q)?",
+    suggest: false,
+    keys: ["ableitungen", "h hoch k", "h(k)", "lauter einsen", "alle 1", "kommagetrennt"],
+    a: function () {
+      return "Die Ableitungen h^(k)(Q) sind auf der USP-Seite (index.html, Zeile 28, Commit 98c91a7) nicht beziffert. Deshalb steht im Rechner als Default für k = 0 bis n jeweils 1 – das ist eine Annahme und so gekennzeichnet. Du kannst die Werte im Feld kommagetrennt selbst eintragen. Fehlt ein Wert, wird er auf 1 gesetzt (Annahme); überzählige Werte werden ignoriert, weil n die Summe bis k = n bestimmt.";
+    }
+  },
+  {
+    q: "Warum gibt es keine ESG-Credits?",
+    suggest: true,
+    keys: ["esg-credit", "esg credit", "credits", "abbildungsformel", "umrechnung", "kein credit", "mapping"],
+    a: function () {
+      return "Eine Abbildungsformel von H_t auf ESG-Credits steht auf der Seite fractal-resilience.html nicht; deshalb wird sie hier nicht abgeleitet. Dieser Rechner ist ein Rechenwerkzeug für Szenarien, keine Prognose. Die anderen Karten liefern Modellgrößen oder Differenzen aus den genannten Quellen, keine Umrechnung in Credits oder Geld.";
+    }
+  },
+  {
+    q: "Welche Werte sind Annahmen?",
+    suggest: true,
+    keys: ["annahme", "annahmen", "welche werte sind", "markiert", "nicht in der quelle", "fest 1"],
+    a: function () {
+      return "Als Annahme gekennzeichnet oder im Text so benannt sind insbesondere:\n\n• dehydrogenaseFactor = 1, weil die Quelle Rosenkranz-Rat (engine/index.html, Zeilen 231–238) bei jedem Plot eine Zufallszahl zwischen 0,8 und 1,0 zieht und keinen festen Default nennt.\n• Seed = 42 der fraktalen Resilienz, weil fractal-resilience.html keinen Seed hat (Math.random).\n• k = 1 und φ = 1,618034, weil USP index.html, Zeile 28, k und φ nur symbolisch nennt; das sind Annahmen von Regie. Denselben φ-Startwert nutzt die Goldene Summe.\n• Die Ableitungen h^(k)(Q) = 1, weil die USP-Seite keine Werte nennt.\n• t = 20 bei der fraktalen Resilienz ist die Rundung von n·dt ≈ 19,975 (n = 800, dt = 0,025).\n\nL ist die Ableitung von Regie, nicht eine in der USP-Seite ausgeschriebene Zahlenformel. Die Summe der L-Werte der Liste ist keine Quellenformel.";
+    }
+  },
+  {
+    q: "Wie setze ich alles zurück?",
+    suggest: true,
+    keys: ["zuruecksetzen", "reset", "wiederherstellen", "standardwerte wieder", "anfangswerte", "wie setze"],
+    a: function () {
+      return "Mit der Schaltfläche „Zurücksetzen“ oben. Sie stellt alle Variablen und Konstanten auf die Startwerte aus den genannten Quellen bzw. auf die gekennzeichneten Annahmen zurück und stellt die acht Vorschlagszeilen der Skaleninvarianz wieder her. Die Ergebnisse, Kurven und Erklärungssätze rechnen sich danach sofort neu. Es werden ohnehin keine Daten gespeichert.";
+    }
+  },
+  {
+    q: "Werden Daten gespeichert oder ins Netz gesendet?",
+    suggest: false,
+    keys: ["gespeichert", "cookies", "netz", "datenschutz", "tracking", "lokal", "speicher"],
+    a: function () {
+      return "Nein. Es werden keine Daten gespeichert, keine Cookies gesetzt und nichts ins Netz gesendet. Auch dieses Fragenfenster arbeitet nur mit festen Antworten im Dateiinneren, ohne KI und ohne Netz.";
+    }
+  },
+  {
+    q: "Woher kommt die Formel der Skaleninvarianz?",
+    suggest: false,
+    keys: ["usp", "forscher-modus", "index.html zeile 28", "98c91a7", "quelle skalen"],
+    a: function () {
+      return "S(r) = k · r^φ steht symbolisch in USP index.html, Zeile 28 (Commit 98c91a7, Forscher-Modus). Werte für k und φ stehen dort nicht. L = k · (r_ohne^φ − r_mit^φ) ist die Ableitung von Regie. Die r-Werte der vorbesetzten Zeilen stammen aus /workspace/ki-instanzen-esg/vorschlaege-2026-11-10.md.";
+    }
+  },
+  {
+    q: "Wie lese ich das Ergebnis des Q-Hebels?",
+    suggest: false,
+    keys: ["wie lese", "ergebnis lesen", "modellgroesse", "modellgrosse", "modellgroße", "wachstum lesen"],
+    a: function (L) {
+      return "Das angezeigte Wachstum ist eine Modellgröße der jeweiligen Quelle, keine Prognose und keine Umrechnung in Geld oder Credits. Variante 1 zeigt den Verlauf linear, Variante 2 wegen der großen Zahlen logarithmisch; die Markierung sitzt bei deinem aktuellen t bzw. y. Aktuell: Variante 1 = " + L.q1 + ", Variante 2 = " + L.q2 + ".";
+    }
+  }
+);
+
+function qaSuggestions() {
+  return QA_ITEMS.filter(function (it) { return it.suggest; });
+}
+
+function scoreQa(item, normQuery, tokens) {
+  let s = 0;
+  const nqTitle = normalizeQa(item.q);
+  if (normQuery && nqTitle && (normQuery === nqTitle || nqTitle.indexOf(normQuery) !== -1 || normQuery.indexOf(nqTitle) !== -1)) {
+    s += 20;
+  }
+  (item.keys || []).forEach(function (key) {
+    const nk = normalizeQa(key);
+    if (!nk) return;
+    if (normQuery.indexOf(nk) !== -1) s += 2 + nk.split(" ").filter(Boolean).length;
+  });
+  tokens.forEach(function (tok) {
+    if (tok.length < 4) return;
+    if (nqTitle.split(" ").indexOf(tok) !== -1) s += 1;
+  });
+  return s;
+}
+
+function answerQa(question) {
+  const norm = normalizeQa(question);
+  const tokens = norm.split(" ").filter(Boolean);
+  if (!norm) return { unmatched: true, text: "" };
+  let best = null, bestS = 0;
+  QA_ITEMS.forEach(function (it) {
+    const sc = scoreQa(it, norm, tokens);
+    if (sc > bestS) {
+      bestS = sc;
+      best = it;
+    }
+  });
+  if (!best || bestS < 3) return { unmatched: true, text: "" };
+  return { unmatched: false, text: best.a(currentLive()), q: best.q, score: bestS };
+}
+
+function unmatchedText() {
+  const list = qaSuggestions().map(function (it) { return "• " + it.q; }).join("\n");
+  return "Dazu liegt hier keine belegte Antwort vor. Die Antworten stammen nur aus diesem Rechner und den angegebenen Quellen.\n\nDu kannst eine der vorbereiteten Fragen wählen:\n" + list;
+}
+
+function appendMsg(role, text) {
+  const log = document.getElementById("qa-log");
+  if (!log) return;
+  const div = document.createElement("div");
+  div.className = "qa-msg " + role;
+  div.setAttribute("data-test", role === "user" ? "qa-user" : "qa-bot");
+  div.textContent = text;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+
+function askQa(question) {
+  const q = String(question || "").trim();
+  if (!q) return;
+  appendMsg("user", q);
+  const res = answerQa(q);
+  appendMsg("bot", res.unmatched ? unmatchedText() : res.text);
+}
+
+function initQa() {
+  const chips = document.getElementById("qa-chips");
+  const form = document.getElementById("qa-form");
+  const input = document.getElementById("qa-input");
+  if (chips) {
+    qaSuggestions().forEach(function (it) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "qa-chip";
+      b.textContent = it.q;
+      b.addEventListener("click", function () { askQa(it.q); });
+      chips.appendChild(b);
+    });
+  }
+  if (form) {
+    form.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      const v = input ? input.value : "";
+      askQa(v);
+      if (input) input.value = "";
+    });
+  }
+  appendMsg("bot", "Stell eine Frage zu den Formeln, Variablen oder Quellen. Du kannst auch eine der Fragen oben antippen.");
 }
 
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", onReady);

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ROSARY-ATLAS • Organigramm-Widget</title>
+  <style>
+    :root {
+      --bg: #020617;
+      --panel: #0f172a;
+      --line: #334155;
+      --gold: #d4af37;
+      --health: #2dd4bf;
+      --green: #34d399;
+      --muted: #94a3b8;
+      --text: #e2e8f0;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; background: var(--bg); color: var(--text);
+      font-family: "IBM Plex Mono", "Cascadia Code", "DejaVu Sans Mono", "Consolas", monospace;
+      overflow: hidden; }
+    .wrap { width: 100%; height: 100%; display: flex; flex-direction: column; min-height: 0;
+      border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: #0b1220; }
+    header { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; padding: 8px 12px; background: linear-gradient(to right, #1e293b, #0f172a);
+      border-bottom: 1px solid var(--line); }
+    header h1 { font-size: 12px; font-weight: 600; letter-spacing: 0.4px; }
+    header .sub { font-size: 9px; color: #64748b; }
+    .status { display: flex; align-items: center; gap: 8px; font-size: 10px; color: var(--muted); }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); animation: blink 2s infinite; }
+    @keyframes blink { 50% { opacity: .4; } }
+    .body { flex: 1 1 auto; min-height: 0; position: relative; }
+    svg { width: 100%; height: 100%; display: block; }
+    .node { cursor: pointer; }
+    .node:hover { filter: brightness(1.3); }
+    .node-label { font-size: 11px; font-weight: 600; text-anchor: middle; fill: var(--text); }
+    .node-sub { font-size: 8px; text-anchor: middle; fill: var(--muted); }
+    .label { font-size: 9px; letter-spacing: 0.8px; text-anchor: middle; }
+    .awake { filter: drop-shadow(0 0 5px var(--green)); }
+    .node.hit { filter: drop-shadow(0 0 10px #fbbf24) brightness(1.35); }
+    #roleCard { position: absolute; left: 12px; bottom: 12px; z-index: 5; display: none;
+      min-width: 200px; max-width: 280px; padding: 8px 10px; background: rgba(15,23,42,0.96);
+      border: 1px solid var(--gold); border-radius: 8px; pointer-events: none; }
+    #roleCard h2 { color: var(--gold); font-size: 11px; margin-bottom: 2px; }
+    #roleCard .meta { color: var(--muted); font-size: 9px; margin-bottom: 4px; }
+    #roleCard p { font-size: 10px; line-height: 1.35; }
+    footer { flex: 0 0 auto; display: flex; gap: 8px; justify-content: center; align-items: center;
+      padding: 6px 10px 8px; border-top: 1px solid var(--line); background: #0f172a; }
+    button { font: inherit; font-size: 10px; color: var(--text); background: #1e293b;
+      border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+    button:hover { border-color: var(--gold); color: var(--gold); }
+    button#btnAuto.on { border-color: #a78bfa; color: #a78bfa; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>ROSARY-ATLAS • Organigramm</h1>
+        <div class="sub">Koordination · MediTeam · Codes und Rollen</div>
+      </div>
+      <div class="status"><div class="dot"></div><span id="liveLabel">LIVE • eingebettete Daten</span></div>
+    </header>
+    <div class="body">
+      <svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ROSARY-ATLAS Organigramm Widget">
+        <defs>
+          <filter id="glowGold" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+            <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+            <polygon points="0 0, 7 3.5, 0 7" fill="#64748b"/>
+          </marker>
+        </defs>
+        <g id="pulsePaths" fill="none" stroke="#64748b" stroke-width="1.3" opacity="0.85">
+          <path id="p-koord" d="M400 108 L400 150" marker-end="url(#arrow)"/>
+          <path id="p-medi" d="M400 230 L400 286" marker-end="url(#arrow)"/>
+        </g>
+        <g class="node" data-node="GB-RDIR">
+          <rect x="250" y="18" width="300" height="44" rx="8" fill="#0f172a" stroke="#d4af37" stroke-width="2"/>
+          <text x="400" y="37" class="node-label" fill="#d4af37">Grok Regiedirektor</text>
+          <text x="400" y="52" class="node-sub">GB-RDIR · Koordinator</text>
+        </g>
+        <g>
+          <rect x="24" y="118" width="752" height="150" rx="12" fill="rgba(212,175,55,0.05)" stroke="#d4af37" stroke-width="1" stroke-dasharray="3,2"/>
+          <text x="400" y="136" class="label" fill="#d4af37">KOORDINATION</text>
+          <g class="node" data-node="GB-REGIE">
+            <circle cx="130" cy="190" r="28" fill="#0f172a" stroke="#d4af37" stroke-width="2"/>
+            <text x="130" y="186" class="node-label" font-size="10" fill="#d4af37">REGIE</text>
+            <text x="130" y="198" class="node-sub" font-size="7">GB-REGIE</text>
+            <text x="130" y="230" class="node-sub stxt" fill="#34d399">AWAKE</text>
+          </g>
+          <g class="node" data-node="GB-ARCHY">
+            <circle cx="265" cy="190" r="26" fill="#0f172a" stroke="#d4af37" stroke-width="1.7"/>
+            <text x="265" y="194" class="node-label" font-size="11">ARCHY</text>
+            <text x="265" y="230" class="node-sub stxt" fill="#34d399">AWAKE</text>
+          </g>
+          <g class="node" data-node="GB-FIDELIO">
+            <circle cx="400" cy="190" r="26" fill="#0f172a" stroke="#d4af37" stroke-width="1.7"/>
+            <text x="400" y="194" class="node-label" font-size="10">FIDELIO</text>
+            <text x="400" y="230" class="node-sub stxt" fill="#34d399">AWAKE</text>
+          </g>
+          <g class="node" data-node="GB-DATEN">
+            <circle cx="535" cy="190" r="26" fill="#0f172a" stroke="#d4af37" stroke-width="1.7"/>
+            <text x="535" y="190" class="node-label" font-size="8">DATEN</text>
+            <text x="535" y="202" class="node-label" font-size="8">SCOUT</text>
+            <text x="535" y="230" class="node-sub stxt" fill="#34d399">AWAKE</text>
+          </g>
+          <g class="node" data-node="GB-BUECHER">
+            <circle cx="670" cy="190" r="26" fill="#0f172a" stroke="#d4af37" stroke-width="1.7"/>
+            <text x="670" y="190" class="node-label" font-size="8">BÜCHER</text>
+            <text x="670" y="202" class="node-label" font-size="8">SCOUT</text>
+            <text x="670" y="230" class="node-sub stxt" fill="#34d399">AWAKE</text>
+          </g>
+        </g>
+        <g>
+          <rect x="24" y="286" width="752" height="150" rx="12" fill="rgba(45,212,191,0.05)" stroke="#2dd4bf" stroke-width="1" stroke-dasharray="3,2"/>
+          <text x="400" y="304" class="label" fill="#2dd4bf">MEDITEAM • Rosary Health</text>
+          <g class="node" data-node="GB-DOC">
+            <circle cx="130" cy="358" r="28" fill="#0f172a" stroke="#2dd4bf" stroke-width="2"/>
+            <text x="130" y="354" class="node-label" fill="#2dd4bf">DOC</text>
+            <text x="130" y="366" class="node-sub" font-size="7">GB-DOC</text>
+            <text x="130" y="398" class="node-sub stxt" fill="#34d399">AWAKE</text>
+          </g>
+          <g class="node" data-node="MT-ERN">
+            <circle cx="280" cy="358" r="26" fill="#0f172a" stroke="#2dd4bf" stroke-width="1.7"/>
+            <text x="280" y="356" class="node-label" font-size="11" fill="#ccfbf1">ERN</text>
+            <text x="280" y="398" class="node-sub">Ernährung</text>
+          </g>
+          <g class="node" data-node="MT-BEW">
+            <circle cx="415" cy="358" r="26" fill="#0f172a" stroke="#2dd4bf" stroke-width="1.7"/>
+            <text x="415" y="356" class="node-label" font-size="11" fill="#ccfbf1">BEW</text>
+            <text x="415" y="398" class="node-sub">Bewegung</text>
+          </g>
+          <g class="node" data-node="MT-SCHLAF">
+            <circle cx="550" cy="358" r="26" fill="#0f172a" stroke="#2dd4bf" stroke-width="1.7"/>
+            <text x="550" y="356" class="node-label" font-size="10" fill="#ccfbf1">SCHLAF</text>
+            <text x="550" y="398" class="node-sub">Schlaf</text>
+          </g>
+          <g class="node" data-node="MT-EVI">
+            <circle cx="670" cy="358" r="26" fill="#0f172a" stroke="#2dd4bf" stroke-width="1.7"/>
+            <text x="670" y="356" class="node-label" font-size="11" fill="#ccfbf1">EVI</text>
+            <text x="670" y="398" class="node-sub">Evidenz</text>
+          </g>
+        </g>
+      </svg>
+      <aside id="roleCard">
+        <h2 id="roleId">–</h2>
+        <div class="meta" id="roleMeta"></div>
+        <p id="roleText"></p>
+      </aside>
+    </div>
+    <footer>
+      <button type="button" id="btnManual">Manual Trigger (T)</button>
+      <button type="button" id="btnAuto" class="on">Auto Trigger · AN · 60 s</button>
+    </footer>
+  </div>
+  <script>
+  (function () {
+    const DESC = {
+      "GB-RDIR": "Grok Regiedirektor — zentraler Koordinator / Chief of Staff.",
+      "GB-REGIE": "Regie — Team-Koordination und Übergaben.",
+      "GB-ARCHY": "ARCHY — Bildung und Verkündigung, Quellen.",
+      "GB-FIDELIO": "Fidelio — Barde, Musik und Text.",
+      "GB-DATEN": "Daten-Scout — Datenanalysen, Agent-Search.",
+      "GB-BUECHER": "Bücher-Scout — Lese-Impulse.",
+      "GB-DOC": "DOC — Koordinator MediTeam.",
+      "MT-ERN": "MediTeam Ernährung.",
+      "MT-BEW": "MediTeam Bewegung & Gelenke.",
+      "MT-SCHLAF": "MediTeam Schlaf.",
+      "MT-EVI": "MediTeam Evidenzprüfer."
+    };
+    let autoOn = true;
+    let roleTimer = null;
+    const fmt = new Intl.DateTimeFormat("de-DE", { dateStyle: "short", timeStyle: "medium", timeZone: "Europe/Berlin" });
+
+    function showRole(id) {
+      const card = document.getElementById("roleCard");
+      document.getElementById("roleId").textContent = id;
+      document.getElementById("roleMeta").textContent = "Status: AWAKE";
+      document.getElementById("roleText").textContent = DESC[id] || "Rolle nicht hinterlegt.";
+      card.style.display = "block";
+      clearTimeout(roleTimer);
+      roleTimer = setTimeout(function () { card.style.display = "none"; }, 5000);
+    }
+    function pulseAlong(path, delay, color) {
+      const svg = path.ownerSVGElement;
+      const ns = "http://www.w3.org/2000/svg";
+      const dot = document.createElementNS(ns, "circle");
+      dot.setAttribute("r", "5");
+      dot.setAttribute("fill", color || "#fbbf24");
+      dot.setAttribute("pointer-events", "none");
+      svg.querySelector("#pulsePaths").appendChild(dot);
+      const len = path.getTotalLength();
+      setTimeout(function () {
+        const t0 = performance.now();
+        (function step(now) {
+          const p = Math.min(1, (now - t0) / 800);
+          const pt = path.getPointAtLength(p * len);
+          dot.setAttribute("cx", pt.x);
+          dot.setAttribute("cy", pt.y);
+          dot.setAttribute("opacity", String(1 - p * 0.2));
+          if (p < 1) requestAnimationFrame(step);
+          else dot.remove();
+        })(t0);
+      }, delay);
+    }
+    function runPulse() {
+      let i = 0;
+      document.querySelectorAll("#pulsePaths path").forEach(function (path) {
+        pulseAlong(path, i * 80, path.id === "p-medi" ? "#2dd4bf" : "#d4af37");
+        i += 1;
+      });
+      document.querySelectorAll("[data-node]").forEach(function (g, idx) {
+        setTimeout(function () {
+          g.classList.add("hit");
+          setTimeout(function () { g.classList.remove("hit"); }, 450);
+        }, 250 + idx * 40);
+      });
+      document.getElementById("liveLabel").textContent = "LIVE • Puls " + fmt.format(new Date());
+    }
+    function setAutoLabel() {
+      const b = document.getElementById("btnAuto");
+      b.textContent = autoOn ? "Auto Trigger · AN · 60 s" : "Auto Trigger · AUS";
+      b.classList.toggle("on", autoOn);
+    }
+    document.getElementById("btnManual").addEventListener("click", function (ev) {
+      ev.stopPropagation();
+      runPulse();
+    });
+    document.getElementById("btnAuto").addEventListener("click", function (ev) {
+      ev.stopPropagation();
+      autoOn = !autoOn;
+      setAutoLabel();
+    });
+    document.querySelectorAll("[data-node]").forEach(function (g) {
+      g.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        showRole(g.dataset.node);
+      });
+    });
+    document.addEventListener("keydown", function (ev) {
+      if (ev.key === "t" || ev.key === "T") { ev.preventDefault(); runPulse(); }
+      if (ev.key === "Escape") document.getElementById("roleCard").style.display = "none";
+    });
+    document.addEventListener("click", function () {
+      document.getElementById("roleCard").style.display = "none";
+    });
+    setAutoLabel();
+    setTimeout(runPulse, 400);
+    setInterval(function () { if (autoOn) runPulse(); }, 60000);
+  })();
+  </script>
+</body>
+</html>

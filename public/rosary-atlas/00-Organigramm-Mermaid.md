@@ -63,8 +63,10 @@ graph TD
 
 ## Ergänzung 26.11.2026 (öffentliche Rollen, keine Klarnamen)
 
-- MediTeam: DOC, Ernährung, Bewegung & Gelenke, Schlaf, **AlphaFold** (technischer Rahmen). **Evidenzprüfer nur auf Uwes Go (ruhend).**
-- TechBio: **AlphaFold-Kulturen**.
-- RKW-Wegweiser: Dschungelbuch, Baloo, Mogli, Monie, EDUCATION, Opti-Steer (Cockpit bleibt L1).
-- RKW-Scouts: RI, UC, LLE, SAL, ML.
+Stand nach Freigabe 26.11.2026, 18:04 (Europe/Berlin). 50 Knoten in Organigramm v2 und Widget.
+
+- MediTeam: DOC, Ernährung, Bewegung & Gelenke, Schlaf. **AlphaFold** (technischer Rahmen, SLEEPING). **Evidenzprüfer nur auf Uwes Go (SLEEPING).**
+- Grok-Bot-Team: **AlphaFold-Kulturen** (SLEEPING).
+- RKW-Wegweiser: Dschungelbuch, Baloo, Mogli, Monie, EDUCATION, Opti-Steer (SLEEPING; Cockpit bleibt L1).
+- RKW-Scouts: RI, UC, LLE, SAL, ML (SLEEPING, Wecken nur nach Ja).
 

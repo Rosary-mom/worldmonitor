@@ -2,7 +2,7 @@
   "generated": "2026-11-26",
   "timezone": "Europe/Berlin",
   "title": "Zusammenarbeit",
-  "note": "Statischer Snapshot vom 26.11.2026 (Europe/Berlin). Öffentlich nur Rollen, Codes und Avatare, keine Klarnamen, keine Schlüssel. Evidenzprüfer nur auf Uwes Go (ruhend). Ergänzt: AlphaFold (MediTeam), AlphaFold-Kulturen, RKW-Wegweiser und RKW-Scouts.",
+  "note": "Statischer Snapshot vom 26.11.2026 (Europe/Berlin). Abgleich mit Organigramm v2: MT-EVI und die neuen bzw. nicht geweckten Rollen auf „schläft“. Keine Klarnamen, keine Schlüssel, keine Gesundheitsdaten.",
   "agents": [
     {
       "id": "GB-RDIR",
@@ -159,7 +159,7 @@
       "label": "Dschungelbuch",
       "role": "Zentraler Wegweiser",
       "kind": "agent",
-      "status": "wach",
+      "status": "schläft",
       "avatar": "./avatars/avatar-dschungelbuch.svg",
       "vaultId": "Wegweiser/Dschungelbuch.md",
       "cluster": "wegweiser"
@@ -169,7 +169,7 @@
       "label": "Baloo",
       "role": "Weiser Führer",
       "kind": "agent",
-      "status": "wach",
+      "status": "schläft",
       "avatar": "./avatars/avatar-baloo.svg",
       "vaultId": "Wegweiser/Baloo.md",
       "cluster": "wegweiser"
@@ -179,7 +179,7 @@
       "label": "Mogli",
       "role": "Navigator",
       "kind": "agent",
-      "status": "wach",
+      "status": "schläft",
       "avatar": "./avatars/avatar-mogli.svg",
       "vaultId": "Wegweiser/Mogli.md",
       "cluster": "wegweiser"
@@ -189,7 +189,7 @@
       "label": "Monie",
       "role": "Kapitalflüsse",
       "kind": "agent",
-      "status": "wach",
+      "status": "schläft",
       "avatar": "./avatars/avatar-monie.svg",
       "vaultId": "Wegweiser/Monie.md",
       "cluster": "wegweiser"
@@ -199,7 +199,7 @@
       "label": "EDUCATION",
       "role": "Wissensamplifikation",
       "kind": "agent",
-      "status": "wach",
+      "status": "schläft",
       "avatar": "./avatars/avatar-education.svg",
       "vaultId": "Wegweiser/EDUCATION.md",
       "cluster": "wegweiser"
@@ -209,7 +209,7 @@
       "label": "Opti-Steer",
       "role": "Prozessoptimierung",
       "kind": "agent",
-      "status": "wach",
+      "status": "schläft",
       "avatar": "./avatars/avatar-optisteer.svg",
       "vaultId": "Wegweiser/Opti-Steer.md",
       "cluster": "wegweiser"
@@ -219,7 +219,7 @@
       "label": "RI",
       "role": "RKW-Innovation",
       "kind": "scout",
-      "status": "wach",
+      "status": "schläft",
       "avatar": "./avatars/avatar-RI.jpg",
       "vaultId": "RKW-Scouts/RI.md",
       "cluster": "rkw"
@@ -229,7 +229,7 @@
       "label": "UC",
       "role": "Uni-Campus",
       "kind": "scout",
-      "status": "wach",
+      "status": "schläft",
       "avatar": "./avatars/avatar-UC.jpg",
       "vaultId": "RKW-Scouts/UC.md",
       "cluster": "rkw"
@@ -239,7 +239,7 @@
       "label": "LLE",
       "role": "Live & Learn & Earn",
       "kind": "scout",
-      "status": "wach",
+      "status": "schläft",
       "avatar": "./avatars/avatar-LLE.jpg",
       "vaultId": "RKW-Scouts/LLE.md",
       "cluster": "rkw"
@@ -249,7 +249,7 @@
       "label": "SAL",
       "role": "Sales-Channels",
       "kind": "scout",
-      "status": "wach",
+      "status": "schläft",
       "avatar": "./avatars/avatar-SAL.jpg",
       "vaultId": "RKW-Scouts/SAL.md",
       "cluster": "rkw"
@@ -259,7 +259,7 @@
       "label": "ML",
       "role": "MicroLiving",
       "kind": "scout",
-      "status": "wach",
+      "status": "schläft",
       "avatar": "./avatars/avatar-ML.jpg",
       "vaultId": "RKW-Scouts/ML.md",
       "cluster": "rkw"
@@ -269,7 +269,7 @@
       "label": "AlphaFold",
       "role": "MediTeam, technischer Rahmen",
       "kind": "subagent",
-      "status": "wach",
+      "status": "schläft",
       "avatar": "./avatars/avatar-mediteam.svg",
       "vaultId": "MediTeam/AlphaFold.md",
       "cluster": "mediteam"
@@ -279,7 +279,7 @@
       "label": "AlphaFold-Kulturen",
       "role": "TechBio-Subagent",
       "kind": "subagent",
-      "status": "wach",
+      "status": "schläft",
       "avatar": "./avatars/avatar-techbio.svg",
       "vaultId": "Bio2.0-TechBio/AlphaFold-optimierte Kulturen Agent.md",
       "cluster": "techbio"

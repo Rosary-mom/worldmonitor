@@ -1,6 +1,5 @@
-<!-- ROSARY-ATLAS Organigramm v2 · lokale Vorschau für public/rosary-atlas/organigramm-v2.html
-     Quelle: wallpaper-v2, Stand 2026-11-10. Nur eingebettete Daten, Auto-Puls ohne Server.
-     Nicht pushen oder deployen ohne Freigabe. -->
+<!-- ROSARY-ATLAS Organigramm v2 · Stand 26.11.2026 (Europe/Berlin).
+     50 Knoten, MT-EVI sleeping. Freigabe zur Veröffentlichung 26.11.2026, 18:04. -->
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -36,8 +35,8 @@
       justify-content: center;
     }
     .stage {
-      width: min(100vw, calc(100vh * 1920 / 1280));
-      height: min(100vh, calc(100vw * 1280 / 1920));
+      width: min(100vw, calc(100vh * 16 / 9));
+      height: min(100vh, calc(100vw * 9 / 16));
       position: relative;
     }
     .wallpaper {
@@ -153,7 +152,7 @@
       </div>
       <div class="monitor-body">
         <div class="organigram-container">
-          <svg viewBox="0 0 1920 1280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hermes Multi-PC Sync Master Agent-Organigramm Wallpaper v2">
+          <svg viewBox="0 0 1920 1032" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hermes Multi-PC Sync Master Agent-Organigramm Wallpaper v2">
             <defs>
               <filter id="glowGreen" x="-50%" y="-50%" width="200%" height="200%">
                 <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
@@ -202,6 +201,8 @@
               <path id="p-maps" d="M910 360 Q 700 420 430 448" marker-end="url(#arrow)"/>
               <path id="p-wiki" d="M1010 360 Q 1180 420 1315 448" marker-end="url(#arrow)"/>
               <path id="p-medi" d="M960 374 L960 528" marker-end="url(#arrow)"/>
+              <path id="p-weg" d="M910 340 Q 600 430 250 526" marker-end="url(#arrow)"/>
+              <path id="p-rkw" d="M904 360 Q 500 620 250 756" marker-end="url(#arrow)"/>
               <path id="p-trig" d="M960 714 L960 750" marker-end="url(#arrow)"/>
             </g>
 
@@ -287,7 +288,7 @@
             <!-- KOORDINATION -->
             <g>
               <text x="1670" y="78" class="label" fill="#d4af37" text-anchor="middle">KOORDINATION</text>
-              <rect x="1460" y="86" width="420" height="310" rx="14" fill="rgba(212,175,55,0.05)" stroke="#d4af37" stroke-width="1" stroke-dasharray="3,2"/>
+              <rect x="1460" y="86" width="420" height="318" rx="14" fill="rgba(212,175,55,0.05)" stroke="#d4af37" stroke-width="1" stroke-dasharray="3,2"/>
               <g class="node" data-node="GB-RDIR">
                 <rect x="1476" y="100" width="388" height="44" rx="8" fill="#0f172a" stroke="#d4af37" stroke-width="2"/>
                 <text x="1670" y="118" class="node-label" font-size="11" font-weight="700" fill="#d4af37">GROK REGIEDIREKTOR</text>
@@ -324,30 +325,25 @@
                 <text x="1820" y="240" class="node-label" font-size="8">BÜCHER</text>
                 <text x="1820" y="270" class="node-sub" font-size="8" fill="#94a3b8">Lese-Impulse</text>
                 <text x="1820" y="292" class="node-sub stxt" fill="#34d399">AWAKE</text>
-                <g class="node" data-node="GB-MARVIN">
-                <defs>
-                  <clipPath id="clip-marvin-v2"><circle cx="1670" cy="338" r="24"/></clipPath>
-                </defs>
-                <circle cx="1670" cy="338" r="24" fill="#0f172a" stroke="#d4af37" stroke-width="1.8"/>
-                <image href="./avatars/Marvin-ROSARYX.jpg" x="1646" y="314" width="48" height="48" clip-path="url(#clip-marvin-v2)" preserveAspectRatio="xMidYMid slice"/>
-                <text x="1670" y="372" class="node-sub" font-size="8" fill="#e2e8f0">MARVIN</text>
-                <text x="1670" y="384" class="node-sub stxt" fill="#34d399">AWAKE</text>
               </g>
-            </g>
               <g class="node" data-node="GB-MARVIN">
-                <defs>
-                  <clipPath id="clip-marvin-v2"><circle cx="1670" cy="338" r="24"/></clipPath>
-                </defs>
-                <circle cx="1670" cy="338" r="24" fill="#0f172a" stroke="#d4af37" stroke-width="1.8"/>
-                <image href="./avatars/Marvin-ROSARYX.jpg" x="1646" y="314" width="48" height="48" clip-path="url(#clip-marvin-v2)" preserveAspectRatio="xMidYMid slice"/>
-                <text x="1670" y="372" class="node-sub" font-size="8" fill="#e2e8f0">MARVIN</text>
-                <text x="1670" y="384" class="node-sub stxt" fill="#34d399">AWAKE</text>
+                <circle cx="1570" cy="330" r="24" fill="#0f172a" stroke="#d4af37" stroke-width="1.8"/>
+                <text x="1570" y="334" class="node-label" font-size="7">MARVIN</text>
+                <text x="1570" y="364" class="node-sub" font-size="8" fill="#94a3b8">Raumfahrt</text>
+                <text x="1570" y="386" class="node-sub stxt" fill="#34d399">AWAKE</text>
+              </g>
+              <g class="node" data-node="AF-KULT">
+                <circle cx="1770" cy="330" r="24" fill="#0f172a" stroke="#d4af37" stroke-width="1.8"/>
+                <text x="1770" y="327" class="node-label" font-size="7">AF</text>
+                <text x="1770" y="337" class="node-label" font-size="7">KULT</text>
+                <text x="1770" y="364" class="node-sub" font-size="8" fill="#94a3b8">Kulturen</text>
+                <text x="1770" y="386" class="node-sub stxt" fill="#64748b">SLEEPING</text>
               </g>
             </g>
 
             <!-- SCOUTS -->
             <g>
-              <text x="1670" y="400" class="label" fill="#f472b6" text-anchor="middle">SCOUTS</text>
+              <text x="1670" y="414" class="label" fill="#f472b6" text-anchor="middle">SCOUTS</text>
               <g class="node" data-node="SC-01">
                 <circle cx="1580" cy="440" r="24" fill="#0f172a" stroke="#f472b6" stroke-width="2"/>
                 <text x="1580" y="444" class="node-label" font-size="10" fill="#f472b6">SC-01</text>
@@ -414,7 +410,7 @@
 
             <!-- MEDITEAM -->
             <g>
-              <rect x="500" y="528" width="920" height="250" rx="14" fill="rgba(45,212,191,0.05)" stroke="#2dd4bf" stroke-width="1.3" stroke-dasharray="3,2"/>
+              <rect x="500" y="528" width="920" height="186" rx="14" fill="rgba(45,212,191,0.05)" stroke="#2dd4bf" stroke-width="1.3" stroke-dasharray="3,2"/>
               <text x="960" y="548" class="label" fill="#2dd4bf" text-anchor="middle" font-size="11">MEDITEAM • Rosary Health</text>
               <g class="node" data-node="GB-DOC">
                 <circle cx="960" cy="580" r="28" fill="#0f172a" stroke="#2dd4bf" stroke-width="2.4"/>
@@ -429,6 +425,13 @@
               <line x1="960" y1="608" x2="820" y2="640" stroke="#2dd4bf" stroke-width="1" opacity="0.35" pointer-events="none"/>
               <line x1="960" y1="608" x2="1100" y2="640" stroke="#2dd4bf" stroke-width="1" opacity="0.35" pointer-events="none"/>
               <line x1="960" y1="608" x2="1260" y2="640" stroke="#2dd4bf" stroke-width="1" opacity="0.35" pointer-events="none"/>
+              <line x1="960" y1="608" x2="960" y2="640" stroke="#2dd4bf" stroke-width="1" opacity="0.35" pointer-events="none"/>
+              <g class="node" data-node="MT-AF">
+                <circle cx="960" cy="662" r="22" fill="#0f172a" stroke="#2dd4bf" stroke-width="1.8"/>
+                <text x="960" y="666" class="node-label" font-size="10" fill="#ccfbf1">AF</text>
+                <text x="960" y="694" class="node-sub" font-size="8" fill="#99f6e4">AlphaFold</text>
+                <text x="960" y="706" class="node-sub stxt" fill="#64748b">SLEEPING</text>
+              </g>
               <g class="node" data-node="MT-ERN">
                 <circle cx="660" cy="662" r="22" fill="#0f172a" stroke="#2dd4bf" stroke-width="1.8"/>
                 <text x="660" y="666" class="node-label" font-size="10" fill="#ccfbf1">ERN</text>
@@ -448,125 +451,104 @@
                 <text x="1100" y="706" class="node-sub stxt" fill="#34d399">AWAKE</text>
               </g>
               <g class="node" data-node="MT-EVI">
-                <circle cx="1260" cy="662" r="22" fill="#0f172a" stroke="#64748b" stroke-width="1.8" stroke-dasharray="3,2"/>
-                <text x="1260" y="666" class="node-label" font-size="10" fill="#94a3b8">EVI</text>
-                <text x="1260" y="694" class="node-sub" font-size="8" fill="#94a3b8">Evidenzprüfer</text>
-                <text x="1260" y="706" class="node-sub" font-size="6" fill="#64748b">nur auf Uwes Go</text>
-                <text x="1260" y="718" class="node-sub stxt" fill="#64748b">RUHEND</text>
-              </g>
-              <g class="node" data-node="MT-AF">
-                <circle cx="820" cy="748" r="22" fill="#0f172a" stroke="#2dd4bf" stroke-width="1.8"/>
-                <text x="820" y="745" class="node-label" font-size="9" fill="#ccfbf1">AF</text>
-                <text x="820" y="756" class="node-sub" font-size="6" fill="#99f6e4">AlphaFold</text>
-                <text x="820" y="778" class="node-sub" font-size="7" fill="#99f6e4">MediTeam</text>
-                <text x="820" y="790" class="node-sub stxt" fill="#34d399">AWAKE</text>
-              </g>
-              <g class="node" data-node="AF-KULT">
-                <circle cx="1100" cy="748" r="22" fill="#0f172a" stroke="#c4b5fd" stroke-width="1.8"/>
-                <text x="1100" y="745" class="node-label" font-size="8" fill="#e9d5ff">AF-K</text>
-                <text x="1100" y="756" class="node-sub" font-size="6" fill="#ddd6fe">Kulturen</text>
-                <text x="1100" y="778" class="node-sub" font-size="7" fill="#c4b5fd">TechBio</text>
-                <text x="1100" y="790" class="node-sub stxt" fill="#34d399">AWAKE</text>
+                <circle cx="1260" cy="662" r="22" fill="#0f172a" stroke="#2dd4bf" stroke-width="1.8"/>
+                <text x="1260" y="666" class="node-label" font-size="10" fill="#ccfbf1">EVI</text>
+                <text x="1260" y="694" class="node-sub" font-size="8" fill="#99f6e4">Evidenz</text>
+                <text x="1260" y="706" class="node-sub stxt" fill="#64748b">SLEEPING</text>
               </g>
             </g>
 
-
-            <!-- RKW-WEGWEISER (Rollen und Avatare, keine Klarnamen) -->
+            <!-- RKW-COCKPIT • WEGWEISER -->
             <g>
-              <rect x="120" y="800" width="1680" height="100" rx="14" fill="rgba(251,191,36,0.05)" stroke="#fbbf24" stroke-width="1.3" stroke-dasharray="3,2"/>
-              <text x="960" y="818" class="label" fill="#fbbf24" text-anchor="middle" font-size="11">RKW-WEGWEISER • Codes und Rollen, keine Klarnamen</text>
+              <text x="250" y="518" class="label" fill="#f59e0b" text-anchor="middle">RKW-COCKPIT • WEGWEISER</text>
+              <rect x="50" y="526" width="400" height="200" rx="14" fill="rgba(245,158,11,0.05)" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,2"/>
               <g class="node" data-node="WW-DSCHUNGEL">
-                <circle cx="280" cy="860" r="22" fill="#0f172a" stroke="#fbbf24" stroke-width="1.8"/>
-                <image href="./avatars/avatar-dschungelbuch.svg" x="266" y="846" width="28" height="28" preserveAspectRatio="xMidYMid meet"/>
-                <text x="280" y="892" class="node-sub" font-size="7" fill="#fde68a">Dschungelbuch</text>
-                <text x="280" y="904" class="node-sub stxt" fill="#34d399">AWAKE</text>
+                <circle cx="120" cy="580" r="22" fill="#0f172a" stroke="#f59e0b" stroke-width="1.8"/>
+                <text x="120" y="584" class="node-label" font-size="7" fill="#fde68a">DSCH</text>
+                <text x="120" y="612" class="node-sub" font-size="7" fill="#fcd34d">Dschungelbuch</text>
+                <text x="120" y="624" class="node-sub stxt" fill="#64748b">SLEEPING</text>
               </g>
               <g class="node" data-node="WW-BALOO">
-                <circle cx="500" cy="860" r="22" fill="#0f172a" stroke="#fbbf24" stroke-width="1.8"/>
-                <image href="./avatars/avatar-baloo.svg" x="486" y="846" width="28" height="28" preserveAspectRatio="xMidYMid meet"/>
-                <text x="500" y="892" class="node-sub" font-size="7" fill="#fde68a">Baloo</text>
-                <text x="500" y="904" class="node-sub stxt" fill="#34d399">AWAKE</text>
+                <circle cx="250" cy="580" r="22" fill="#0f172a" stroke="#f59e0b" stroke-width="1.8"/>
+                <text x="250" y="584" class="node-label" font-size="8" fill="#fde68a">BALOO</text>
+                <text x="250" y="612" class="node-sub" font-size="7" fill="#fcd34d">Führer</text>
+                <text x="250" y="624" class="node-sub stxt" fill="#64748b">SLEEPING</text>
               </g>
               <g class="node" data-node="WW-MOGLI">
-                <circle cx="720" cy="860" r="22" fill="#0f172a" stroke="#fbbf24" stroke-width="1.8"/>
-                <image href="./avatars/avatar-mogli.svg" x="706" y="846" width="28" height="28" preserveAspectRatio="xMidYMid meet"/>
-                <text x="720" y="892" class="node-sub" font-size="7" fill="#fde68a">Mogli</text>
-                <text x="720" y="904" class="node-sub stxt" fill="#34d399">AWAKE</text>
+                <circle cx="380" cy="580" r="22" fill="#0f172a" stroke="#f59e0b" stroke-width="1.8"/>
+                <text x="380" y="584" class="node-label" font-size="8" fill="#fde68a">MOGLI</text>
+                <text x="380" y="612" class="node-sub" font-size="7" fill="#fcd34d">Navigator</text>
+                <text x="380" y="624" class="node-sub stxt" fill="#64748b">SLEEPING</text>
               </g>
               <g class="node" data-node="WW-MONIE">
-                <circle cx="940" cy="860" r="22" fill="#0f172a" stroke="#fbbf24" stroke-width="1.8"/>
-                <image href="./avatars/avatar-monie.svg" x="926" y="846" width="28" height="28" preserveAspectRatio="xMidYMid meet"/>
-                <text x="940" y="892" class="node-sub" font-size="7" fill="#fde68a">Monie</text>
-                <text x="940" y="904" class="node-sub stxt" fill="#34d399">AWAKE</text>
+                <circle cx="120" cy="665" r="22" fill="#0f172a" stroke="#f59e0b" stroke-width="1.8"/>
+                <text x="120" y="669" class="node-label" font-size="8" fill="#fde68a">MONIE</text>
+                <text x="120" y="697" class="node-sub" font-size="7" fill="#fcd34d">Kapitalflüsse</text>
+                <text x="120" y="709" class="node-sub stxt" fill="#64748b">SLEEPING</text>
               </g>
               <g class="node" data-node="WW-EDU">
-                <circle cx="1160" cy="860" r="22" fill="#0f172a" stroke="#fbbf24" stroke-width="1.8"/>
-                <image href="./avatars/avatar-education.svg" x="1146" y="846" width="28" height="28" preserveAspectRatio="xMidYMid meet"/>
-                <text x="1160" y="892" class="node-sub" font-size="7" fill="#fde68a">EDUCATION</text>
-                <text x="1160" y="904" class="node-sub stxt" fill="#34d399">AWAKE</text>
+                <circle cx="250" cy="665" r="22" fill="#0f172a" stroke="#f59e0b" stroke-width="1.8"/>
+                <text x="250" y="669" class="node-label" font-size="8" fill="#fde68a">EDU</text>
+                <text x="250" y="697" class="node-sub" font-size="7" fill="#fcd34d">EDUCATION</text>
+                <text x="250" y="709" class="node-sub stxt" fill="#64748b">SLEEPING</text>
               </g>
               <g class="node" data-node="WW-OPTI">
-                <circle cx="1380" cy="860" r="22" fill="#0f172a" stroke="#fbbf24" stroke-width="1.8"/>
-                <image href="./avatars/avatar-optisteer.svg" x="1366" y="846" width="28" height="28" preserveAspectRatio="xMidYMid meet"/>
-                <text x="1380" y="892" class="node-sub" font-size="7" fill="#fde68a">Opti-Steer</text>
-                <text x="1380" y="904" class="node-sub stxt" fill="#34d399">AWAKE</text>
+                <circle cx="380" cy="665" r="22" fill="#0f172a" stroke="#f59e0b" stroke-width="1.8"/>
+                <text x="380" y="669" class="node-label" font-size="8" fill="#fde68a">OPTI</text>
+                <text x="380" y="697" class="node-sub" font-size="7" fill="#fcd34d">Opti-Steer</text>
+                <text x="380" y="709" class="node-sub stxt" fill="#64748b">SLEEPING</text>
               </g>
             </g>
 
-            <!-- RKW-SCOUTS (Rollen und Avatare, keine Klarnamen) -->
+            <!-- RKW-SCOUTS -->
             <g>
-              <rect x="220" y="920" width="1480" height="90" rx="14" fill="rgba(244,114,182,0.05)" stroke="#f472b6" stroke-width="1.3" stroke-dasharray="3,2"/>
-              <text x="960" y="938" class="label" fill="#f472b6" text-anchor="middle" font-size="11">RKW-SCOUTS • Codes und Rollen, keine Klarnamen</text>
+              <text x="250" y="748" class="label" fill="#818cf8" text-anchor="middle">RKW-SCOUTS</text>
+              <rect x="50" y="756" width="400" height="120" rx="14" fill="rgba(129,140,248,0.06)" stroke="#818cf8" stroke-width="1" stroke-dasharray="3,2"/>
               <g class="node" data-node="RKW-RI">
-                <circle cx="400" cy="976" r="20" fill="#0f172a" stroke="#f472b6" stroke-width="1.8"/>
-                <image href="./avatars/avatar-RI.jpg" x="388" y="964" width="24" height="24" preserveAspectRatio="xMidYMid slice"/>
-                <text x="400" y="1006" class="node-sub" font-size="7" fill="#fbcfe8">RI</text>
-                <text x="400" y="1016" class="node-sub stxt" fill="#34d399">AWAKE</text>
+                <circle cx="90" cy="810" r="20" fill="#0f172a" stroke="#818cf8" stroke-width="1.8"/>
+                <text x="90" y="814" class="node-label" font-size="9" fill="#c7d2fe">RI</text>
+                <text x="90" y="840" class="node-sub stxt" fill="#64748b">SLEEPING</text>
               </g>
               <g class="node" data-node="RKW-UC">
-                <circle cx="600" cy="976" r="20" fill="#0f172a" stroke="#f472b6" stroke-width="1.8"/>
-                <image href="./avatars/avatar-UC.jpg" x="588" y="964" width="24" height="24" preserveAspectRatio="xMidYMid slice"/>
-                <text x="600" y="1006" class="node-sub" font-size="7" fill="#fbcfe8">UC</text>
-                <text x="600" y="1016" class="node-sub stxt" fill="#34d399">AWAKE</text>
+                <circle cx="160" cy="810" r="20" fill="#0f172a" stroke="#818cf8" stroke-width="1.8"/>
+                <text x="160" y="814" class="node-label" font-size="9" fill="#c7d2fe">UC</text>
+                <text x="160" y="840" class="node-sub stxt" fill="#64748b">SLEEPING</text>
               </g>
               <g class="node" data-node="RKW-LLE">
-                <circle cx="800" cy="976" r="20" fill="#0f172a" stroke="#f472b6" stroke-width="1.8"/>
-                <image href="./avatars/avatar-LLE.jpg" x="788" y="964" width="24" height="24" preserveAspectRatio="xMidYMid slice"/>
-                <text x="800" y="1006" class="node-sub" font-size="7" fill="#fbcfe8">LLE</text>
-                <text x="800" y="1016" class="node-sub stxt" fill="#34d399">AWAKE</text>
+                <circle cx="230" cy="810" r="20" fill="#0f172a" stroke="#818cf8" stroke-width="1.8"/>
+                <text x="230" y="814" class="node-label" font-size="9" fill="#c7d2fe">LLE</text>
+                <text x="230" y="840" class="node-sub stxt" fill="#64748b">SLEEPING</text>
               </g>
               <g class="node" data-node="RKW-SAL">
-                <circle cx="1000" cy="976" r="20" fill="#0f172a" stroke="#f472b6" stroke-width="1.8"/>
-                <image href="./avatars/avatar-SAL.jpg" x="988" y="964" width="24" height="24" preserveAspectRatio="xMidYMid slice"/>
-                <text x="1000" y="1006" class="node-sub" font-size="7" fill="#fbcfe8">SAL</text>
-                <text x="1000" y="1016" class="node-sub stxt" fill="#34d399">AWAKE</text>
+                <circle cx="300" cy="810" r="20" fill="#0f172a" stroke="#818cf8" stroke-width="1.8"/>
+                <text x="300" y="814" class="node-label" font-size="9" fill="#c7d2fe">SAL</text>
+                <text x="300" y="840" class="node-sub stxt" fill="#64748b">SLEEPING</text>
               </g>
               <g class="node" data-node="RKW-ML">
-                <circle cx="1200" cy="976" r="20" fill="#0f172a" stroke="#f472b6" stroke-width="1.8"/>
-                <image href="./avatars/avatar-ML.jpg" x="1188" y="964" width="24" height="24" preserveAspectRatio="xMidYMid slice"/>
-                <text x="1200" y="1006" class="node-sub" font-size="7" fill="#fbcfe8">ML</text>
-                <text x="1200" y="1016" class="node-sub stxt" fill="#34d399">AWAKE</text>
+                <circle cx="370" cy="810" r="20" fill="#0f172a" stroke="#818cf8" stroke-width="1.8"/>
+                <text x="370" y="814" class="node-label" font-size="9" fill="#c7d2fe">ML</text>
+                <text x="370" y="840" class="node-sub stxt" fill="#64748b">SLEEPING</text>
               </g>
             </g>
 
             <!-- TRIGGERS -->
             <g>
               <g class="node" data-node="MANUAL" id="btnManual">
-                <rect x="760" y="1030" width="180" height="42" rx="8" fill="#1e293b" stroke="#34d399" stroke-width="1.8"/>
-                <text x="850" y="1047" class="node-label" font-size="11" fill="#34d399">Manual Trigger</text>
-                <text x="850" y="1062" class="node-sub" fill="#64748b">Klick oder Taste T</text>
+                <rect x="760" y="750" width="180" height="42" rx="8" fill="#1e293b" stroke="#34d399" stroke-width="1.8"/>
+                <text x="850" y="767" class="node-label" font-size="11" fill="#34d399">Manual Trigger</text>
+                <text x="850" y="782" class="node-sub" fill="#64748b">Klick oder Taste T</text>
               </g>
               <g class="node" data-node="AUTO" id="btnAuto">
-                <rect id="autoRect" x="980" y="1030" width="180" height="42" rx="8" fill="#1e293b" stroke="#a78bfa" stroke-width="1.8"/>
-                <text x="1070" y="1047" class="node-label" font-size="11" fill="#a78bfa" id="autoLabel">Auto Trigger</text>
-                <text x="1070" y="1062" class="node-sub" fill="#64748b" id="autoSub">AN • alle 60 s</text>
+                <rect id="autoRect" x="980" y="750" width="180" height="42" rx="8" fill="#1e293b" stroke="#a78bfa" stroke-width="1.8"/>
+                <text x="1070" y="767" class="node-label" font-size="11" fill="#a78bfa" id="autoLabel">Auto Trigger</text>
+                <text x="1070" y="782" class="node-sub" fill="#64748b" id="autoSub">AN • alle 60 s</text>
               </g>
             </g>
 
-            <text x="960" y="1082" text-anchor="middle" fill="#94a3b8" font-size="11">letzter Lauf: <tspan id="lastRunSvg" fill="#22d3ee" font-weight="600">–</tspan></text>
+            <text x="960" y="802" text-anchor="middle" fill="#94a3b8" font-size="11">letzter Lauf: <tspan id="lastRunSvg" fill="#22d3ee" font-weight="600">–</tspan></text>
 
             <!-- HOME NETWORK -->
-            <g transform="translate(960, 1140)">
+            <g transform="translate(960, 862)">
               <rect x="-340" y="-28" width="680" height="78" rx="10" fill="#0f172a" stroke="#334155" stroke-width="1"/>
               <text x="0" y="-8" class="label" fill="#64748b" text-anchor="middle">HEIMNETZ • MULTI-PC SYNC</text>
               <g class="node" data-node="PC-1">
@@ -593,13 +575,13 @@
 
             <!-- Footer -->
             <g>
-              <rect x="50" y="1210" width="1820" height="70" rx="8" fill="#0f172a" opacity="0.85"/>
-              <text x="90" y="1238" font-size="11" fill="#34d399">● AWAKE (aktiv, selbstlernend)</text>
-              <text x="420" y="1238" font-size="11" fill="#64748b">○ SLEEPING (ruhend, bereit für Trigger)</text>
-              <text x="860" y="1238" font-size="11" fill="#a78bfa">⟲ VAULTS &amp; SCHLEIFEN (Selbstverbesserung)</text>
-              <text x="1360" y="1238" font-size="11" fill="#22d3ee">⟺ MULTI-PC SYNC via grok-build-sync</text>
-              <text x="90" y="1260" font-size="10" fill="#2dd4bf">◆ MEDITEAM • Rollen und Codes, keine Gesundheitsdaten  ·  EVI nur auf Uwes Go  ·  RKW-Wegweiser und RKW-Scouts</text>
-              <text x="1830" y="1260" font-size="10" fill="#475569" text-anchor="end">Wallpaper v2 • Stand 26.11.2026</text>
+              <rect x="50" y="930" width="1820" height="70" rx="8" fill="#0f172a" opacity="0.85"/>
+              <text x="90" y="958" font-size="11" fill="#34d399">● AWAKE (aktiv, selbstlernend)</text>
+              <text x="420" y="958" font-size="11" fill="#64748b">○ SLEEPING (ruhend, bereit für Trigger)</text>
+              <text x="860" y="958" font-size="11" fill="#a78bfa">⟲ VAULTS &amp; SCHLEIFEN (Selbstverbesserung)</text>
+              <text x="1360" y="958" font-size="11" fill="#22d3ee">⟺ MULTI-PC SYNC via grok-build-sync</text>
+              <text x="90" y="980" font-size="10" fill="#2dd4bf">◆ MEDITEAM • Rosary Health, koordiniert von DOC  ·  KOORDINATION: Rollen und Codes, keine Gesundheitsdaten</text>
+              <text x="1830" y="980" font-size="10" fill="#475569" text-anchor="end">Wallpaper v2 • Stand 26.11.2026</text>
             </g>
           </svg>
           <div id="lastRunHud">letzter Lauf: <strong id="lastRun">–</strong></div>
@@ -611,7 +593,6 @@
   </div>
 
 <script type="application/json" id="embedded-state">
-
 {
   "version": 2,
   "generated": "2026-11-26",
@@ -808,12 +789,6 @@
       "updatedAt": 0,
       "by": ""
     },
-    "GB-MARVIN": {
-      "status": "awake",
-      "note": "Marvin ROSARYX · Raumfahrt-Robo-Bot",
-      "updatedAt": 0,
-      "by": ""
-    },
     "MT-ERN": {
       "status": "awake",
       "note": "MediTeam Ernährung",
@@ -838,81 +813,87 @@
       "updatedAt": 0,
       "by": ""
     },
-    "MT-AF": {
+    "GB-MARVIN": {
       "status": "awake",
+      "note": "Marvin ROSARYX · Raumfahrt-Robo-Bot, Ceres-Landeplätze, später Perry-Wiki/ASTRA",
+      "updatedAt": 0,
+      "by": ""
+    },
+    "MT-AF": {
+      "status": "sleeping",
       "note": "AlphaFold · MediTeam, nur technischer Rahmen, keine medizinische Auswertung, keine Gesundheitsdaten",
       "updatedAt": 0,
       "by": ""
     },
     "AF-KULT": {
-      "status": "awake",
-      "note": "AlphaFold-Kulturen · TechBio-Subagent, Standnotiz Kulturen/Bio2.0, kein Verkauf, keine medizinische Auswertung",
+      "status": "sleeping",
+      "note": "AlphaFold-Kulturen · Grok-Bot-Teammitglied, Standnotiz Kulturen/Bio2.0, kein Verkauf, keine medizinische Auswertung",
       "updatedAt": 0,
       "by": ""
     },
     "WW-DSCHUNGEL": {
-      "status": "awake",
-      "note": "Dschungelbuch · zentraler Wegweiser",
+      "status": "sleeping",
+      "note": "Dschungelbuch · zentraler Wegweiser, RKW-Cockpit",
       "updatedAt": 0,
       "by": ""
     },
     "WW-BALOO": {
-      "status": "awake",
-      "note": "Baloo · weiser Führer",
+      "status": "sleeping",
+      "note": "Baloo · weiser Führer, RKW-Cockpit",
       "updatedAt": 0,
       "by": ""
     },
     "WW-MOGLI": {
-      "status": "awake",
-      "note": "Mogli · Navigator",
+      "status": "sleeping",
+      "note": "Mogli · Navigator, RKW-Cockpit",
       "updatedAt": 0,
       "by": ""
     },
     "WW-MONIE": {
-      "status": "awake",
-      "note": "Monie · Kapitalflüsse (keine Kontodaten im öffentlichen Stand)",
+      "status": "sleeping",
+      "note": "Monie · Kapitalflüsse (keine Kontodaten im öffentlichen Stand), RKW-Cockpit",
       "updatedAt": 0,
       "by": ""
     },
     "WW-EDU": {
-      "status": "awake",
-      "note": "EDUCATION · Wissensamplifikation",
+      "status": "sleeping",
+      "note": "EDUCATION · Wissensamplifikation, RKW-Cockpit",
       "updatedAt": 0,
       "by": ""
     },
     "WW-OPTI": {
-      "status": "awake",
-      "note": "Opti-Steer · Prozessoptimierung",
+      "status": "sleeping",
+      "note": "Opti-Steer · Prozessoptimierung, RKW-Cockpit",
       "updatedAt": 0,
       "by": ""
     },
     "RKW-RI": {
-      "status": "awake",
-      "note": "RKW-Innovation",
+      "status": "sleeping",
+      "note": "RKW-Innovation · Scout, Wecken nur nach Ja",
       "updatedAt": 0,
       "by": ""
     },
     "RKW-UC": {
-      "status": "awake",
-      "note": "Uni-Campus",
+      "status": "sleeping",
+      "note": "Uni-Campus · Scout, Wecken nur nach Ja",
       "updatedAt": 0,
       "by": ""
     },
     "RKW-LLE": {
-      "status": "awake",
-      "note": "Live & Learn & Earn",
+      "status": "sleeping",
+      "note": "Live & Learn & Earn · Scout, Wecken nur nach Ja",
       "updatedAt": 0,
       "by": ""
     },
     "RKW-SAL": {
-      "status": "awake",
-      "note": "Sales-Channels",
+      "status": "sleeping",
+      "note": "Sales-Channels · Scout, Wecken nur nach Ja",
       "updatedAt": 0,
       "by": ""
     },
     "RKW-ML": {
-      "status": "awake",
-      "note": "MicroLiving",
+      "status": "sleeping",
+      "note": "MicroLiving · Scout, Wecken nur nach Ja",
       "updatedAt": 0,
       "by": ""
     }
@@ -957,24 +938,24 @@
     "GB-DATEN": "Daten-Scout — Datenanalysen, Agent-Search.",
     "GB-BUECHER": "Bücher-Scout — Lese-Impulse.",
     "GB-DOC": "DOC — Health & Longevity, Koordinator MediTeam.",
-    "GB-MARVIN": "Marvin ROSARYX — Raumfahrt-Robo-Bot.",
     "MT-ERN": "MediTeam Ernährung.",
     "MT-BEW": "MediTeam Bewegung & Gelenke.",
     "MT-SCHLAF": "MediTeam Schlaf.",
     "MT-EVI": "MediTeam Evidenzprüfer — nur auf Uwes Go, nicht automatisch wecken.",
-    "MT-AF": "AlphaFold — MediTeam, technischer Rahmen. Keine medizinische Auswertung, keine Gesundheitsdaten.",
-    "AF-KULT": "AlphaFold-Kulturen — TechBio-Subagent. Interne Standnotiz, kein Verkauf, keine medizinische Auswertung.",
-    "WW-DSCHUNGEL": "Dschungelbuch — zentraler Wegweiser.",
-    "WW-BALOO": "Baloo — weiser Führer.",
-    "WW-MOGLI": "Mogli — Navigator.",
-    "WW-MONIE": "Monie — Kapitalflüsse. Öffentlich nur Rolle, keine Kontodaten.",
-    "WW-EDU": "EDUCATION — Wissensamplifikation.",
-    "WW-OPTI": "Opti-Steer — Prozessoptimierung.",
-    "RKW-RI": "RKW-Innovation — Scout.",
-    "RKW-UC": "Uni-Campus — Scout.",
-    "RKW-LLE": "Live & Learn & Earn — Scout.",
-    "RKW-SAL": "Sales-Channels — Scout.",
-    "RKW-ML": "MicroLiving — Scout."
+    "MT-AF": "AlphaFold — MediTeam, nur technischer Rahmen, keine medizinische Auswertung, keine Gesundheitsdaten.",
+    "AF-KULT": "AlphaFold-Kulturen — Grok-Bot-Teammitglied, Standnotiz Kulturen/Bio2.0, kein Verkauf, keine medizinische Auswertung.",
+    "GB-MARVIN": "Marvin ROSARYX — Raumfahrt-Robo-Bot.",
+    "WW-DSCHUNGEL": "Dschungelbuch — zentraler Wegweiser, RKW-Cockpit.",
+    "WW-BALOO": "Baloo — weiser Führer, RKW-Cockpit.",
+    "WW-MOGLI": "Mogli — Navigator, RKW-Cockpit.",
+    "WW-MONIE": "Monie — Kapitalflüsse, ohne Kontodaten im öffentlichen Stand.",
+    "WW-EDU": "EDUCATION — Wissensamplifikation, RKW-Cockpit.",
+    "WW-OPTI": "Opti-Steer — Prozessoptimierung, RKW-Cockpit.",
+    "RKW-RI": "RKW-Innovation — Scout, Wecken nur nach Ja.",
+    "RKW-UC": "Uni-Campus — Scout, Wecken nur nach Ja.",
+    "RKW-LLE": "Live & Learn & Earn — Scout, Wecken nur nach Ja.",
+    "RKW-SAL": "Sales-Channels — Scout, Wecken nur nach Ja.",
+    "RKW-ML": "MicroLiving — Scout, Wecken nur nach Ja."
   };
 
   const EMBEDDED_ONLY = true;
@@ -1027,8 +1008,8 @@
         const raw = t.textContent.replace(/^(AWAKE|SLEEPING|SLEEP|SYNC)/, "");
         t.textContent = (awake ? "AWAKE" : "SLEEPING") + (raw && !/^(AWAKE|SLEEPING)/.test(t.textContent) ? raw : "");
         if (/^(AWAKE|SLEEPING)/.test(t.textContent) || t.classList.contains("stxt")) {
-          t.textContent = (id === "MT-EVI") ? "RUHEND" : (awake ? "AWAKE" : "SLEEPING");
-          t.setAttribute("fill", (id === "MT-EVI") ? "#64748b" : (awake ? "#34d399" : "#64748b"));
+          t.textContent = awake ? "AWAKE" : "SLEEPING";
+          t.setAttribute("fill", awake ? "#34d399" : "#64748b");
         }
       });
     });
@@ -1051,8 +1032,8 @@
     const n = state.nodes[id] || defaultNode();
     const card = document.getElementById("roleCard");
     document.getElementById("roleId").textContent = id;
-    const st = (id === "MT-EVI") ? "RUHEND · nur auf Uwes Go" : (n.status === "awake" ? "AWAKE" : "SLEEPING");
-    const cls = (id === "MT-EVI") ? "st-sleeping" : (n.status === "awake" ? "st-awake" : "st-sleeping");
+    const st = n.status === "awake" ? "AWAKE" : "SLEEPING";
+    const cls = n.status === "awake" ? "st-awake" : "st-sleeping";
     const when = n.updatedAt ? " · zuletzt " + fmt.format(new Date(n.updatedAt)) + (n.by ? " von " + n.by : "") : "";
     document.getElementById("roleMeta").innerHTML = 'Status: <span class="' + cls + '">' + st + "</span>" + when;
     document.getElementById("roleText").textContent = DESC[id] || n.note || "Rolle nicht hinterlegt.";
@@ -1112,7 +1093,7 @@
   function runPulse() {
     setLastRun(new Date());
     ripple();
-    const colors = { "p-sync": "#22d3ee", "p-ex": "#fbbf24", "p-dir": "#14b8a6", "p-koord": "#d4af37", "p-scouts": "#f472b6", "p-maps": "#14b8a6", "p-wiki": "#a78bfa", "p-medi": "#2dd4bf", "p-trig": "#34d399" };
+    const colors = { "p-sync": "#22d3ee", "p-ex": "#fbbf24", "p-dir": "#14b8a6", "p-koord": "#d4af37", "p-scouts": "#f472b6", "p-maps": "#14b8a6", "p-wiki": "#a78bfa", "p-medi": "#2dd4bf", "p-trig": "#34d399", "p-weg": "#f59e0b", "p-rkw": "#818cf8" };
     let i = 0;
     document.querySelectorAll("#pulsePaths path").forEach(path => {
       pulseAlong(path, i * 70, colors[path.id] || "#fbbf24");

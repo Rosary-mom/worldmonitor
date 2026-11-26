@@ -20,7 +20,10 @@ ROSARY-ATLAS ist ein lokal betriebenes, Obsidian-basiertes Multi-Agent-Orchester
 
 - **vault-graph.html** – Selbstständige, offline-fähige HTML-Datei mit interaktivem Force-Directed-Graph des Vaults (Stand 10.11.2026: 167 Notizen, 519 Verknüpfungen; Gruppen inkl. „Nachweise“, Timeline, Suche; Notiznamen anonymisiert).
 
-### Organigramm (Stand 10.11.2026)
+### Organigramm (Stand 26.11.2026)
+
+Öffentlich nur Rollen, Codes und Avatare, keine Klarnamen. Ergänzt: AlphaFold (MediTeam, technischer Rahmen), AlphaFold-Kulturen (TechBio), RKW-Wegweiser und RKW-Scouts. Der Evidenzprüfer ist ruhend und nur auf ausdrückliches Go eingebunden.
+
 
 - **organigramm-v2.html** – Organigramm v2 mit Koordination und MediTeam, manuelle und automatische Trigger – online: https://monitor.rosenkranz.eu.com/rosary-atlas/organigramm-v2.html
 - **organigramm-widget.html** – kompaktes, iframe-taugliches Widget (z. B. für rosary.center) – online: https://monitor.rosenkranz.eu.com/rosary-atlas/organigramm-widget.html

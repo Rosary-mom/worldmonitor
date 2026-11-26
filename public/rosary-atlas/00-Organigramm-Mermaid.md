@@ -60,3 +60,11 @@ graph TD
 ```
 
 *Organigramm – ROSARY-ATLAS V4 · Stand 09.10.2026*
+
+## Ergänzung 26.11.2026 (öffentliche Rollen, keine Klarnamen)
+
+- MediTeam: DOC, Ernährung, Bewegung & Gelenke, Schlaf, **AlphaFold** (technischer Rahmen). **Evidenzprüfer nur auf Uwes Go (ruhend).**
+- TechBio: **AlphaFold-Kulturen**.
+- RKW-Wegweiser: Dschungelbuch, Baloo, Mogli, Monie, EDUCATION, Opti-Steer (Cockpit bleibt L1).
+- RKW-Scouts: RI, UC, LLE, SAL, ML.
+

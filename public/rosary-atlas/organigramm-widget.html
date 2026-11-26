@@ -62,7 +62,7 @@
       <div class="status"><div class="dot"></div><span id="liveLabel">LIVE • eingebettete Daten</span></div>
     </header>
     <div class="body">
-      <svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ROSARY-ATLAS Organigramm Widget">
+      <svg viewBox="0 0 800 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ROSARY-ATLAS Organigramm Widget">
         <defs>
           <filter id="glowGold" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
@@ -154,10 +154,38 @@
             <text x="550" y="398" class="node-sub">Schlaf</text>
           </g>
           <g class="node" data-node="MT-EVI">
-            <circle cx="670" cy="358" r="26" fill="#0f172a" stroke="#2dd4bf" stroke-width="1.7"/>
-            <text x="670" y="356" class="node-label" font-size="11" fill="#ccfbf1">EVI</text>
-            <text x="670" y="398" class="node-sub">Evidenz</text>
+            <circle cx="670" cy="358" r="26" fill="#0f172a" stroke="#64748b" stroke-width="1.7" stroke-dasharray="3,2"/>
+            <text x="670" y="354" class="node-label" font-size="11" fill="#94a3b8">EVI</text>
+            <text x="670" y="398" class="node-sub" fill="#94a3b8">nur auf Uwes Go</text>
+            <text x="670" y="410" class="node-sub stxt" fill="#64748b">RUHEND</text>
           </g>
+          <g class="node" data-node="MT-AF">
+            <circle cx="250" cy="430" r="22" fill="#0f172a" stroke="#2dd4bf" stroke-width="1.7"/>
+            <text x="250" y="427" class="node-label" font-size="9" fill="#ccfbf1">AF</text>
+            <text x="250" y="456" class="node-sub">AlphaFold</text>
+          </g>
+          <g class="node" data-node="AF-KULT">
+            <circle cx="400" cy="430" r="22" fill="#0f172a" stroke="#c4b5fd" stroke-width="1.7"/>
+            <text x="400" y="427" class="node-label" font-size="8" fill="#e9d5ff">AF-K</text>
+            <text x="400" y="456" class="node-sub">Kulturen</text>
+          </g>
+        </g>
+        <g>
+          <text x="400" y="490" class="label" fill="#fbbf24" text-anchor="middle" font-size="10">RKW-WEGWEISER</text>
+          <g class="node" data-node="WW-DSCHUNGEL"><circle cx="80" cy="530" r="18" fill="#0f172a" stroke="#fbbf24" stroke-width="1.5"/><text x="80" y="534" class="node-label" font-size="7" fill="#fde68a">DSCH</text><text x="80" y="556" class="node-sub" font-size="6">Dschungelbuch</text></g>
+          <g class="node" data-node="WW-BALOO"><circle cx="200" cy="530" r="18" fill="#0f172a" stroke="#fbbf24" stroke-width="1.5"/><text x="200" y="534" class="node-label" font-size="7" fill="#fde68a">BALOO</text></g>
+          <g class="node" data-node="WW-MOGLI"><circle cx="320" cy="530" r="18" fill="#0f172a" stroke="#fbbf24" stroke-width="1.5"/><text x="320" y="534" class="node-label" font-size="7" fill="#fde68a">MOGLI</text></g>
+          <g class="node" data-node="WW-MONIE"><circle cx="440" cy="530" r="18" fill="#0f172a" stroke="#fbbf24" stroke-width="1.5"/><text x="440" y="534" class="node-label" font-size="7" fill="#fde68a">MONIE</text></g>
+          <g class="node" data-node="WW-EDU"><circle cx="560" cy="530" r="18" fill="#0f172a" stroke="#fbbf24" stroke-width="1.5"/><text x="560" y="534" class="node-label" font-size="7" fill="#fde68a">EDU</text></g>
+          <g class="node" data-node="WW-OPTI"><circle cx="680" cy="530" r="18" fill="#0f172a" stroke="#fbbf24" stroke-width="1.5"/><text x="680" y="534" class="node-label" font-size="7" fill="#fde68a">OPTI</text></g>
+        </g>
+        <g>
+          <text x="400" y="590" class="label" fill="#f472b6" text-anchor="middle" font-size="10">RKW-SCOUTS</text>
+          <g class="node" data-node="RKW-RI"><circle cx="160" cy="630" r="18" fill="#0f172a" stroke="#f472b6" stroke-width="1.5"/><text x="160" y="634" class="node-label" font-size="8" fill="#fbcfe8">RI</text></g>
+          <g class="node" data-node="RKW-UC"><circle cx="280" cy="630" r="18" fill="#0f172a" stroke="#f472b6" stroke-width="1.5"/><text x="280" y="634" class="node-label" font-size="8" fill="#fbcfe8">UC</text></g>
+          <g class="node" data-node="RKW-LLE"><circle cx="400" cy="630" r="18" fill="#0f172a" stroke="#f472b6" stroke-width="1.5"/><text x="400" y="634" class="node-label" font-size="8" fill="#fbcfe8">LLE</text></g>
+          <g class="node" data-node="RKW-SAL"><circle cx="520" cy="630" r="18" fill="#0f172a" stroke="#f472b6" stroke-width="1.5"/><text x="520" y="634" class="node-label" font-size="8" fill="#fbcfe8">SAL</text></g>
+          <g class="node" data-node="RKW-ML"><circle cx="640" cy="630" r="18" fill="#0f172a" stroke="#f472b6" stroke-width="1.5"/><text x="640" y="634" class="node-label" font-size="8" fill="#fbcfe8">ML</text></g>
         </g>
       </svg>
       <aside id="roleCard">
@@ -185,7 +213,20 @@
       "MT-ERN": "MediTeam Ernährung.",
       "MT-BEW": "MediTeam Bewegung & Gelenke.",
       "MT-SCHLAF": "MediTeam Schlaf.",
-      "MT-EVI": "MediTeam Evidenzprüfer."
+      "MT-EVI": "MediTeam Evidenzprüfer — nur auf Uwes Go, nicht automatisch wecken.",
+      "MT-AF": "AlphaFold — MediTeam, technischer Rahmen. Keine medizinische Auswertung, keine Gesundheitsdaten.",
+      "AF-KULT": "AlphaFold-Kulturen — TechBio-Subagent. Interne Standnotiz, kein Verkauf, keine medizinische Auswertung.",
+      "WW-DSCHUNGEL": "Dschungelbuch — zentraler Wegweiser.",
+      "WW-BALOO": "Baloo — weiser Führer.",
+      "WW-MOGLI": "Mogli — Navigator.",
+      "WW-MONIE": "Monie — Kapitalflüsse. Öffentlich nur Rolle, keine Kontodaten.",
+      "WW-EDU": "EDUCATION — Wissensamplifikation.",
+      "WW-OPTI": "Opti-Steer — Prozessoptimierung.",
+      "RKW-RI": "RKW-Innovation — Scout.",
+      "RKW-UC": "Uni-Campus — Scout.",
+      "RKW-LLE": "Live & Learn & Earn — Scout.",
+      "RKW-SAL": "Sales-Channels — Scout.",
+      "RKW-ML": "MicroLiving — Scout."
     };
     let autoOn = true;
     let roleTimer = null;
@@ -194,7 +235,7 @@
     function showRole(id) {
       const card = document.getElementById("roleCard");
       document.getElementById("roleId").textContent = id;
-      document.getElementById("roleMeta").textContent = "Status: AWAKE";
+      document.getElementById("roleMeta").textContent = (id === "MT-EVI") ? "Status: RUHEND · nur auf Uwes Go" : "Status: AWAKE";
       document.getElementById("roleText").textContent = DESC[id] || "Rolle nicht hinterlegt.";
       card.style.display = "block";
       clearTimeout(roleTimer);

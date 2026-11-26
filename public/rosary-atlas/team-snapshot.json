@@ -1,8 +1,8 @@
 {
-  "generated": "2026-11-23",
+  "generated": "2026-11-26",
   "timezone": "Europe/Berlin",
   "title": "Zusammenarbeit",
-  "note": "Statischer Snapshot vom 23.11.2026 (Europe/Berlin). Simulierte Übergaben erweckter Rollen, Subagents und Bots. Keine Klarnamen, keine Schlüssel. Enthält auch das RKW-Cockpit (Wegweiser durch den digitalen Dschungel) und die RKW-Scouts (Codes).",
+  "note": "Statischer Snapshot vom 26.11.2026 (Europe/Berlin). Öffentlich nur Rollen, Codes und Avatare, keine Klarnamen, keine Schlüssel. Evidenzprüfer nur auf Uwes Go (ruhend). Ergänzt: AlphaFold (MediTeam), AlphaFold-Kulturen, RKW-Wegweiser und RKW-Scouts.",
   "agents": [
     {
       "id": "GB-RDIR",
@@ -117,9 +117,9 @@
     {
       "id": "MT-EVI",
       "label": "Evidenzprüfer",
-      "role": "MediTeam",
+      "role": "Evidenzprüfer · nur auf Uwes Go",
       "kind": "subagent",
-      "status": "wach",
+      "status": "schläft",
       "avatar": "./avatars/avatar-evidenz.svg",
       "vaultId": "MediTeam/Evidenzpruefer.md",
       "cluster": "mediteam"
@@ -219,7 +219,7 @@
       "label": "RI",
       "role": "RKW-Innovation",
       "kind": "scout",
-      "status": "schläft",
+      "status": "wach",
       "avatar": "./avatars/avatar-RI.jpg",
       "vaultId": "RKW-Scouts/RI.md",
       "cluster": "rkw"
@@ -229,7 +229,7 @@
       "label": "UC",
       "role": "Uni-Campus",
       "kind": "scout",
-      "status": "schläft",
+      "status": "wach",
       "avatar": "./avatars/avatar-UC.jpg",
       "vaultId": "RKW-Scouts/UC.md",
       "cluster": "rkw"
@@ -239,7 +239,7 @@
       "label": "LLE",
       "role": "Live & Learn & Earn",
       "kind": "scout",
-      "status": "schläft",
+      "status": "wach",
       "avatar": "./avatars/avatar-LLE.jpg",
       "vaultId": "RKW-Scouts/LLE.md",
       "cluster": "rkw"
@@ -249,7 +249,7 @@
       "label": "SAL",
       "role": "Sales-Channels",
       "kind": "scout",
-      "status": "schläft",
+      "status": "wach",
       "avatar": "./avatars/avatar-SAL.jpg",
       "vaultId": "RKW-Scouts/SAL.md",
       "cluster": "rkw"
@@ -259,10 +259,30 @@
       "label": "ML",
       "role": "MicroLiving",
       "kind": "scout",
-      "status": "schläft",
+      "status": "wach",
       "avatar": "./avatars/avatar-ML.jpg",
       "vaultId": "RKW-Scouts/ML.md",
       "cluster": "rkw"
+    },
+    {
+      "id": "MT-AF",
+      "label": "AlphaFold",
+      "role": "MediTeam, technischer Rahmen",
+      "kind": "subagent",
+      "status": "wach",
+      "avatar": "./avatars/avatar-mediteam.svg",
+      "vaultId": "MediTeam/AlphaFold.md",
+      "cluster": "mediteam"
+    },
+    {
+      "id": "AF-KULT",
+      "label": "AlphaFold-Kulturen",
+      "role": "TechBio-Subagent",
+      "kind": "subagent",
+      "status": "wach",
+      "avatar": "./avatars/avatar-techbio.svg",
+      "vaultId": "Bio2.0-TechBio/AlphaFold-optimierte Kulturen Agent.md",
+      "cluster": "techbio"
     }
   ],
   "interactions": [

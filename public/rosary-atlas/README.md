@@ -18,7 +18,8 @@ ROSARY-ATLAS ist ein lokal betriebenes, Obsidian-basiertes Multi-Agent-Orchester
 
 ### Interaktiver Graph
 
-- **vault-graph.html** – Selbstständige, offline-fähige HTML-Datei mit interaktivem Force-Directed-Graph des Vaults (Stand 10.11.2026: 167 Notizen, 519 Verknüpfungen; Gruppen inkl. „Nachweise“, Timeline, Suche; Notiznamen anonymisiert).
+- **vault-graph.html** – Selbstständige, offline-fähige HTML-Datei mit interaktivem Force-Directed-Graph des Vaults (Stand 27.11.2026: 184 Notizen, 555 Verknüpfungen; Gruppen inkl. „Nachweise“, Timeline, Suche; Notiznamen anonymisiert; Ergänzung AlphaFold und AlphaFold-Kulturen).
+- **vault-graph-widget.html** – kompaktes, iframe-taugliches Widget (mobil ohne horizontales Scrollen) – online: https://monitor.rosenkranz.eu.com/rosary-atlas/vault-graph-widget.html
 
 ### Organigramm (Stand 26.11.2026)
 
